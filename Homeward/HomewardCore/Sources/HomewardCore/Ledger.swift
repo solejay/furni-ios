@@ -8,6 +8,7 @@ public struct Ledger: Codable, Hashable, Sendable {
     public var transfers: [Transfer]
     public var alerts: [RateAlert]
     public var scheduled: [ScheduledTransfer]
+    public var pots: [FamilyPot]
 
     public struct Profile: Codable, Hashable, Sendable {
         public var firstName: String
@@ -26,13 +27,26 @@ public struct Ledger: Codable, Hashable, Sendable {
     }
 
     public init(profile: Profile, wallet: Wallet = Wallet(), recipients: [Recipient] = [], transfers: [Transfer] = [],
-                alerts: [RateAlert] = [], scheduled: [ScheduledTransfer] = []) {
+                alerts: [RateAlert] = [], scheduled: [ScheduledTransfer] = [], pots: [FamilyPot] = []) {
         self.profile = profile
         self.wallet = wallet
         self.recipients = recipients
         self.transfers = transfers
         self.alerts = alerts
         self.scheduled = scheduled
+        self.pots = pots
+    }
+
+    // Decodes data saved before newer fields existed.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        profile = try container.decode(Profile.self, forKey: .profile)
+        wallet = try container.decode(Wallet.self, forKey: .wallet)
+        recipients = try container.decode([Recipient].self, forKey: .recipients)
+        transfers = try container.decode([Transfer].self, forKey: .transfers)
+        alerts = try container.decodeIfPresent([RateAlert].self, forKey: .alerts) ?? []
+        scheduled = try container.decodeIfPresent([ScheduledTransfer].self, forKey: .scheduled) ?? []
+        pots = try container.decodeIfPresent([FamilyPot].self, forKey: .pots) ?? []
     }
 
     public enum SendError: Error, Equatable, Sendable {
@@ -122,6 +136,20 @@ public struct Ledger: Codable, Hashable, Sendable {
         return recipients.sorted { (lastPaid[$0.id] ?? $0.createdAt) > (lastPaid[$1.id] ?? $1.createdAt) }
     }
 
+    /// Adds your share to a family pot. Balance-funded contributions are taken from the wallet.
+    @discardableResult
+    public mutating func contribute(toPot potID: UUID, amount: Money, funding: FundingSource,
+                                    engine: QuoteEngine, now: Date) throws -> FamilyPot.Contribution {
+        guard let index = pots.firstIndex(where: { $0.id == potID }),
+              let you = pots[index].members.first(where: \.isYou) else { throw FamilyPot.PotError.unknownMember }
+        if funding == .wallet && !wallet.canAfford(amount) {
+            throw SendError.insufficientFunds(available: wallet.balance(amount.currency))
+        }
+        let contribution = try pots[index].contribute(memberID: you.id, amount: amount, engine: engine, at: now)
+        if funding == .wallet { try? wallet.debit(amount) }
+        return contribution
+    }
+
     /// Total delivered to each recipient, in their currency.
     public func totalDelivered(to recipientID: UUID) -> Money? {
         let delivered = transfers.filter { $0.recipient.id == recipientID && $0.status == .delivered }
@@ -157,6 +185,32 @@ extension Ledger {
             return transfer
         }
 
+        // Eleven more months of history so "Your Year Home" has a year to tell.
+        let olderHistory: [Transfer] = [
+            delivered(200, to: mum, daysAgo: 64), delivered(450, to: tunde, daysAgo: 79),
+            delivered(200, to: mum, daysAgo: 95), delivered(90, to: ama, daysAgo: 110),
+            delivered(200, to: mum, daysAgo: 125), delivered(300, to: mum, daysAgo: 131),
+            delivered(200, to: mum, daysAgo: 156), delivered(80, to: wanjiru, daysAgo: 170),
+            delivered(200, to: mum, daysAgo: 186), delivered(650, to: mum, daysAgo: 201),
+            delivered(200, to: mum, daysAgo: 217), delivered(120, to: tunde, daysAgo: 240),
+            delivered(200, to: mum, daysAgo: 248), delivered(70, to: ama, daysAgo: 266),
+            delivered(200, to: mum, daysAgo: 278), delivered(200, to: mum, daysAgo: 309),
+            delivered(500, to: mum, daysAgo: 340),
+        ]
+
+        var pot = FamilyPot(
+            title: "Mum's 70th birthday", recipientID: mum.id, target: Money(1_500_000, .NGN),
+            members: [
+                .init(name: "You", city: "London", currency: .GBP, isYou: true),
+                .init(name: "Kemi", city: "Manchester", currency: .GBP),
+                .init(name: "Dayo", city: "Houston", currency: .USD),
+                .init(name: "Bisi", city: "Toronto", currency: .CAD),
+            ],
+            createdAt: now.addingTimeInterval(-6 * 86_400))
+        try? pot.contribute(memberID: pot.members[1].id, amount: Money(150, .GBP), engine: engine, at: now.addingTimeInterval(-5 * 86_400))
+        try? pot.contribute(memberID: pot.members[2].id, amount: Money(250, .USD), engine: engine, at: now.addingTimeInterval(-4 * 86_400))
+        try? pot.contribute(memberID: pot.members[3].id, amount: Money(200, .CAD), engine: engine, at: now.addingTimeInterval(-2 * 86_400))
+
         let calendar = Calendar(identifier: .gregorian)
         let firstOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: now))!
 
@@ -170,7 +224,7 @@ extension Ledger {
                 delivered(120, to: tunde, daysAgo: 16),
                 delivered(60, to: wanjiru, daysAgo: 22),
                 delivered(200, to: mum, daysAgo: 34),
-            ],
+            ] + olderHistory,
             alerts: [
                 RateAlert(source: .GBP, target: .NGN,
                           targetRate: ((rates.midMarketRate(from: .GBP, to: .NGN) ?? 2000) * Decimal(string: "1.02")!).rounded(scale: 0, mode: .up)),
@@ -179,7 +233,8 @@ extension Ledger {
                 ScheduledTransfer(title: "Mum's monthly allowance", recipientID: mum.id, sendAmount: Money(200, .GBP), target: .NGN,
                                   schedule: RecurringSchedule(frequency: .monthly(day: 1),
                                                               startDate: firstOfMonth.addingTimeInterval(9 * 3600))),
-            ]
+            ],
+            pots: [pot]
         )
     }
 }
