@@ -1,0 +1,1466 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>Homeward</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Onest:wght@400;500;600&display=swap">
+<style>
+/* Layout: a phone-width app column; on wide screens a notes column sits beside it. */
+:root {
+  --bg: #eef3f0; --surface: #ffffff; --surface-2: #e6eee9; --fg: #0f1f19; --muted: #56675f; --line: #d5e0da;
+  --brand: #086b4f; --brand-ink: #ffffff; --hero-a: #0a7a5a; --hero-b: #033d2e; --on-hero: #ffffff;
+  --sun: #f5a536; --good: #18834f; --warn: #b8620a; --bad: #be3a2c; --info: #2462a6;
+  --shadow: 0 1px 2px rgba(15,31,25,.06), 0 8px 24px rgba(15,31,25,.06);
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Onest", "Inter", "Segoe UI", system-ui, sans-serif;
+  --r-lg: 22px; --r-md: 14px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #08110e; --surface: #111d18; --surface-2: #1a2a23; --fg: #e4eee9; --muted: #92a69c; --line: #23352d;
+  --brand: #35c08f; --brand-ink: #04261b; --hero-a: #0d6a4f; --hero-b: #062a20; --on-hero: #ffffff;
+  --sun: #f7b04b; --good: #45c985; --warn: #f0a03c; --bad: #f2705f; --info: #73a9e6;
+  --shadow: 0 1px 2px rgba(0,0,0,.4); color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #08110e; --surface: #111d18; --surface-2: #1a2a23; --fg: #e4eee9; --muted: #92a69c; --line: #23352d;
+  --brand: #35c08f; --brand-ink: #04261b; --hero-a: #0d6a4f; --hero-b: #062a20; --on-hero: #ffffff;
+  --sun: #f7b04b; --good: #45c985; --warn: #f0a03c; --bad: #f2705f; --info: #73a9e6;
+  --shadow: 0 1px 2px rgba(0,0,0,.4); color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.45; padding-inline: 16px; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+
+.shell { display: flex; gap: 40px; justify-content: center; align-items: flex-start; padding-block: 16px 0; }
+.notes { display: none; max-width: 340px; position: sticky; top: calc(24px + env(safe-area-inset-top, 0px)); padding-top: 24px; }
+@media (min-width: 900px) { .notes { display: block; } }
+.notes h2 { font-size: 30px; font-weight: 800; color: var(--brand); }
+.notes p { color: var(--muted); }
+.notes ul { padding-left: 18px; display: grid; gap: 8px; }
+.notes li { color: var(--fg); }
+.notes li span { color: var(--muted); display: block; font-size: 13px; }
+.notes .eyebrow { margin-top: 24px; }
+
+.app { width: 100%; max-width: 430px; min-height: 100%; display: flex; flex-direction: column; position: relative; }
+@media (min-width: 900px) { .app { background: var(--bg); border: 1px solid var(--line); border-radius: 36px; padding: 0 16px; box-shadow: var(--shadow); min-height: 860px; margin-bottom: 24px; } }
+.screen { flex: 1; display: flex; flex-direction: column; gap: 18px; padding-bottom: 24px; }
+
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); display: flex; align-items: center; gap: 8px; min-height: 56px; padding-top: 4px; }
+.topbar h1 { font-size: 26px; font-weight: 800; flex: 1; min-width: 0; }
+.topbar h1.small { font-size: 18px; font-weight: 700; text-align: center; }
+.topbar .spacer { width: 40px; }
+.topbar .grow { flex: 1; min-width: 0; }
+.icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--surface); display: grid; place-items: center; box-shadow: var(--shadow); flex: none; }
+.icon-btn svg { width: 20px; height: 20px; }
+.text-btn { border: 0; background: none; color: var(--brand); font-weight: 600; padding: 8px 4px; }
+
+.eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: 11px; font-weight: 600; color: var(--muted); margin: 0; }
+.card { background: var(--surface); border-radius: var(--r-lg); padding: 16px; box-shadow: var(--shadow); }
+.section { display: grid; gap: 10px; }
+.section-head { display: flex; justify-content: space-between; align-items: baseline; }
+.section-head h2 { font-size: 19px; font-weight: 700; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.tiny { font-size: 11.5px; }
+.row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.row > .grow { flex: 1; min-width: 0; }
+.ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.hero { background: linear-gradient(140deg, var(--hero-a), var(--hero-b)); color: var(--on-hero); border-radius: 26px; padding: 20px; display: grid; gap: 16px; }
+.hero .label { opacity: .8; font-size: 13px; font-weight: 500; }
+.hero .amount { font-family: var(--display); font-size: clamp(32px, 10vw, 42px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; }
+.hero select { background: rgba(255,255,255,.16); color: var(--on-hero); border: 0; border-radius: 999px; padding: 6px 10px; }
+.hero select option { color: #0f1f19; }
+.hero .actions { display: flex; gap: 10px; }
+.pill-btn { border: 0; border-radius: 999px; min-height: 48px; padding: 0 18px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.pill-btn svg { width: 18px; height: 18px; }
+.pill-btn.white { background: #fff; color: #033d2e; flex: 1; }
+.pill-btn.ghost { background: rgba(255,255,255,.18); color: var(--on-hero); }
+
+.primary { width: 100%; min-height: 54px; border: 0; border-radius: 999px; background: var(--brand); color: var(--brand-ink); font-weight: 600; font-size: 16px; }
+.primary:disabled { background: var(--surface-2); color: var(--muted); cursor: not-allowed; }
+.secondary { width: 100%; min-height: 48px; border-radius: 999px; background: transparent; border: 1.5px solid var(--line); font-weight: 600; }
+.secondary.danger { color: var(--bad); }
+.cta-bar { position: sticky; bottom: 0; background: linear-gradient(to top, var(--bg) 70%, transparent); padding: 16px 0 calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 4; }
+
+.rate-big { font-family: var(--display); font-size: 26px; font-weight: 700; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 600; background: var(--surface-2); border: 0; }
+.chip.on { background: var(--brand); color: var(--brand-ink); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.trend-up { color: var(--good); } .trend-down { color: var(--warn); }
+.chart { width: 100%; height: 110px; display: block; }
+.chart text { fill: var(--muted); font-size: 10px; font-family: var(--body); }
+
+.avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-family: var(--display); font-weight: 700; position: relative; flex: none; }
+.avatar .flag { position: absolute; right: -3px; bottom: -3px; font-size: 14px; line-height: 1; }
+.avatar.lg { width: 60px; height: 60px; font-size: 20px; }
+.avatar.xl { width: 72px; height: 72px; font-size: 24px; }
+.quick { display: flex; gap: 16px; overflow-x: auto; padding: 2px 2px 6px; scrollbar-width: none; }
+.quick button { border: 0; background: none; display: grid; justify-items: center; gap: 6px; width: 64px; padding: 0; }
+.quick .avatar { width: 56px; height: 56px; font-size: 18px; }
+
+.list { display: grid; }
+.list > * + * { border-top: 1px solid var(--line); }
+.list-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border: 0; background: none; width: 100%; text-align: left; }
+.list-row .right { text-align: right; flex: none; }
+.status { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; }
+.badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.s-blue { color: var(--info); } .s-green { color: var(--good); } .s-orange { color: var(--warn); } .s-grey { color: var(--muted); } .s-purple { color: #8a5cd6; }
+.bg-blue { background: color-mix(in srgb, var(--info) 14%, transparent); } .bg-green { background: color-mix(in srgb, var(--good) 14%, transparent); }
+.bg-orange { background: color-mix(in srgb, var(--warn) 14%, transparent); } .bg-grey { background: var(--surface-2); } .bg-purple { background: color-mix(in srgb, #8a5cd6 14%, transparent); }
+.progress { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.progress > i { display: block; height: 100%; background: var(--brand); border-radius: 99px; transition: width .6s ease; }
+
+.amount-box { background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow); }
+.amount-row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
+.amount-row + .amount-row { border-top: 1px solid var(--line); }
+.amount-row label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); }
+.amount-row input { width: 100%; border: 0; background: none; font-family: var(--display); font-size: 30px; font-weight: 700; padding: 0; outline: none; font-variant-numeric: tabular-nums; }
+.cur-select { border: 0; background: var(--surface-2); border-radius: 999px; padding: 8px 12px; font-weight: 600; flex: none; }
+
+.kv { display: grid; gap: 9px; }
+.kv > div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.kv dt { color: var(--muted); } .kv dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.kv .note { display: block; font-size: 11px; color: var(--muted); opacity: .8; }
+.kv .total dt, .kv .total dd { color: var(--fg); font-weight: 600; }
+hr.div { border: 0; border-top: 1px solid var(--line); margin: 2px 0; width: 100%; }
+
+.notice { border-radius: var(--r-md); padding: 12px 14px; font-size: 13.5px; display: flex; gap: 10px; align-items: flex-start; }
+.notice svg { width: 18px; height: 18px; flex: none; margin-top: 1px; }
+.notice.warn { background: color-mix(in srgb, var(--warn) 12%, transparent); color: var(--warn); }
+.notice.good { background: color-mix(in srgb, var(--good) 12%, transparent); color: var(--good); }
+.notice.bad { background: color-mix(in srgb, var(--bad) 12%, transparent); color: var(--bad); }
+.notice.sun { background: color-mix(in srgb, var(--sun) 16%, transparent); color: var(--fg); }
+
+.field { display: grid; gap: 6px; }
+.field label { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.field input, .field select { width: 100%; border: 1.5px solid var(--line); background: var(--surface); border-radius: 12px; padding: 12px 14px; outline: none; }
+.field input:focus, .field select:focus { border-color: var(--brand); }
+.seg { display: flex; background: var(--surface-2); border-radius: 12px; padding: 3px; }
+.seg button { flex: 1; border: 0; background: none; border-radius: 10px; padding: 8px; font-weight: 600; font-size: 13.5px; color: var(--muted); }
+.seg button.on { background: var(--surface); color: var(--fg); box-shadow: var(--shadow); }
+.form { display: grid; gap: 14px; }
+.toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.switch { width: 50px; height: 30px; border-radius: 99px; background: var(--surface-2); border: 0; position: relative; flex: none; transition: background .2s; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
+.switch[aria-checked="true"] { background: var(--brand); }
+.switch[aria-checked="true"]::after { transform: translateX(20px); }
+
+.option { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r-md); padding: 12px 14px; }
+.option.on { border-color: var(--brand); }
+.option:disabled { opacity: .55; cursor: not-allowed; }
+.radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--line); flex: none; display: grid; place-items: center; }
+.option.on .radio { border-color: var(--brand); }
+.option.on .radio::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--brand); }
+
+.lock { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; font-weight: 600; color: var(--brand); }
+.lock svg { width: 15px; height: 15px; }
+.lock.expired { color: var(--warn); }
+
+.timeline { display: grid; }
+.step { display: grid; grid-template-columns: 26px 1fr; gap: 12px; }
+.step .rail { display: grid; justify-items: center; grid-template-rows: 26px 1fr; }
+.step .dot { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; }
+.step .dot svg { width: 14px; height: 14px; }
+.step .line { width: 2px; background: var(--line); min-height: 24px; }
+.step.done .dot { background: var(--brand); color: var(--brand-ink); }
+.step.done .line { background: var(--brand); }
+.step.current .dot { border: 2px solid var(--brand); }
+.step.current .dot::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--brand); animation: pulse 1.2s ease-in-out infinite; }
+.step.upcoming .dot { border: 2px solid var(--line); }
+.step.problem .dot { background: var(--warn); color: #fff; }
+.step .body { padding-bottom: 16px; min-width: 0; }
+.step.upcoming .title { color: var(--muted); font-weight: 400; }
+.step .title { font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
+@keyframes pulse { 50% { transform: scale(.6); opacity: .5; } }
+
+.tabbar { position: sticky; bottom: 0; z-index: 6; display: grid; grid-template-columns: repeat(4, 1fr); background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(12px); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); margin-inline: -16px; }
+@media (min-width: 900px) { .tabbar { border-radius: 0 0 36px 36px; } }
+.tabbar button { border: 0; background: none; display: grid; justify-items: center; gap: 2px; padding: 9px 0 10px; font-size: 11px; font-weight: 600; color: var(--muted); position: relative; }
+.tabbar button svg { width: 22px; height: 22px; }
+.tabbar button.on { color: var(--brand); }
+.tabbar .count { position: absolute; top: 4px; left: calc(50% + 6px); background: var(--bad); color: #fff; border-radius: 99px; font-size: 10px; padding: 0 5px; line-height: 16px; }
+
+.toast { position: fixed; left: 50%; top: calc(12px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); z-index: 30; width: min(400px, calc(100% - 32px)); background: var(--surface); border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,.18); padding: 12px 14px; display: flex; align-items: center; gap: 12px; animation: drop .35s ease; }
+@keyframes drop { from { transform: translate(-50%, -20px); opacity: 0; } }
+.toast svg { width: 24px; height: 24px; color: var(--sun); flex: none; }
+.sheet-backdrop { position: fixed; inset: 0; background: rgba(4,14,10,.45); z-index: 20; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: var(--bg); width: 100%; max-width: 460px; border-radius: 24px 24px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 14px; max-height: 88%; overflow-y: auto; animation: rise .25s ease; }
+@keyframes rise { from { transform: translateY(40px); opacity: .4; } }
+.sheet h3 { font-size: 20px; }
+.empty { text-align: center; padding: 36px 16px; color: var(--muted); }
+details.faq { border-top: 1px solid var(--line); padding: 10px 0; }
+details.faq summary { font-weight: 600; cursor: pointer; }
+.search { width: 100%; border: 0; background: var(--surface); box-shadow: var(--shadow); border-radius: 12px; padding: 11px 14px; outline: none; }
+.center { text-align: center; display: grid; justify-items: center; gap: 6px; }
+.big-amount { font-family: var(--display); font-size: 34px; font-weight: 800; letter-spacing: -0.02em; }
+.strike { text-decoration: line-through; opacity: .7; }
+.spinner { width: 18px; height: 18px; border: 2.5px solid var(--line); border-top-color: var(--brand); border-radius: 50%; animation: spin .8s linear infinite; display: inline-block; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.weather { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-radius: var(--r-md); background: var(--surface-2); }
+.weather .sky { font-size: 30px; line-height: 1; }
+.ring { display: block; }
+.pot-dots { display: flex; }
+.pot-dots span { width: 22px; height: 22px; border-radius: 50%; color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; border: 2px solid var(--surface); margin-left: -6px; }
+.pot-dots span:first-child { margin-left: 0; }
+.legend { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.postcard-img { width: 100%; max-width: 340px; border-radius: 22px; box-shadow: 0 14px 34px rgba(0,0,0,.22); justify-self: center; }
+.feature { display: flex; gap: 14px; align-items: center; width: 100%; text-align: left; border: 0; }
+.feature .icon { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; flex: none; }
+.still, .still * { animation: none !important; }
+#story:empty { display: none; }
+.story { position: fixed; inset: 0; z-index: 40; color: #fff; display: flex; flex-direction: column; justify-content: flex-end; gap: 16px; padding: 28px 24px calc(72px + env(safe-area-inset-bottom, 0px)); overflow: hidden; cursor: pointer; user-select: none; }
+.story .orb { position: absolute; width: 520px; height: 520px; border-radius: 50%; background: rgba(255,255,255,.08); top: -200px; right: -220px; pointer-events: none; }
+.story .bars { position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); left: 12px; right: 12px; display: flex; gap: 4px; }
+.story .bars i { flex: 1; height: 3px; background: rgba(255,255,255,.3); border-radius: 2px; overflow: hidden; }
+.story .bars i b { display: block; height: 100%; width: 0; background: #fff; }
+.story .bars i.done b { width: 100%; }
+.story .bars i.now b { animation: fill 5s linear forwards; }
+@keyframes fill { to { width: 100%; } }
+.story .close { position: absolute; top: calc(26px + env(safe-area-inset-top, 0px)); right: 14px; width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(255,255,255,.18); color: #fff; font-size: 18px; }
+.story .kicker { text-transform: uppercase; letter-spacing: .16em; font-size: 12px; font-weight: 700; opacity: .8; }
+.story .big { font-family: var(--display); font-size: clamp(40px, 12vw, 64px); font-weight: 800; line-height: 1.02; letter-spacing: -.03em; animation: up .6s ease both; overflow-wrap: anywhere; }
+.story .detail { font-size: 19px; line-height: 1.4; opacity: .92; max-width: 30ch; animation: up .6s .12s ease both; }
+.story .hint { position: absolute; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); left: 24px; font-size: 12px; opacity: .6; }
+@keyframes up { from { transform: translateY(24px); opacity: 0; } }
+#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 50; width: 100%; height: 100%; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="shell">
+  <aside class="notes" aria-label="About this prototype">
+    <p class="eyebrow">Interactive prototype</p>
+    <h2>Homeward</h2>
+    <p>Sending money home without the guesswork. This is a clickable version of the SwiftUI app; the pricing, validation and tracking rules match the tested Swift core.</p>
+    <p class="eyebrow">What's different</p>
+    <ul>
+      <li>No hidden markup<span>Mid-market rate, 0.4% margin and fee on every quote.</span></li>
+      <li>Rate locked for 30 minutes<span>Countdown on the review screen.</span></li>
+      <li>Name check before you send<span>Account checksum, then the account holder's name.</span></li>
+      <li>Live tracker<span>Timestamps, ETA, free cancel until payout, automatic refunds.</span></li>
+      <li>Limits shown up front<span>Never halfway through a transfer.</span></li>
+    </ul>
+    <p class="eyebrow">Try this</p>
+    <ul>
+      <li>Send £200 to Nigeria, then open the comparison.</li>
+      <li>Add a GTBank recipient with <b class="num">2201456785</b> (wrong check digit), then fix it to <b class="num">2201456784</b>.</li>
+      <li>Use an account number containing <b class="num">999</b> to see the name-mismatch warning.</li>
+      <li>Pay from balance, then cancel before delivery.</li>
+      <li>Open <b>Mum's 70th birthday</b>, add your share and send the pot home.</li>
+      <li>Open a delivered transfer and make a postcard.</li>
+      <li>Tap <b>Your year home</b>.</li>
+    </ul>
+    <p class="tiny muted">Sample rates. No real money moves.</p>
+  </aside>
+  <main class="app" id="app" aria-live="polite"></main>
+</div>
+<div id="overlay"></div>
+<div id="story"></div>
+<canvas id="confetti" hidden></canvas>
+
+<script>
+"use strict";
+// ---------- Money & currencies ----------
+const CUR = {
+  GBP: { sym: "£", flag: "🇬🇧", name: "British Pound" }, EUR: { sym: "€", flag: "🇪🇺", name: "Euro" },
+  USD: { sym: "$", flag: "🇺🇸", name: "US Dollar" }, CAD: { sym: "CA$", flag: "🇨🇦", name: "Canadian Dollar" },
+  NGN: { sym: "₦", flag: "🇳🇬", name: "Nigerian Naira" }, GHS: { sym: "GH₵", flag: "🇬🇭", name: "Ghanaian Cedi" },
+  KES: { sym: "KSh", flag: "🇰🇪", name: "Kenyan Shilling" }, INR: { sym: "₹", flag: "🇮🇳", name: "Indian Rupee" },
+};
+const SEND = ["GBP", "EUR", "USD", "CAD"], RECV = ["NGN", "GHS", "KES", "INR"];
+const COUNTRY = {
+  NG: { name: "Nigeria", cur: "NGN", methods: ["bank"] }, GH: { name: "Ghana", cur: "GHS", methods: ["momo", "bank"] },
+  KE: { name: "Kenya", cur: "KES", methods: ["mpesa"] }, IN: { name: "India", cur: "INR", methods: ["bank", "upi"] },
+};
+const countryOf = cur => Object.keys(COUNTRY).find(k => COUNTRY[k].cur === cur);
+const METHOD_TITLE = { bank: "Bank account", momo: "Mobile money", mpesa: "M-Pesa", upi: "UPI" };
+const EPS = 1e-9;
+const floor2 = x => Math.floor(x * 100 + EPS) / 100;
+const ceil2 = x => Math.ceil(x * 100 - EPS) / 100;
+const round2 = x => Math.round(x * 100) / 100;
+const fmtNum = (x, d = 2) => Number(x).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const money = (amt, cur, compact) => {
+  const whole = Math.abs(amt - Math.round(amt)) < EPS;
+  return CUR[cur].sym + fmtNum(amt, compact && whole ? 0 : 2);
+};
+const shortMoney = (amt, cur) => amt >= 1e6 ? CUR[cur].sym + (amt / 1e6).toFixed(2) + "M" : amt >= 1e4 ? CUR[cur].sym + Math.floor(amt / 1e3) + "k" : money(amt, cur, true);
+const fmtRate = r => r < 0.01 ? fmtNum(r, 6) : r < 100 ? fmtNum(r, 4) : fmtNum(r, 2);
+const pct = (f, d = 2) => (f * 100).toFixed(d) + "%";
+const parseAmt = s => { const c = String(s).replace(/,/g, "").trim(); return /^\d*\.?\d+$|^\d+\.$/.test(c) ? parseFloat(c) : NaN; };
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// ---------- Rates (sample, gently drifting) ----------
+const BASE = { USD: 1, GBP: 0.745, EUR: 0.856, CAD: 1.385, NGN: 1532.40, GHS: 12.05, KES: 129.20, INR: 87.95 };
+let RATES = { ...BASE }, ratesAt = Date.now();
+function driftRates() {
+  const t = Date.now() / 1000;
+  RECV.forEach((c, i) => { RATES[c] = BASE[c] * (1 + 0.0025 * Math.sin(t / 47 + i * 1.7)); });
+  ratesAt = Date.now();
+}
+const mid = (a, b) => a === b ? 1 : Math.round((RATES[b] / RATES[a]) * 1e8) / 1e8;
+
+// ---------- Pricing (mirrors HomewardCore.QuoteEngine) ----------
+const MARGIN = 0.004, LOCK_MS = 30 * 60 * 1000;
+const FEE = { GBP: 0.99, EUR: 0.99, USD: 1.49, CAD: 1.99 }, WAIVE = { GBP: 250, EUR: 300, USD: 300, CAD: 400 };
+const MIN = { GBP: 5, EUR: 5, USD: 5, CAD: 10 }, MAX = { GBP: 25000, EUR: 30000, USD: 30000, CAD: 40000 };
+const custRate = (s, t) => Math.floor(mid(s, t) * (1 - MARGIN) * 1e6) / 1e6;
+function quoteSend(amount, s, t) {
+  if (amount < MIN[s]) throw new Error(`The minimum transfer is ${money(MIN[s], s, true)}.`);
+  if (amount > MAX[s]) throw new Error(`The maximum single transfer is ${money(MAX[s], s, true)}.`);
+  const fee = amount >= WAIVE[s] ? 0 : FEE[s];
+  const conv = round2(amount - fee);
+  if (conv <= 0) throw new Error(`Amount must be more than the ${money(fee, s)} fee.`);
+  const m = mid(s, t), c = custRate(s, t), now = Date.now();
+  const marginCost = ceil2(conv * MARGIN);
+  return { send: round2(amount), fee, conv, mid: m, rate: c, recv: floor2(conv * c), s, t, marginCost,
+    totalCost: round2(fee + marginCost), createdAt: now, expiresAt: now + LOCK_MS };
+}
+function quoteReceive(recv, s, t) {
+  const c = custRate(s, t), conv = ceil2(recv / c);
+  const fee = conv >= WAIVE[s] ? 0 : FEE[s];
+  let send = round2(conv + fee);
+  if (fee > 0 && send >= WAIVE[s]) send = Math.max(conv, WAIVE[s]);
+  let q = quoteSend(send, s, t), tries = 0;
+  while (q.recv < recv - EPS && tries++ < 5) { send = round2(send + 0.01); q = quoteSend(send, s, t); }
+  return q;
+}
+const BENCH = [{ name: "Typical high-street bank", margin: 0.035, feeUSD: 15 }, { name: "Typical money-transfer app", margin: 0.018, feeUSD: 2.99 }];
+const compare = q => BENCH.map(b => {
+  const fee = b.feeUSD * mid("USD", q.s), recv = floor2(Math.max(0, q.send - fee) * q.mid * (1 - b.margin));
+  return { name: b.name, recv, extra: Math.max(0, round2(q.recv - recv)) };
+});
+
+// ---------- Validation (mirrors HomewardCore.PayoutValidator) ----------
+const BANKS = [["044","Access Bank"],["023","Citibank Nigeria"],["050","Ecobank Nigeria"],["070","Fidelity Bank"],["011","First Bank of Nigeria"],["214","First City Monument Bank"],["058","Guaranty Trust Bank"],["030","Heritage Bank"],["082","Keystone Bank"],["076","Polaris Bank"],["221","Stanbic IBTC Bank"],["068","Standard Chartered"],["232","Sterling Bank"],["032","Union Bank"],["033","United Bank for Africa"],["035","Wema Bank"],["057","Zenith Bank"],["50211","Kuda Microfinance Bank"],["50515","Moniepoint Microfinance Bank"],["999992","OPay"],["100004","PalmPay"]];
+const bankName = code => (BANKS.find(b => b[0] === code) || [, "Bank"])[1];
+const NETWORKS = { mtn: { title: "MTN MoMo", prefixes: ["024","025","053","054","055","059"] }, telecel: { title: "Telecel Cash", prefixes: ["020","050"] }, at: { title: "AT Money", prefixes: ["026","027","056","057"] } };
+function nubanCheck(code, serial) {
+  const w = [3,7,3,3,7,3,3,7,3,3,7,3], s = code + serial;
+  if (code.length !== 3 || serial.length !== 9 || !/^\d+$/.test(s)) return null;
+  let sum = 0; for (let i = 0; i < 12; i++) sum += +s[i] * w[i];
+  return (10 - sum % 10) % 10;
+}
+const ghLocal = p => { let d = p.replace(/\D/g, ""); if (d.startsWith("233")) d = "0" + d.slice(3); else if (d.length === 9) d = "0" + d; return d.length === 10 && d[0] === "0" ? d : null; };
+const ghNetwork = p => { const l = ghLocal(p); if (!l) return null; return Object.keys(NETWORKS).find(k => NETWORKS[k].prefixes.includes(l.slice(0, 3))) || null; };
+const keLocal = p => { let d = p.replace(/\D/g, ""); if (d.startsWith("254")) d = d.slice(3); else if (d.startsWith("0")) d = d.slice(1); return d.length === 9 && /^[71]/.test(d) ? "254" + d : null; };
+// Returns { msg, kind } or null when valid. kind "soft" issues are only shown once the field looks finished.
+function validate(p) {
+  const digits = (p.account || "").replace(/\s/g, "");
+  if (p.type === "ng") {
+    if (!BANKS.some(b => b[0] === p.bank)) return { msg: "Choose a bank.", kind: "soft" };
+    if (!digits) return { msg: "Enter the account number.", kind: "soft" };
+    if (!/^\d+$/.test(digits)) return { msg: "The account number should only contain digits." };
+    if (digits.length !== 10) return { msg: "The account number should be 10 digits.", kind: digits.length > 10 ? "" : "soft" };
+    if (p.bank.length === 3 && nubanCheck(p.bank, digits.slice(0, 9)) !== +digits[9]) return { msg: "This account number doesn't match the bank selected. Check for a mistyped digit." };
+    return null;
+  }
+  if (p.type === "ghBank") {
+    if (!p.bankName?.trim()) return { msg: "Enter the bank name.", kind: "soft" };
+    if (!digits) return { msg: "Enter the account number.", kind: "soft" };
+    if (!/^\d{10,16}$/.test(digits)) return { msg: "The account number should be 10–16 digits.", kind: digits.length >= 10 ? "" : "soft" };
+    return null;
+  }
+  if (p.type === "momo") {
+    if (!p.phone?.trim()) return { msg: "Enter the phone number.", kind: "soft" };
+    if (!ghLocal(p.phone)) return { msg: "Check the phone number, e.g. 024 123 4567.", kind: p.phone.replace(/\D/g, "").length >= 10 ? "" : "soft" };
+    const n = ghNetwork(p.phone);
+    if (n !== p.network) return { msg: n ? `This looks like a ${NETWORKS[n].title} number, not ${NETWORKS[p.network].title}.` : `This number doesn't belong to ${NETWORKS[p.network].title}.` };
+    return null;
+  }
+  if (p.type === "mpesa") {
+    if (!p.phone?.trim()) return { msg: "Enter the phone number.", kind: "soft" };
+    return keLocal(p.phone) ? null : { msg: "Check the M-Pesa number, e.g. 0712 345 678.", kind: p.phone.replace(/\D/g, "").length >= 10 ? "" : "soft" };
+  }
+  if (p.type === "inBank") {
+    if (!p.ifsc) return { msg: "Enter the IFSC code.", kind: "soft" };
+    if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(p.ifsc.toUpperCase())) return { msg: "Check the IFSC code, e.g. HDFC0001234.", kind: p.ifsc.length >= 11 ? "" : "soft" };
+    if (!digits) return { msg: "Enter the account number.", kind: "soft" };
+    if (!/^\d{9,18}$/.test(digits)) return { msg: "The account number should be 9–18 digits.", kind: digits.length > 18 || /\D/.test(digits) ? "" : "soft" };
+    return null;
+  }
+  if (p.type === "upi") {
+    if (!p.vpa?.trim()) return { msg: "Enter the UPI ID.", kind: "soft" };
+    return /^[A-Za-z0-9._-]{2,256}@[A-Za-z]{2,}$/.test(p.vpa.trim()) ? null : { msg: "Check the UPI ID, e.g. name@okbank.", kind: p.vpa.includes("@") ? "" : "soft" };
+  }
+  return { msg: "Unsupported details." };
+}
+function payoutSummary(p) {
+  const last = (s, n) => String(s).replace(/\s/g, "").slice(-n);
+  switch (p.type) {
+    case "ng": return `${bankName(p.bank)} ·· ${last(p.account, 4)}`;
+    case "ghBank": return `${p.bankName} ·· ${last(p.account, 4)}`;
+    case "momo": return `${NETWORKS[p.network].title} ·· ${last(p.phone, 3)}`;
+    case "mpesa": return `M-Pesa ·· ${last(p.phone, 3)}`;
+    case "inBank": return `${p.ifsc.slice(0, 4).toUpperCase()} ·· ${last(p.account, 4)}`;
+    case "upi": return p.vpa;
+  }
+}
+const payoutKey = p => JSON.stringify([p.type, p.bank, (p.account || "").replace(/\s/g, ""), p.network, (p.phone || "").replace(/\D/g, ""), (p.ifsc || "").toUpperCase(), p.vpa, p.bankName]);
+const deliveryEstimate = (p, funding) => {
+  const extra = funding === "bank" ? 10 : 0;
+  if (["ng", "mpesa", "momo", "upi"].includes(p.type)) return { mins: 5 + extra, label: funding === "bank" ? "Usually within 15 minutes" : "Usually within 5 minutes" };
+  if (p.type === "ghBank") return { mins: 240 + extra, label: "Usually within 4 hours" };
+  return { mins: 120 + extra, label: "Usually within 2 hours" };
+};
+
+// ---------- Name matching ----------
+const tokens = n => String(n).normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().split(/[^A-Z]+/).filter(Boolean);
+function nameVerdict(entered, verified) {
+  const typed = tokens(entered), actual = tokens(verified);
+  if (!typed.length || !actual.length) return "mismatch";
+  const fuzzy = (a, b) => { if (a === b) return true; const [s, l] = a.length <= b.length ? [a, b] : [b, a]; return (s.length === 1 || s.length >= 3) && l.startsWith(s); };
+  const rest = [...actual]; let exact = 0, fz = 0;
+  for (const w of typed) {
+    let i = rest.indexOf(w);
+    if (i >= 0) { exact++; rest.splice(i, 1); continue; }
+    i = rest.findIndex(a => fuzzy(w, a));
+    if (i >= 0) { fz++; rest.splice(i, 1); }
+  }
+  if (exact === typed.length && exact >= Math.min(2, actual.length)) return "match";
+  if (exact + fz >= 1 && (exact >= 1 || fz >= 2)) return "partial";
+  return "mismatch";
+}
+
+// ---------- Transfers ----------
+const STATUS = {
+  awaiting: { title: "Waiting for your payment", cls: "blue", progress: .15 }, processing: { title: "Converting your money", cls: "blue", progress: .45 },
+  sent: { title: "On its way", cls: "blue", progress: .8 }, delivered: { title: "Delivered", cls: "green", progress: 1 },
+  cancelled: { title: "Cancelled", cls: "grey", progress: 1 }, failed: { title: "Needs attention", cls: "orange", progress: 1 },
+  refunded: { title: "Refunded", cls: "purple", progress: 1 },
+};
+const NEXT = { awaiting: ["processing", "cancelled", "failed"], processing: ["sent", "refunded", "failed"], sent: ["delivered", "failed"], failed: ["refunded", "processing"], delivered: [], cancelled: [], refunded: [] };
+const inFlight = s => ["awaiting", "processing", "sent"].includes(s);
+const FUNDING = { wallet: "Homeward balance", bank: "Bank transfer", card: "Debit card" };
+const fundingInline = k => k === "wallet" ? FUNDING[k] : FUNDING[k].toLowerCase();
+const PURPOSES = ["Family support", "School fees", "Medical", "Savings", "Gift", "Bills & rent", "Business"];
+const uid = () => Math.random().toString(36).slice(2, 10);
+const makeRef = () => "HW-" + Array.from({ length: 6 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
+function advance(t, to, at, note) {
+  if (!NEXT[t.status].includes(to)) throw new Error(`Can't go from ${t.status} to ${to}`);
+  t.status = to; t.events.push({ status: to, at, note });
+  if (to === "delivered") t.payoutRef = "PO" + t.ref.slice(3) + String(Math.floor(at / 1000) % 100000);
+}
+const dateOf = (t, s) => { for (let i = t.events.length - 1; i >= 0; i--) if (t.events[i].status === s) return t.events[i].at; return null; };
+function trackingSteps(t) {
+  const first = t.recipient.name.split(" ")[0];
+  const path = [
+    ["awaiting", "Transfer created", `Rate locked at ${fmtRate(t.quote.rate)} ${t.quote.t}`],
+    ["processing", "Payment received", `${money(t.quote.send, t.quote.s)} from your ${fundingInline(t.funding)}`],
+    ["sent", `Sent to ${payoutSummary(t.recipient.payout)}`, `Converted to ${money(t.quote.recv, t.quote.t)}`],
+    ["delivered", `Delivered to ${first}`, t.payoutRef ? `Payout reference ${t.payoutRef}` : null],
+  ];
+  if (t.status === "cancelled" || t.status === "refunded") {
+    const steps = path.filter(p => dateOf(t, p[0])).map(p => ({ title: p[1], detail: p[2], state: "done", at: dateOf(t, p[0]) }));
+    const last = t.events[t.events.length - 1];
+    steps.push({ title: STATUS[t.status].title, detail: last.note, state: "done", at: last.at });
+    return steps;
+  }
+  const order = ["awaiting", "processing", "sent", "delivered"];
+  const reached = Math.max(0, ...t.events.map(e => order.indexOf(e.status)).filter(i => i >= 0));
+  return path.map((p, i) => {
+    const state = i <= reached ? "done" : i === reached + 1 ? (t.status === "failed" ? "problem" : "current") : "upcoming";
+    return { title: p[1], detail: state === "problem" ? (t.failure || "We're looking into it.") : p[2], state, at: dateOf(t, p[0]) };
+  });
+}
+const SIM = [["awaiting", "processing", 3], ["processing", "sent", 7], ["sent", "delivered", 14]];
+function catchUp(t, now) {
+  let changed = false;
+  for (const [from, to, sec] of SIM) {
+    if (t.status !== from) continue;
+    const due = t.createdAt + sec * 1000;
+    if (now < due) break;
+    advance(t, to, due); changed = true;
+  }
+  return changed;
+}
+
+// ---------- Limits ----------
+const TIERS = {
+  basic: { title: "Basic", day: 500, month: 1500, req: "Phone and email confirmed", next: "verified" },
+  verified: { title: "Verified", day: 5000, month: 20000, req: "Photo ID and a selfie: about 2 minutes", next: "enhanced" },
+  enhanced: { title: "Enhanced", day: 25000, month: 100000, req: "Proof of address and source of funds", next: null },
+};
+const toUSD = (amt, cur) => amt * mid(cur, "USD");
+function limitUsage() {
+  const now = Date.now(), d = new Date(now), counted = L.transfers.filter(t => t.status !== "cancelled" && t.status !== "refunded");
+  const today = counted.filter(t => t.createdAt > now - 864e5).reduce((a, t) => a + toUSD(t.quote.send, t.quote.s), 0);
+  const month = counted.filter(t => { const c = new Date(t.createdAt); return c.getMonth() === d.getMonth() && c.getFullYear() === d.getFullYear(); }).reduce((a, t) => a + toUSD(t.quote.send, t.quote.s), 0);
+  const tier = TIERS[L.profile.tier];
+  return { today, month, tier, remToday: Math.max(0, tier.day - today), remMonth: Math.max(0, tier.month - month) };
+}
+function limitCheck(usd) {
+  const u = limitUsage();
+  if (usd > u.remToday + EPS) return `That's over your daily limit. You can send about $${fmtNum(u.remToday, 0)} more today.`;
+  if (usd > u.remMonth + EPS) return `That's over your monthly limit. You can send about $${fmtNum(u.remMonth, 0)} more this month.`;
+  return null;
+}
+
+// ---------- Schedules ----------
+function nextMonthly(day, after, count) {
+  const out = []; const d = new Date(after);
+  for (let m = 0; out.length < count && m < 24; m++) {
+    const y = d.getFullYear(), mo = d.getMonth() + m, last = new Date(y, mo + 1, 0).getDate();
+    const c = new Date(y, mo, Math.min(day, last), 9, 0);
+    if (c > after) out.push(c);
+  }
+  return out;
+}
+
+// ---------- Family pot (mirrors HomewardCore.FamilyPot) ----------
+function potAdd(pot, memberId, amount, at) {
+  const member = pot.members.find(x => x.id === memberId);
+  if (!member) throw new Error("Unknown member.");
+  if (pot.paidOutAt) throw new Error("This pot has already been sent.");
+  if (amount < MIN[member.cur]) throw new Error(`The smallest contribution is ${money(MIN[member.cur], member.cur, true)}.`);
+  const rate = custRate(member.cur, pot.cur), c = { id: uid(), memberId, sent: round2(amount), cur: member.cur, rate, added: floor2(amount * rate), at };
+  pot.contributions.push(c);
+  return c;
+}
+const potRaised = pot => round2(pot.contributions.reduce((a, c) => a + c.added, 0));
+const potRemaining = pot => Math.max(0, round2(pot.target - potRaised(pot)));
+const potProgress = pot => Math.min(1, potRaised(pot) / pot.target);
+const potShares = pot => pot.members.map(m => ({ m, added: round2(pot.contributions.filter(c => c.memberId === m.id).reduce((a, c) => a + c.added, 0)) })).sort((a, b) => b.added - a.added);
+const potFeesUSD = pot => pot.contributions.reduce((a, c) => a + (c.sent >= WAIVE[c.cur] ? 0 : FEE[c.cur]) * mid(c.cur, "USD"), 0);
+const POT_COLORS = ["var(--brand)", "var(--sun)", "#3489d9", "#d6517f", "#8a5cd6"];
+
+// ---------- Rate weather (mirrors HomewardCore.RateClimate) ----------
+function rateClimate(points) {
+  const today = points[points.length - 1], earlier = points.slice(0, -1), beaten = earlier.filter(p => today > p).length;
+  const pctl = Math.round(beaten / earlier.length * 100);
+  const [sky, head] = pctl >= 80 ? ["☀️", "Sunny day to send"] : pctl >= 60 ? ["🌤️", "Brighter than usual"] : pctl >= 40 ? ["⛅", "An ordinary day"] : pctl >= 20 ? ["☁️", "Cloudier than usual"] : ["🌧️", "Overcast: rates are low"];
+  return { sky, head, detail: `Today's rate beats ${beaten} of the last ${earlier.length} days.` };
+}
+
+// ---------- Your year home (mirrors HomewardCore.YearInReview) ----------
+function yearInReview() {
+  const now = Date.now(), start = new Date(now); start.setFullYear(start.getFullYear() - 1);
+  const del = L.transfers.filter(t => t.status === "delivered" && t.createdAt > +start);
+  if (!del.length) return null;
+  const counts = {}; del.forEach(t => counts[t.quote.s] = (counts[t.quote.s] || 0) + 1);
+  const main = Object.keys(counts).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b))[0], mine = del.filter(t => t.quote.s === main);
+  const byTarget = {}; del.forEach(t => byTarget[t.quote.t] = (byTarget[t.quote.t] || 0) + t.quote.recv);
+  const people = {}; del.forEach(t => { const k = t.recipient.id; (people[k] = people[k] || { r: t.recipient, n: 0, amt: 0, cur: t.quote.t }); people[k].n++; people[k].amt += t.quote.recv; });
+  const ranked = Object.values(people).sort((a, b) => b.n - a.n || a.r.name.localeCompare(b.r.name));
+  let saved = 0; mine.forEach(t => { const bank = compare(t.quote)[0]; saved += bank.extra / t.quote.mid; });
+  const months = {}; mine.forEach(t => { const k = new Date(t.createdAt).getMonth(); months[k] = (months[k] || 0) + t.quote.send; });
+  const busy = Object.keys(months).sort((a, b) => months[b] - months[a])[0];
+  const durations = del.map(t => dateOf(t, "delivered") - t.createdAt).filter(x => x > 0);
+  return { count: del.length, main, total: mine.reduce((a, t) => a + t.quote.send, 0), byTarget, ranked, saved: floor2(saved),
+    busyMonth: new Date(2000, +busy, 1).toLocaleDateString([], { month: "long" }), busyAmt: months[busy], fastest: Math.min(...durations) };
+}
+
+// ---------- Postcards: generated textiles ----------
+const TEXTILE = { NG: "Adire", GH: "Kente", KE: "Maasai beadwork", IN: "Bandhani" };
+function seeded(seedStr) { let h = 2166136261; for (const ch of seedStr) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909)) >>> 0) / 4294967296; }
+function drawTextile(ctx, w, h, country, seedStr) {
+  const rnd = seeded(seedStr), pick = a => a[Math.floor(rnd() * a.length)];
+  ctx.save(); ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.clip();
+  if (country === "NG") { // adire: indigo resist-dye motifs
+    ctx.fillStyle = "#1c2a6b"; ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = ctx.fillStyle = "#cdd8f8"; ctx.lineWidth = 4; ctx.lineCap = "round";
+    const cell = w / 4;
+    for (let row = 0; row * cell < h; row++) for (let col = 0; col < 4; col++) {
+      const cx = col * cell + cell / 2, cy = row * cell + cell / 2, r = cell / 2 - 12, kind = Math.floor(rnd() * 4);
+      if (kind === 0) for (let k = 1; k <= 3; k++) { ctx.beginPath(); ctx.arc(cx, cy, r * k / 3, 0, Math.PI * 2); ctx.stroke(); }
+      else if (kind === 1) { for (let k = 0; k < 10; k++) { const a = k / 10 * Math.PI * 2; ctx.beginPath(); ctx.arc(cx + Math.cos(a) * r * .75, cy + Math.sin(a) * r * .75, 5, 0, Math.PI * 2); ctx.fill(); } ctx.beginPath(); ctx.arc(cx, cy, 11, 0, Math.PI * 2); ctx.fill(); }
+      else if (kind === 2) { ctx.beginPath(); ctx.moveTo(cx - r / 2, cy - r); ctx.lineTo(cx - r / 2, cy + r); ctx.moveTo(cx + r / 2, cy - r); ctx.lineTo(cx + r / 2, cy + r); for (let k = 0; k < 5; k++) { const y = cy - r + (k + .5) * (2 * r / 5); ctx.moveTo(cx - r / 2, y); ctx.lineTo(cx + r / 2, y); } ctx.stroke(); }
+      else { ctx.beginPath(); for (let k = 0; k <= 70; k++) { const t = k / 70, a = t * 5 * Math.PI; const x = cx + Math.cos(a) * r * t, y = cy + Math.sin(a) * r * t; k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke(); }
+    }
+  } else if (country === "GH") { // kente: woven strips of blocks
+    const pal = ["#f4ba21", "#0d8045", "#c62121", "#151210"], strip = w / 5;
+    ctx.fillStyle = pal[0]; ctx.fillRect(0, 0, w, h);
+    for (let col = 0; col < 5; col++) {
+      for (let y = 0; y < h;) {
+        const bh = 36 + Math.floor(rnd() * 4) * 20, x = col * strip;
+        ctx.fillStyle = pick(pal); ctx.fillRect(x, y, strip, bh);
+        if (rnd() < .5) { for (let ly = y + 8; ly < y + bh; ly += 12) { ctx.fillStyle = pick(pal); ctx.fillRect(x, ly, strip, 4); } }
+        else { ctx.strokeStyle = pick(pal); ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(x, y + bh / 2); for (let k = 1; k <= 4; k++) ctx.lineTo(x + strip * k / 4, k % 2 ? y + 8 : y + bh / 2); ctx.stroke(); }
+        y += bh;
+      }
+      ctx.fillStyle = "rgba(0,0,0,.45)"; ctx.fillRect(col * strip, 0, 3, h);
+    }
+  } else if (country === "KE") { // Maasai beadwork: bead bands on red
+    const beads = ["#ffffff", "#1f5cbf", "#f9c829", "#178c4d", "#f2731a"], b = 18;
+    ctx.fillStyle = "#bd1a1f"; ctx.fillRect(0, 0, w, h);
+    for (let y = 20; y < h;) {
+      const rows = 2 + Math.floor(rnd() * 3), A = pick(beads), B = pick(beads);
+      for (let r = 0; r < rows; r++) for (let x = (r % 2 ? b / 2 : 0) + b / 2, i = 0; x < w + b; x += b, i++) {
+        ctx.fillStyle = Math.floor(i / 3) % 2 ? B : A; ctx.beginPath(); ctx.arc(x, y + r * b, b / 2 - 2, 0, Math.PI * 2); ctx.fill();
+      }
+      y += rows * b + 28;
+      ctx.fillStyle = "rgba(255,255,255,.88)";
+      for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, y - 8); ctx.lineTo(x + 16, y - 24); ctx.lineTo(x + 32, y - 8); ctx.fill(); }
+    }
+  } else { // bandhani: tie-dye dot clusters
+    ctx.fillStyle = pick(["#9e0d4c", "#cc2e1a", "#1a4d73"]); ctx.fillRect(0, 0, w, h);
+    const sp = 68;
+    for (let row = 0, y = 24; y < h + sp; row++, y += sp / 2) for (let x = row % 2 ? 24 + sp / 2 : 24; x < w + sp; x += sp) {
+      const big = rnd() < .2;
+      [[0, 0], [-10, 0], [10, 0], [0, -10], [0, 10]].forEach(([dx, dy]) => {
+        const centre = !dx && !dy; ctx.fillStyle = centre && big ? "#fac233" : "#fff0c2";
+        ctx.beginPath(); ctx.arc(x + dx, y + dy, centre ? (big ? 7 : 5) : 3.6, 0, Math.PI * 2); ctx.fill();
+      });
+    }
+  }
+  ctx.restore();
+}
+function postcardDataURL(t) {
+  const W = 680, H = 960, c = document.createElement("canvas"); c.width = W; c.height = H;
+  const ctx = c.getContext("2d"), country = countryOfPayout(t.recipient.payout), first = t.recipient.nickname || firstName(t.recipient.name);
+  ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, W, H);
+  drawTextile(ctx, W, 500, country, t.id);
+  ctx.font = "700 20px Onest, system-ui, sans-serif"; const label = t.purpose.toUpperCase(), lw = ctx.measureText(label).width + 36;
+  ctx.fillStyle = "#ffffff"; ctx.beginPath(); ctx.roundRect(28, 440, lw, 40, 20); ctx.fill();
+  ctx.fillStyle = "#111"; ctx.fillText(label, 46, 467);
+  ctx.fillStyle = "#0f1f19"; ctx.font = "600 44px Georgia, 'Times New Roman', serif"; ctx.fillText(`For ${first}, with love`, 40, 580);
+  ctx.font = "800 76px 'Bricolage Grotesque', system-ui, sans-serif"; ctx.fillText(money(t.quote.recv, t.quote.t), 40, 670, W - 80);
+  let y = 720;
+  if (t.message) { ctx.font = "italic 32px Georgia, serif"; ctx.fillStyle = "#33443d"; ctx.fillText(`“${t.message}”`, 40, y, W - 80); y += 50; }
+  ctx.font = "26px Onest, system-ui, sans-serif"; ctx.fillStyle = "#56675f";
+  ctx.fillText(`from ${L.profile.first}`, 40, y + 10);
+  const d = fmtDate(dateOf(t, "delivered") || t.createdAt); ctx.fillText(d, W - 40 - ctx.measureText(d).width, y + 10);
+  ctx.fillStyle = "#e3ebe6"; ctx.fillRect(40, H - 90, W - 80, 2);
+  ctx.fillStyle = "#086b4f"; ctx.font = "600 22px Onest, system-ui, sans-serif"; ctx.fillText(`⌂ Delivered by Homeward · ${t.payoutRef || t.ref}`, 40, H - 48);
+  const r = document.createElement("canvas"); r.width = W; r.height = H; const rc = r.getContext("2d");
+  rc.beginPath(); rc.roundRect(0, 0, W, H, 44); rc.clip(); rc.drawImage(c, 0, 0);
+  return r.toDataURL("image/png");
+}
+
+// ---------- Confetti in kente colours ----------
+function confetti() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv = document.getElementById("confetti"), ctx = cv.getContext("2d"), dpr = devicePixelRatio || 1;
+  cv.hidden = false; cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; ctx.scale(dpr, dpr);
+  const cols = ["#f4ba21", "#0d8045", "#c62121", "#151210", "#1c2a6b", "#ffffff"];
+  const parts = Array.from({ length: 160 }, () => ({ x: innerWidth / 2 + (Math.random() - .5) * 80, y: innerHeight * .35, vx: (Math.random() - .5) * 12, vy: -Math.random() * 13 - 4,
+    w: 6 + Math.random() * 8, h: 4 + Math.random() * 6, rot: Math.random() * 6, vr: (Math.random() - .5) * .3, c: cols[Math.floor(Math.random() * cols.length)] }));
+  const t0 = performance.now();
+  (function frame(t) {
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    parts.forEach(p => { p.vy += .32; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore(); });
+    if (t - t0 < 3200) requestAnimationFrame(frame); else { ctx.clearRect(0, 0, innerWidth, innerHeight); cv.hidden = true; }
+  })(t0);
+}
+
+// ---------- State ----------
+const NUBAN_MUM = "012345678" + nubanCheck("058", "012345678");
+function demoPot(mum, now) {
+  const m = (name, city, cur, you) => ({ id: uid(), name, city, cur, you: !!you });
+  const pot = { id: uid(), title: "Mum's 70th birthday", recipientId: mum.id, target: 1500000, cur: "NGN", createdAt: now - 6 * 864e5,
+    members: [m("You", "London", "GBP", true), m("Kemi", "Manchester", "GBP"), m("Dayo", "Houston", "USD"), m("Bisi", "Toronto", "CAD")], contributions: [], paidOutAt: null, ref: null };
+  potAdd(pot, pot.members[1].id, 150, now - 5 * 864e5);
+  potAdd(pot, pot.members[2].id, 250, now - 4 * 864e5);
+  potAdd(pot, pot.members[3].id, 200, now - 2 * 864e5);
+  return pot;
+}
+function demoLedger() {
+  const now = Date.now();
+  const mk = (name, verified, nickname, payout, daysAgo) => ({ id: uid(), name, verified, nickname, payout, createdAt: now - daysAgo * 864e5 });
+  const mum = mk("Folake Adeyemi", "ADEYEMI FOLAKE ABIOLA", "Mum", { type: "ng", bank: "058", account: NUBAN_MUM }, 90);
+  const tunde = mk("Tunde Bakare", "TUNDE BAKARE", null, { type: "ng", bank: "50515", account: "8123456789" }, 40);
+  const ama = mk("Ama Owusu", "AMA OWUSU", null, { type: "momo", network: "mtn", phone: "0241234567" }, 30);
+  const wanjiru = mk("Wanjiru Kamau", "WANJIRU KAMAU", null, { type: "mpesa", phone: "0712345678" }, 20);
+  const delivered = (amt, r, daysAgo) => {
+    const at = now - daysAgo * 864e5, q = quoteSend(amt, "GBP", recipientCur(r));
+    q.createdAt = at; q.expiresAt = at + LOCK_MS;
+    const t = { id: uid(), ref: makeRef(), quote: q, recipient: { ...r }, funding: "bank", purpose: "Family support", message: null, createdAt: at, eta: at + 15 * 6e4, status: "awaiting", events: [{ status: "awaiting", at }] };
+    advance(t, "processing", at + 95e3); advance(t, "sent", at + 140e3); advance(t, "delivered", at + 212e3);
+    return t;
+  };
+  return {
+    profile: { first: "Tolu", last: "Adeyemi", home: "GBP", fav: "NGN", tier: "verified" },
+    wallet: { GBP: 1240.50, EUR: 85, USD: 0, CAD: 0 },
+    recipients: [mum, tunde, ama, wanjiru],
+    transfers: [[200, mum, 3], [75, ama, 9], [120, tunde, 16], [60, wanjiru, 22], [200, mum, 34], [200, mum, 64], [450, tunde, 79], [200, mum, 95], [90, ama, 110],
+      [200, mum, 125], [300, mum, 131], [200, mum, 156], [80, wanjiru, 170], [200, mum, 186], [650, mum, 201], [200, mum, 217], [120, tunde, 240], [200, mum, 248],
+      [70, ama, 266], [200, mum, 278], [200, mum, 309], [500, mum, 340]].map(([a, r, d]) => delivered(a, r, d)),
+    pots: [demoPot(mum, now)],
+    alerts: [{ id: uid(), s: "GBP", t: "NGN", rate: Math.ceil(mid("GBP", "NGN") * 1.02), dir: "above", active: true, last: null }],
+    scheduled: [{ id: uid(), title: "Mum's monthly allowance", recipientId: mum.id, amount: 200, s: "GBP", t: "NGN", day: 1, paused: false }],
+  };
+}
+const STORE_KEY = "homeward-demo-v2";
+let L;
+try { L = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { L = null; }
+if (!L || !L.profile) L = demoLedger();
+if (!L.pots) L.pots = [];
+const save = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(L)); } catch (e) {} };
+
+const S = { stack: [{ screen: "home" }], draft: null, form: null, sheet: null, toast: null, homeCur: null, rateTarget: null, filter: "all", search: "" };
+const here = () => S.stack[S.stack.length - 1];
+const go = (screen, params = {}) => { S.stack.push({ screen, ...params }); render(true); };
+const back = () => { if (S.stack.length > 1) S.stack.pop(); render(true); };
+const tab = screen => { S.stack = [{ screen }]; render(true); };
+const recipientById = id => L.recipients.find(r => r.id === id);
+const transferById = id => L.transfers.find(t => t.id === id);
+function recipientCur(r) { return COUNTRY[countryOfPayout(r.payout)].cur; }
+function countryOfPayout(p) { return { ng: "NG", ghBank: "GH", momo: "GH", mpesa: "KE", inBank: "IN", upi: "IN" }[p.type]; }
+
+// ---------- Icons ----------
+const I = {
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 003.4 0"/></svg>',
+  send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>',
+  warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>',
+  seal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 2.1 3.2-.3.7 3.1 2.8 1.6-1.3 2.9 1.3 2.9-2.8 1.6-.7 3.1-3.2-.3L12 22l-2.4-2.1-3.2.3-.7-3.1-2.8-1.6 1.3-2.9-1.3-2.9 2.8-1.6.7-3.1 3.2.3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>',
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>',
+  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+  people: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0114 0"/><path d="M16 4a4 4 0 010 8M22 21a7 7 0 00-4-6.3"/></svg>',
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>',
+  cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+  chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M9 18l6-6-6-6"/></svg>',
+  spark: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z"/></svg>',
+};
+const statusIcon = s => s === "delivered" ? "●" : s === "cancelled" ? "✕" : s === "refunded" ? "↺" : s === "failed" ? "!" : "◔";
+const PALETTE = ["#e3703f", "#2f83d2", "#8a5cd6", "#1a9e84", "#d6517f", "#c58e12"];
+function avatar(r, cls = "") {
+  const seed = [...r.name].reduce((a, c) => a + c.codePointAt(0), 0);
+  const init = r.name.split(" ").slice(0, 2).map(w => w[0] || "").join("").toUpperCase();
+  return `<span class="avatar ${cls}" style="background:${PALETTE[seed % PALETTE.length]}" aria-hidden="true">${esc(init)}<span class="flag">${CUR[recipientCur(r)].flag}</span></span>`;
+}
+const fmtTime = ms => new Date(ms).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+const fmtDay = ms => new Date(ms).toLocaleDateString([], { day: "numeric", month: "short" }) + ", " + fmtTime(ms);
+const fmtDate = d => new Date(d).toLocaleDateString([], { day: "numeric", month: "short", year: "numeric" });
+const firstName = n => n.split(" ")[0];
+
+// ---------- Screens ----------
+function topbar(title, opts = {}) {
+  const left = S.stack.length > 1 && !opts.noBack ? `<button class="icon-btn" data-act="back" aria-label="Back">${I.back}</button>` : "";
+  return `<div class="topbar">${left}<h1 class="${S.stack.length > 1 ? "small" : ""}">${esc(title)}</h1>${opts.right || (S.stack.length > 1 ? '<span class="spacer"></span>' : "")}</div>`;
+}
+
+function rateCard() {
+  const s = L.profile.home, t = S.rateTarget || L.profile.fav, m = mid(s, t), c = custRate(s, t);
+  // Deterministic 30-day walk ending at today's rate.
+  let seed = [...(s + t)].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7);
+  const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+  const walk = [0]; for (let i = 1; i < 30; i++) walk.push(walk[i - 1] + (rnd() * 1.2 - 0.6) / 100);
+  const off = walk[29], pts = walk.map(w => m * (1 + w - off));
+  const wx = rateClimate(pts);
+  const lo = Math.min(...pts), hi = Math.max(...pts), avg = pts.reduce((a, b) => a + b, 0) / pts.length, vs = (m - avg) / avg;
+  const W = 300, H = 100, padR = 64, x = i => (i / 29) * (W - padR), pad = (hi - lo) * .15 || 1, y = v => 8 + (H - 16) * (1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad)));
+  const line = pts.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join("");
+  return `<section class="card section" aria-label="Exchange rate">
+    <div class="row" style="align-items:flex-start">
+      <div class="grow">
+        <div class="small muted">1 ${s} =</div>
+        <div class="rate-big num">${fmtRate(c)} ${t}</div>
+        <div class="tiny muted">Mid-market ${fmtRate(m)} · our margin ${pct(MARGIN)}</div>
+      </div>
+      <select id="rate-target" class="cur-select" data-change="rateTarget" aria-label="Receive currency">
+        ${RECV.map(cc => `<option value="${cc}" ${cc === t ? "selected" : ""}>${CUR[cc].flag} ${cc}</option>`).join("")}
+      </select>
+    </div>
+    <svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="30-day rate chart, low ${fmtRate(lo)}, high ${fmtRate(hi)}">
+      <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--brand)" stop-opacity=".28"/><stop offset="1" stop-color="var(--brand)" stop-opacity="0"/></linearGradient></defs>
+      <line x1="0" x2="${W - padR}" y1="${y(hi).toFixed(1)}" y2="${y(hi).toFixed(1)}" stroke="var(--line)" stroke-dasharray="3 3"/>
+      <line x1="0" x2="${W - padR}" y1="${y(lo).toFixed(1)}" y2="${y(lo).toFixed(1)}" stroke="var(--line)" stroke-dasharray="3 3"/>
+      <path d="${line}L${x(29)},${H}L0,${H}Z" fill="url(#g)"/>
+      <path d="${line}" fill="none" stroke="var(--brand)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+      <circle cx="${x(29)}" cy="${y(m).toFixed(1)}" r="3.5" fill="var(--brand)"/>
+      <text x="${W - padR + 6}" y="${(y(hi) + 3).toFixed(1)}">${fmtRate(hi)}</text>
+      <text x="${W - padR + 6}" y="${(y(lo) + 3).toFixed(1)}">${fmtRate(lo)}</text>
+    </svg>
+    <div class="weather" title="Based on the past 30 days. Not a forecast."><span class="sky" aria-hidden="true">${wx.sky}</span><span class="grow"><b class="small">${wx.head}</b><br><span class="tiny muted">${wx.detail} Not a forecast.</span></span></div>
+    <div class="row small ${vs >= 0 ? "trend-up" : "trend-down"}">
+      <span class="grow">${vs >= 0 ? "▲ " + pct(vs, 1) + " better than" : "▼ " + pct(-vs, 1) + " below"} the 30-day average</span>
+      <button class="text-btn small" data-act="newAlert" data-s="${s}" data-t="${t}">Set alert</button>
+    </div>
+    <div class="tiny muted">Sample rates for demonstration · updated ${fmtTime(ratesAt)}</div>
+  </section>`;
+}
+
+function transferRow(t) {
+  const st = STATUS[t.status], dead = t.status === "cancelled" || t.status === "refunded";
+  return `<button class="list-row" data-act="openTransfer" data-id="${t.id}">
+    ${avatar(t.recipient)}
+    <span class="grow" style="min-width:0">
+      <span class="ellipsis" style="display:block;font-weight:500">${esc(t.recipient.name)}</span>
+      <span class="status ${inFlight(t.status) || t.status === "failed" ? "s-" + st.cls : "s-grey"}">${inFlight(t.status) ? st.title : fmtDay(t.createdAt)}</span>
+    </span>
+    <span class="right num"><span style="display:block;font-weight:600" class="${dead ? "strike" : ""}">${money(t.quote.recv, t.quote.t, true)}</span><span class="small muted">−${money(t.quote.send, t.quote.s)}</span></span>
+  </button>`;
+}
+
+function home() {
+  const cur = S.homeCur || L.profile.home, held = Object.keys(L.wallet).filter(k => L.wallet[k] > 0);
+  const flying = L.transfers.filter(t => inFlight(t.status) || t.status === "failed");
+  const recents = [...L.recipients].sort((a, b) => lastPaid(b) - lastPaid(a));
+  const sched = L.scheduled.filter(s => !s.paused).map(s => ({ s, next: nextMonthly(s.day, new Date(), 1)[0] })).sort((a, b) => a.next - b.next)[0];
+  const hour = new Date().getHours(), greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  return `<div class="screen">
+    <div class="topbar"><div class="grow"><p class="eyebrow">${greet}</p><h1>Hi, ${esc(L.profile.first)}</h1></div>
+      <button class="icon-btn" data-act="go" data-screen="alerts" aria-label="Rate alerts">${I.bell}</button></div>
+    <section class="hero" aria-label="Balance">
+      <div class="row"><span class="label grow">Balance</span>
+        <select data-change="homeCur" aria-label="Balance currency">${[...new Set([...held, ...SEND])].map(c => `<option value="${c}" ${c === cur ? "selected" : ""}>${CUR[c].flag} ${c}</option>`).join("")}</select></div>
+      <div class="amount num">${money(L.wallet[cur] || 0, cur)}</div>
+      <div class="actions"><button class="pill-btn white" data-act="startSend">${I.send} Send money</button><button class="pill-btn ghost" data-act="topup">${I.plus} Add</button></div>
+    </section>
+    ${rateCard()}
+    ${flying.length ? `<section class="section"><div class="section-head"><h2>On the way</h2></div>${flying.map(t => `
+      <button class="card" style="border:0;text-align:left;display:grid;gap:12px" data-act="openTransfer" data-id="${t.id}">
+        <span class="row">${avatar(t.recipient)}<span class="grow"><b>${money(t.quote.recv, t.quote.t, true)} to ${esc(firstName(t.recipient.name))}</b><br><span class="small s-${STATUS[t.status].cls}">${STATUS[t.status].title}</span></span>
+        <span class="small muted num">${Date.now() > t.eta ? '<span class="s-orange">Delayed</span>' : "ETA " + fmtTime(t.eta)}</span></span>
+        <span class="progress"><i style="width:${STATUS[t.status].progress * 100}%"></i></span>
+      </button>`).join("")}</section>` : ""}
+    <section class="section"><div class="section-head"><h2>Send again</h2></div>
+      <div class="quick">${recents.map(r => `<button data-act="startSend" data-recipient="${r.id}" aria-label="Send to ${esc(r.name)}">${avatar(r)}<span class="small ellipsis" style="width:64px;text-align:center">${esc(r.nickname || firstName(r.name))}</span></button>`).join("")}</div>
+    </section>
+    ${L.pots.filter(p => !p.paidOutAt).map(p => potCard(p)).join("")}
+    <button class="card feature" data-act="openYear"><span class="icon" style="background:color-mix(in srgb,var(--sun) 18%,transparent)">✨</span>
+      <span class="grow"><b>Your year home</b><br><span class="small muted">Twelve months of sending love, in one story</span></span><span style="color:var(--brand);font-size:26px" aria-hidden="true">▶</span></button>
+    ${sched && recipientById(sched.s.recipientId) ? `<button class="card row" style="border:0;text-align:left" data-act="go" data-screen="scheduled">
+      <span class="avatar" style="background:color-mix(in srgb,var(--brand) 14%,transparent);color:var(--brand)">${I.cal.replace("<svg", '<svg width="22" height="22"')}</span>
+      <span class="grow"><b>${esc(sched.s.title)}</b><br><span class="small muted">${money(sched.s.amount, sched.s.s, true)} to ${esc(recipientById(sched.s.recipientId).name)} · ${fmtDate(sched.next)}</span></span><span class="muted">${I.chev}</span></button>` : ""}
+    <section class="section"><div class="section-head"><h2>Recent activity</h2><button class="text-btn small" data-act="tab" data-screen="activity">See all</button></div>
+      <div class="card list" style="padding-block:4px">${L.transfers.slice(0, 4).map(transferRow).join("") || '<div class="empty">No transfers yet</div>'}</div>
+    </section>
+  </div>`;
+}
+const lastPaid = r => Math.max(r.createdAt, ...L.transfers.filter(t => t.recipient.id === r.id).map(t => t.createdAt));
+
+// ----- Send flow -----
+function newDraft(opts = {}) {
+  const r = opts.recipientId ? recipientById(opts.recipientId) : null;
+  S.draft = { s: opts.s || L.profile.home, t: r ? recipientCur(r) : (opts.t || L.profile.fav), sendText: opts.amount ? String(opts.amount) : "", recvText: "", entry: "send",
+    recipientId: r ? r.id : null, funding: "wallet", purpose: "Family support", message: "", repeat: false, quote: null, error: null, locked: null, sentId: null, sending: false, showCompare: false };
+  recalc();
+}
+function recalc() {
+  const d = S.draft; d.error = null;
+  try {
+    if (d.entry === "send") {
+      const a = parseAmt(d.sendText);
+      if (!(a > 0)) { d.quote = null; d.recvText = ""; return; }
+      d.quote = quoteSend(a, d.s, d.t); d.recvText = fmtNum(d.quote.recv);
+    } else {
+      const a = parseAmt(d.recvText);
+      if (!(a > 0)) { d.quote = null; d.sendText = ""; return; }
+      d.quote = quoteReceive(a, d.s, d.t); d.sendText = fmtNum(d.quote.send);
+    }
+  } catch (e) { d.quote = null; d.error = e.message; }
+}
+function breakdown(q, payout) {
+  return `<dl class="card kv small" style="margin:0">
+    <div><dt>Our fee</dt><dd>${q.fee ? money(q.fee, q.s) : 'Free<span class="note">No fee on transfers this size</span>'}</dd></div>
+    <div><dt>We convert</dt><dd>${money(q.conv, q.s)}</dd></div>
+    <div><dt>Our rate</dt><dd>1 ${q.s} = ${fmtRate(q.rate)} ${q.t}</dd></div>
+    <div><dt>Mid-market rate<span class="note">The real rate you'd see on Google</span></dt><dd>${fmtRate(q.mid)}</dd></div>
+    <div><dt>Our margin</dt><dd>${pct(MARGIN)} (${money(q.marginCost, q.s)})</dd></div>
+    <hr class="div">
+    <div class="total"><dt>Total cost</dt><dd>${money(q.totalCost, q.s)} · ${pct(q.totalCost / q.send)}</dd></div>
+    ${payout ? `<div><dt>Arrives</dt><dd>${deliveryEstimate(payout, "wallet").label}</dd></div>` : ""}
+  </dl>`;
+}
+function sendAmount() {
+  const d = S.draft, r = d.recipientId ? recipientById(d.recipientId) : null, q = d.quote;
+  const limitMsg = q ? limitCheck(toUSD(q.send, q.s)) : null;
+  let compareHtml = "";
+  if (q) {
+    const cmp = compare(q), best = cmp.reduce((a, b) => b.extra > a.extra ? b : a, cmp[0]);
+    if (best.extra > 0) compareHtml = `<section class="card section">
+      <button class="row" style="border:0;background:none;padding:0;text-align:left" data-act="toggleCompare" aria-expanded="${d.showCompare}">
+        <span style="color:var(--sun);width:18px;flex:none">${I.spark}</span><span class="grow small">Up to <b class="num">${money(best.extra, q.t, true)}</b> more than a typical bank</span><span class="muted small">${d.showCompare ? "Hide" : "Compare"}</span></button>
+      ${d.showCompare ? `<dl class="kv small" style="margin:0">${cmp.map(c => `<div><dt>${c.name}</dt><dd>${money(c.recv, q.t, true)}</dd></div>`).join("")}
+        <div class="total"><dt>Homeward</dt><dd>${money(q.recv, q.t, true)}</dd></div></dl>
+        <p class="tiny muted" style="margin:0">Illustrative comparison: a typical bank at a 3.5% margin plus a $15 fee, and a typical app at 1.8% plus $2.99. Not a quote from any named provider.</p>` : ""}
+    </section>`;
+  }
+  return `<div class="screen">${topbar("Send money")}
+    ${r ? `<div class="card row">${avatar(r)}<span class="grow"><b>To ${esc(r.name)}</b><br><span class="small muted">${esc(payoutSummary(r.payout))}</span></span><button class="text-btn" data-act="clearRecipient">Change</button></div>` : ""}
+    <div class="amount-box">
+      <div class="amount-row"><div class="grow"><label for="send-amt">You send</label><input id="send-amt" inputmode="decimal" autocomplete="off" placeholder="0" value="${esc(d.sendText)}" data-input="sendText"></div>
+        <select class="cur-select" data-change="draftS" aria-label="Send currency">${SEND.map(c => `<option value="${c}" ${c === d.s ? "selected" : ""}>${CUR[c].flag} ${c}</option>`).join("")}</select></div>
+      <div class="amount-row"><div class="grow"><label for="recv-amt">${r ? esc(firstName(r.name)) + " gets" : "They get"}</label><input id="recv-amt" inputmode="decimal" autocomplete="off" placeholder="0" value="${esc(d.recvText)}" data-input="recvText"></div>
+        <select class="cur-select" data-change="draftT" aria-label="Receive currency">${RECV.map(c => `<option value="${c}" ${c === d.t ? "selected" : ""}>${CUR[c].flag} ${c}</option>`).join("")}</select></div>
+    </div>
+    ${d.error ? `<div class="notice warn">${I.warn}<span>${esc(d.error)}</span></div>` : ""}
+    ${q ? breakdown(q, r && r.payout) : `<p class="small muted" style="margin:0">Type either amount: we'll work out the other, cheapest first.</p>`}
+    ${compareHtml}
+    ${limitMsg ? `<div class="notice warn">${I.warn}<span>${esc(limitMsg)} ${TIERS[L.profile.tier].next ? "Raise your limit in Account." : ""}</span></div>` : ""}
+    <div class="cta-bar"><button class="primary" data-act="amountContinue" ${!q || limitMsg ? "disabled" : ""}>Continue</button></div>
+  </div>`;
+}
+function sendRecipient() {
+  const d = S.draft, list = L.recipients.filter(r => recipientCur(r) === d.t).sort((a, b) => lastPaid(b) - lastPaid(a));
+  return `<div class="screen">${topbar("Who are you sending to?")}
+    <button class="option" data-act="addRecipient" data-country="${countryOf(d.t)}"><span class="avatar" style="background:var(--surface-2);color:var(--brand)">${I.plus.replace("<svg", '<svg width="20" height="20"')}</span><span class="grow"><b>New recipient in ${COUNTRY[countryOf(d.t)].name}</b></span></button>
+    ${list.length ? `<section class="section"><p class="eyebrow">Your recipients</p><div class="card list" style="padding-block:4px">${list.map(r => recipientRow(r, "pickRecipient")).join("")}</div></section>` : ""}
+  </div>`;
+}
+function recipientRow(r, act) {
+  return `<button class="list-row" data-act="${act}" data-id="${r.id}">${avatar(r)}
+    <span class="grow" style="min-width:0"><span class="ellipsis" style="display:block;font-weight:500">${esc(r.nickname ? r.nickname + " (" + r.name + ")" : r.name)} ${r.verified ? `<span style="color:var(--brand);display:inline-block;width:15px;vertical-align:-2px" aria-label="Name verified">${I.seal}</span>` : ""}</span>
+    <span class="small muted">${esc(payoutSummary(r.payout))}</span></span><span class="muted">${I.chev}</span></button>`;
+}
+
+// ----- Add recipient (name check) -----
+function newForm(country, fixed) {
+  S.form = { country: country || "NG", fixed: !!fixed, method: COUNTRY[country || "NG"].methods[0], name: "", nick: "", bank: "058", bankName: "", account: "", network: "mtn", phone: "", ifsc: "", vpa: "", lookup: { state: "idle" }, confirmed: false };
+}
+function formPayout(f) {
+  if (f.country === "NG") return { type: "ng", bank: f.bank, account: f.account };
+  if (f.country === "GH") return f.method === "bank" ? { type: "ghBank", bankName: f.bankName, account: f.account } : { type: "momo", network: f.network, phone: f.phone };
+  if (f.country === "KE") return { type: "mpesa", phone: f.phone };
+  return f.method === "upi" ? { type: "upi", vpa: f.vpa } : { type: "inBank", ifsc: f.ifsc, account: f.account };
+}
+const nameOk = n => tokens(n).length >= 2;
+function addRecipient() {
+  const f = S.form, p = formPayout(f), issue = validate(p), lk = f.lookup;
+  const field = (id, label, key, attrs = "") => `<div class="field"><label for="${id}">${label}</label><input id="${id}" value="${esc(f[key])}" data-form="${key}" autocomplete="off" ${attrs}></div>`;
+  let fields = "";
+  if (f.country === "NG") fields = `<div class="field"><label for="f-bank">Bank</label><select id="f-bank" data-formsel="bank">${BANKS.map(b => `<option value="${b[0]}" ${b[0] === f.bank ? "selected" : ""}>${b[1]}</option>`).join("")}</select></div>` + field("f-acct", "10-digit account number (NUBAN)", "account", 'inputmode="numeric"');
+  else if (f.country === "GH" && f.method === "bank") fields = field("f-bankname", "Bank name", "bankName") + field("f-acct", "Account number", "account", 'inputmode="numeric"');
+  else if (f.country === "GH") fields = `<div class="field"><label for="f-net">Network</label><select id="f-net" data-formsel="network">${Object.keys(NETWORKS).map(k => `<option value="${k}" ${k === f.network ? "selected" : ""}>${NETWORKS[k].title}</option>`).join("")}</select></div>` + field("f-phone", "Phone number, e.g. 024 123 4567", "phone", 'inputmode="tel"');
+  else if (f.country === "KE") fields = field("f-phone", "M-Pesa number, e.g. 0712 345 678", "phone", 'inputmode="tel"');
+  else if (f.method === "upi") fields = field("f-vpa", "UPI ID, e.g. name@okhdfc", "vpa", 'autocapitalize="off"');
+  else fields = field("f-ifsc", "IFSC code", "ifsc", 'autocapitalize="characters"') + field("f-acct", "Account number", "account", 'inputmode="numeric"');
+  const visible = issue && issue.kind !== "soft" ? issue : null;
+  let lookupHtml;
+  if (lk.state === "idle") lookupHtml = `<button class="secondary" data-act="checkName" ${issue || !nameOk(f.name) ? "disabled" : ""}>Check account name</button>`;
+  else if (lk.state === "checking") lookupHtml = `<div class="row small muted"><span class="spinner"></span> Asking the bank who owns this account…</div>`;
+  else {
+    const v = lk.verdict, cls = v === "match" ? "good" : v === "partial" ? "warn" : "bad";
+    lookupHtml = `<div class="notice ${cls}">${v === "match" ? I.seal : I.warn}<span><b>${esc(lk.name)}</b><br>${
+      v === "match" ? "Name matches. You're sending to the right person." :
+      v === "partial" ? `Close, but not an exact match with “${esc(f.name)}”. Check it's the right person before continuing.` :
+      `This account belongs to someone else, not “${esc(f.name)}”. Money sent to the wrong account is very hard to recover.`}</span></div>
+      ${v === "mismatch" ? `<div class="toggle small"><span>I'm sure this is the right account</span><button class="switch" role="switch" aria-checked="${f.confirmed}" aria-label="I'm sure this is the right account" data-act="confirmMismatch"></button></div>` : ""}`;
+  }
+  const canSave = nameOk(f.name) && !issue && lk.state === "found" && (lk.verdict !== "mismatch" || f.confirmed);
+  return `<div class="screen">${topbar("New recipient")}
+    <div class="form">
+      ${f.fixed ? "" : `<div class="field"><label for="f-country">Country</label><select id="f-country" data-formsel="country">${Object.keys(COUNTRY).map(k => `<option value="${k}" ${k === f.country ? "selected" : ""}>${CUR[COUNTRY[k].cur].flag} ${COUNTRY[k].name}</option>`).join("")}</select></div>`}
+      ${COUNTRY[f.country].methods.length > 1 ? `<div class="seg" role="tablist" aria-label="Receive by">${COUNTRY[f.country].methods.map(m => `<button role="tab" aria-selected="${m === f.method}" class="${m === f.method ? "on" : ""}" data-act="method" data-m="${m}">${METHOD_TITLE[m]}</button>`).join("")}</div>` : ""}
+      ${field("f-name", "Full name, as on their account", "name", 'autocapitalize="words"')}
+      ${f.name && !nameOk(f.name) ? `<p class="tiny muted" style="margin:-8px 0 0">Enter their first and last name.</p>` : ""}
+      ${field("f-nick", "Nickname (optional), e.g. Mum", "nick")}
+      ${fields}
+      <div id="issue-slot">${visible ? `<div class="notice warn">${I.warn}<span>${esc(visible.msg)}</span></div>` : !issue ? `<div class="notice good">${I.check}<span>Details look right</span></div>` : ""}</div>
+      <div class="card section"><p class="eyebrow">Name check</p>${lookupHtml}
+        <p class="tiny muted" style="margin:0">We ask the receiving bank or wallet who owns this account, so your money can't go to a stranger because of a typo.</p></div>
+    </div>
+    <div class="cta-bar"><button class="primary" data-act="saveRecipient" ${canSave ? "" : "disabled"}>Save and continue</button></div>
+  </div>`;
+}
+function fakeLookup(p, typed) {
+  const known = L.recipients.find(r => payoutKey(r.payout) === payoutKey(p));
+  if (known && known.verified) return known.verified;
+  const raw = (p.account || p.phone || p.vpa || "");
+  if (raw.includes("999")) return "MUSA IBRAHIM DANJUMA";
+  const w = typed.toUpperCase().trim().split(/\s+/);
+  return w.length > 1 ? [w[w.length - 1], ...w.slice(0, -1)].join(" ") : w[0] + " OKONKWO";
+}
+
+// ----- Review -----
+function review() {
+  const d = S.draft, q = d.locked, r = recipientById(d.recipientId);
+  if (!q || !r) return `<div class="screen">${topbar("Review")}<div class="empty">Nothing to review</div></div>`;
+  const expired = Date.now() >= q.expiresAt;
+  return `<div class="screen">${topbar("Review")}
+    <div class="card center">${avatar(r, "lg")}
+      <div class="big-amount num">${money(q.recv, q.t)}</div><b>to ${esc(r.name)}</b><span class="small muted">${esc(payoutSummary(r.payout))}</span>
+      ${r.verified ? `<span class="small" style="color:var(--brand)">✓ Account holder: ${esc(r.verified)}</span>` : ""}
+      <span class="lock ${expired ? "expired" : ""}" data-countdown="${q.expiresAt}">${I.lock}<span>${expired ? "Rate expired: refresh for a new quote" : "Rate locked for " + mmss(q.expiresAt - Date.now())}</span></span>
+    </div>
+    <dl class="card kv small" style="margin:0">
+      <div><dt>You pay</dt><dd>${money(q.send, q.s)}</dd></div>
+      <div><dt>Fee</dt><dd>${q.fee ? money(q.fee, q.s) : "Free"}</dd></div>
+      <div><dt>Rate</dt><dd>1 ${q.s} = ${fmtRate(q.rate)} ${q.t}</dd></div>
+      <div class="total"><dt>Total cost incl. margin</dt><dd>${money(q.totalCost, q.s)} (${pct(q.totalCost / q.send)})</dd></div>
+      <div><dt>Arrives</dt><dd>${deliveryEstimate(r.payout, d.funding).label}</dd></div>
+    </dl>
+    <section class="section"><p class="eyebrow">Pay with</p>
+      ${Object.keys(FUNDING).map(k => { const ok = k !== "wallet" || (L.wallet[q.s] || 0) + EPS >= q.send;
+        return `<button class="option ${d.funding === k ? "on" : ""}" data-act="funding" data-k="${k}" ${ok ? "" : "disabled"}><span class="radio"></span><span class="grow"><b>${FUNDING[k]}</b><br><span class="small ${ok ? "muted" : "s-orange"}">${k === "wallet" ? `Balance ${money(L.wallet[q.s] || 0, q.s)}${ok ? "" : " (not enough)"}` : k === "bank" ? "Usually arrives in minutes · no extra cost" : "Instant · no extra cost"}</span></span></button>`; }).join("")}
+    </section>
+    <div class="form">
+      <div class="field"><label for="purpose">Reason</label><select id="purpose" data-change="purpose">${PURPOSES.map(p => `<option ${p === d.purpose ? "selected" : ""}>${p}</option>`).join("")}</select></div>
+      <div class="field"><label for="msg">Message for ${esc(firstName(r.name))} (optional)</label><input id="msg" value="${esc(d.message)}" data-input="message" maxlength="80"></div>
+      <div class="toggle"><span>Repeat monthly</span><button class="switch" role="switch" aria-checked="${d.repeat}" aria-label="Repeat monthly" data-act="repeat"></button></div>
+      <p class="tiny muted" style="margin:0">${d.repeat ? `We'll send ${money(q.send, q.s, true)} on this day each month at that day's rate. Pause or cancel any time.` : `Cancel for free until the money reaches ${esc(payoutSummary(r.payout))}. If anything goes wrong, you're refunded automatically.`}</p>
+    </div>
+    ${d.sendError ? `<div class="notice warn">${I.warn}<span>${esc(d.sendError)}</span></div>` : ""}
+    <div class="cta-bar"><button class="primary" data-act="${expired ? "refreshQuote" : "confirmSend"}" ${d.sending ? "disabled" : ""}>${d.sending ? '<span class="spinner"></span>' : expired ? "Get a new rate" : "Send " + money(q.recv, q.t, true)}</button></div>
+  </div>`;
+}
+const mmss = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
+
+// ----- Tracker -----
+function tracker() {
+  const t = transferById(here().id);
+  if (!t) return `<div class="screen">${topbar("Transfer")}<div class="empty">Transfer not found</div></div>`;
+  const st = STATUS[t.status], confirm = here().confirm, dead = t.status === "cancelled" || t.status === "refunded";
+  const steps = trackingSteps(t), delivered = dateOf(t, "delivered");
+  const canCancel = t.status === "awaiting" || t.status === "processing";
+  const took = delivered ? Math.round((delivered - t.createdAt) / 1000) : 0;
+  return `<div class="screen">${topbar(confirm ? "Sent" : "Transfer", confirm ? { noBack: true, right: '<button class="text-btn" data-act="doneFlow">Done</button>' } : {})}
+    <div class="card center">${avatar(t.recipient, "lg")}
+      <div class="big-amount num ${dead ? "strike" : ""}">${money(t.quote.recv, t.quote.t)}</div><b>to ${esc(t.recipient.name)}</b>
+      <span class="badge bg-${st.cls} s-${st.cls}">${statusIcon(t.status)} ${st.title}</span>
+      <span class="small muted">${t.status === "delivered" ? `Arrived ${fmtDay(delivered)} · took ${took < 3600 ? Math.floor(took / 60) + "m " + (took % 60) + "s" : Math.floor(took / 3600) + "h"}` : inFlight(t.status) ? "Expected by " + fmtTime(t.eta) : ""}</span>
+    </div>
+    ${inFlight(t.status) && Date.now() > t.eta ? `<div class="notice warn">${I.warn}<span>Taking longer than usual. We're on it and will notify you the moment it lands. If it can't be delivered you'll be refunded automatically.</span></div>` : ""}
+    <section class="card timeline" aria-label="Progress">${steps.map((s, i) => `
+      <div class="step ${s.state}"><div class="rail"><span class="dot">${s.state === "done" ? I.check : s.state === "problem" ? "!" : ""}</span>${i < steps.length - 1 ? '<span class="line"></span>' : ""}</div>
+      <div class="body"><div class="title"><span>${esc(s.title)}</span><span class="small muted num">${s.at ? fmtTime(s.at) : ""}</span></div>
+      ${s.detail && s.state !== "upcoming" ? `<div class="small ${s.state === "problem" ? "s-orange" : "muted"}">${esc(s.detail)}</div>` : ""}</div></div>`).join("")}
+    </section>
+    <dl class="card kv small" style="margin:0">
+      <div><dt>Reference</dt><dd><button class="text-btn num" style="padding:0" data-act="copy" data-text="${t.ref}">${t.ref} ⧉</button></dd></div>
+      <div><dt>You sent</dt><dd>${money(t.quote.send, t.quote.s)}</dd></div>
+      <div><dt>Fee</dt><dd>${t.quote.fee ? money(t.quote.fee, t.quote.s) : "Free"}</dd></div>
+      <div><dt>Rate</dt><dd>1 ${t.quote.s} = ${fmtRate(t.quote.rate)} ${t.quote.t}</dd></div>
+      <div><dt>They receive</dt><dd>${money(t.quote.recv, t.quote.t)}</dd></div>
+      <div><dt>Paid with</dt><dd>${FUNDING[t.funding]}</dd></div>
+      <div><dt>To</dt><dd>${esc(payoutSummary(t.recipient.payout))}</dd></div>
+      <div><dt>Reason</dt><dd>${esc(t.purpose)}</dd></div>
+      ${t.message ? `<div><dt>Message</dt><dd>“${esc(t.message)}”</dd></div>` : ""}
+      ${t.payoutRef ? `<div><dt>Payout reference</dt><dd>${t.payoutRef}</dd></div>` : ""}
+    </dl>
+    <div class="section">
+      ${t.status === "delivered" ? `<button class="primary" data-act="postcard" data-id="${t.id}">💌 Send ${esc(firstName(t.recipient.name))} a postcard</button><button class="secondary" data-act="copyReceipt" data-id="${t.id}">Copy receipt</button>` : ""}
+      ${canCancel ? `<button class="secondary danger" data-act="askCancel" data-id="${t.id}">Cancel transfer</button>` : ""}
+      ${!confirm ? `<button class="secondary" data-act="sendAgain" data-id="${t.id}">Send again</button>` : ""}
+      <button class="text-btn" data-act="help" data-id="${t.id}">Get help with this transfer</button>
+    </div>
+  </div>`;
+}
+
+// ----- Family pot -----
+function potRing(pot, size, stroke) {
+  const R = (size - stroke) / 2, C = 2 * Math.PI * R; let start = 0;
+  const segs = potShares(pot).map((s, i) => { const len = Math.min(s.added / pot.target, 1 - start) * C;
+    const seg = len > 0 ? `<circle cx="${size / 2}" cy="${size / 2}" r="${R}" fill="none" stroke="${POT_COLORS[i % POT_COLORS.length]}" stroke-width="${stroke}" stroke-dasharray="${len.toFixed(2)} ${C.toFixed(2)}" stroke-dashoffset="${(-start * C).toFixed(2)}" style="transition:stroke-dasharray .8s ease"/>` : "";
+    start += s.added / pot.target; return seg; }).join("");
+  return `<svg class="ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${Math.round(potProgress(pot) * 100)}% raised"><g transform="rotate(-90 ${size / 2} ${size / 2})"><circle cx="${size / 2}" cy="${size / 2}" r="${R}" fill="none" stroke="var(--surface-2)" stroke-width="${stroke}"/>${segs}</g></svg>`;
+}
+function potCard(pot) {
+  const shares = potShares(pot);
+  return `<button class="card feature" data-act="openPot" data-id="${pot.id}">
+    <span style="position:relative;display:grid;place-items:center;flex:none">${potRing(pot, 56, 7)}<b class="tiny num" style="position:absolute">${Math.round(potProgress(pot) * 100)}%</b></span>
+    <span class="grow"><b>${esc(pot.title)}</b><br><span class="small muted num">${money(potRaised(pot), pot.cur, true)} of ${money(pot.target, pot.cur, true)} · ${pot.members.length} of you</span>
+      <span class="pot-dots" style="margin-top:4px">${pot.members.map(m => `<span style="background:${POT_COLORS[shares.findIndex(s => s.m.id === m.id) % POT_COLORS.length]}">${esc(m.name[0])}</span>`).join("")}</span></span>
+    <span class="muted">${I.chev}</span></button>`;
+}
+function potScreen() {
+  const pot = L.pots.find(p => p.id === here().id);
+  if (!pot) return `<div class="screen">${topbar("Family pot")}<div class="empty">Pot not found</div></div>`;
+  const r = recipientById(pot.recipientId), shares = potShares(pot), raised = potRaised(pot), funded = raised >= pot.target - EPS, fees = potFeesUSD(pot);
+  return `<div class="screen">${topbar("Family pot")}
+    <div class="card center" style="gap:10px">
+      <div style="position:relative;display:grid;place-items:center">${potRing(pot, 210, 18)}
+        <div style="position:absolute;text-align:center"><div class="big-amount num" style="font-size:34px">${shortMoney(raised, pot.cur)}</div><div class="small muted num">of ${shortMoney(pot.target, pot.cur)}</div></div></div>
+      <h2 style="font-size:22px">${esc(pot.title)}</h2>
+      ${r ? `<span class="small muted">One payout to ${esc(r.name)} · ${esc(payoutSummary(r.payout))}</span>` : ""}
+      ${pot.paidOutAt ? `<span class="badge bg-green s-green">✓ Sent ${fmtDay(pot.paidOutAt)} · ref ${pot.ref}</span>` : funded ? `<span class="badge bg-green s-green">Fully funded</span>` : `<b class="small" style="color:var(--brand)">${money(potRemaining(pot), pot.cur, true)} to go</b>`}
+    </div>
+    <section class="card section"><p class="eyebrow">Who's in</p>
+      ${shares.map((s, i) => `<div class="row"><span class="legend" style="background:${POT_COLORS[i % POT_COLORS.length]}"></span><span class="grow"><b class="small">${esc(s.m.name)}</b><br><span class="tiny muted">${esc(s.m.city)} · ${CUR[s.m.cur].flag} ${s.m.cur}</span></span><span class="small num ${s.added ? "" : "muted"}">${s.added ? money(s.added, pot.cur, true) : "Not yet"}</span></div>`).join("")}
+    </section>
+    <section class="card section"><p class="eyebrow">Activity</p>
+      ${[...pot.contributions].reverse().map(c => { const m = pot.members.find(x => x.id === c.memberId); return `<div class="row small"><span class="grow">${esc(m ? m.name : "Someone")} added ${money(c.sent, c.cur, true)}</span><span class="num s-green">+${money(c.added, pot.cur, true)}</span></div>`; }).join("")}
+      ${fees > 0 ? `<p class="tiny muted" style="margin:0">✨ Pooling avoids about $${fmtNum(fees)} in separate transfer fees, and ${esc(r ? firstName(r.name) : "the family")} gets one payment instead of ${pot.contributions.length}.</p>` : ""}
+    </section>
+    ${pot.paidOutAt ? "" : `<div class="cta-bar"><button class="primary" data-act="${funded ? "askPayout" : "contribute"}" data-id="${pot.id}">${funded ? "Send " + money(raised, pot.cur, true) + " home" : "Add my share"}</button></div>`}
+  </div>`;
+}
+
+// ----- Tabs -----
+function activity() {
+  const f = S.filter, q = S.search.toLowerCase();
+  const keep = t => (f === "all" || (f === "progress" && (inFlight(t.status) || t.status === "failed")) || (f === "delivered" && t.status === "delivered") || (f === "cancelled" && (t.status === "cancelled" || t.status === "refunded")))
+    && (!q || t.recipient.name.toLowerCase().includes(q) || t.ref.toLowerCase().includes(q));
+  const list = L.transfers.filter(keep), groups = [];
+  list.forEach(t => { const k = new Date(t.createdAt).toLocaleDateString([], { month: "long", year: "numeric" }); let g = groups.find(x => x.k === k); if (!g) groups.push(g = { k, items: [] }); g.items.push(t); });
+  return `<div class="screen">${topbar("Activity")}
+    <input class="search" id="search" placeholder="Search name or reference" value="${esc(S.search)}" data-input="search" aria-label="Search transfers">
+    <div class="chips">${[["all", "All"], ["progress", "In progress"], ["delivered", "Delivered"], ["cancelled", "Cancelled"]].map(([k, l]) => `<button class="chip ${f === k ? "on" : ""}" data-act="filter" data-k="${k}">${l}</button>`).join("")}</div>
+    ${groups.length ? groups.map(g => { const cnt = g.items.filter(t => t.status !== "cancelled" && t.status !== "refunded"), c = cnt[0] ? cnt[0].quote.s : null;
+      const total = c ? cnt.filter(t => t.quote.s === c).reduce((a, t) => a + t.quote.send, 0) : 0;
+      return `<section class="section"><div class="section-head"><p class="eyebrow">${g.k}</p>${c ? `<span class="small muted num">${money(total, c, true)} sent</span>` : ""}</div><div class="card list" style="padding-block:4px">${g.items.map(transferRow).join("")}</div></section>`; }).join("")
+      : `<div class="empty">${S.search ? "No results. Try a name or reference." : "No transfers here yet."}</div>`}
+  </div>`;
+}
+function recipients() {
+  const list = [...L.recipients].sort((a, b) => lastPaid(b) - lastPaid(a));
+  return `<div class="screen">${topbar("Recipients", { right: `<button class="icon-btn" data-act="addRecipient" aria-label="Add recipient">${I.plus}</button>` })}
+    ${list.length ? `<div class="card list" style="padding-block:4px">${list.map(r => recipientRow(r, "openRecipient")).join("")}</div>` : `<div class="empty">No recipients yet. Add someone to send money to.</div>`}
+  </div>`;
+}
+function recipientDetail() {
+  const r = recipientById(here().id);
+  if (!r) return `<div class="screen">${topbar("Recipient")}<div class="empty">Recipient removed</div></div>`;
+  const ts = L.transfers.filter(t => t.recipient.id === r.id), del = ts.filter(t => t.status === "delivered");
+  const total = del.reduce((a, t) => a + t.quote.recv, 0);
+  return `<div class="screen">${topbar(r.nickname || r.name)}
+    <div class="center">${avatar(r, "xl")}<h2 style="font-size:22px">${esc(r.name)}</h2>${r.nickname ? `<span class="muted">${esc(r.nickname)}</span>` : ""}
+      ${del.length ? `<span class="small muted">${money(total, recipientCur(r), true)} delivered across ${del.length} transfer${del.length > 1 ? "s" : ""}</span>` : ""}</div>
+    <button class="primary" data-act="startSend" data-recipient="${r.id}">Send money</button>
+    <dl class="card kv small" style="margin:0">
+      <div><dt>Country</dt><dd>${CUR[recipientCur(r)].flag} ${COUNTRY[countryOfPayout(r.payout)].name}</dd></div>
+      <div><dt>Receives</dt><dd>${recipientCur(r)}</dd></div>
+      <div><dt>Account</dt><dd>${esc(payoutSummary(r.payout))}</dd></div>
+      ${r.verified ? `<div><dt>Verified holder</dt><dd style="color:var(--brand)">✓ ${esc(r.verified)}</dd></div>` : ""}
+    </dl>
+    ${ts.length ? `<section class="section"><p class="eyebrow">History</p><div class="card list" style="padding-block:4px">${ts.map(transferRow).join("")}</div></section>` : ""}
+    <button class="secondary danger" data-act="askDeleteRecipient" data-id="${r.id}">Delete recipient</button>
+  </div>`;
+}
+function account() {
+  const u = limitUsage(), p = L.profile, next = TIERS[p.tier].next;
+  const bar = (label, used, lim) => `<div class="section" style="gap:6px"><div class="row small"><span class="grow">${label}</span><span class="muted num">$${fmtNum(used, 0)} of $${fmtNum(lim, 0)}</span></div><div class="progress"><i style="width:${Math.min(100, used / lim * 100)}%;${used >= lim ? "background:var(--warn)" : ""}"></i></div></div>`;
+  return `<div class="screen">${topbar("Account")}
+    <div class="card row"><span class="avatar lg" style="background:linear-gradient(140deg,var(--hero-a),var(--hero-b))">${esc(p.first[0] + p.last[0])}</span>
+      <span class="grow"><b style="font-size:18px">${esc(p.first + " " + p.last)}</b><br><span class="small" style="color:var(--brand);font-weight:600">✓ ${TIERS[p.tier].title} account</span></span></div>
+    <section class="card section"><p class="eyebrow">Sending limits</p>${bar("Today", u.today, u.tier.day)}${bar("This month", u.month, u.tier.month)}
+      ${next ? `<button class="secondary" data-act="upgrade">Raise limits to $${fmtNum(TIERS[next].month, 0)}/month</button>` : ""}
+      <p class="tiny muted" style="margin:0">Limits are shown in US dollars and reset on a rolling 24 hours and each calendar month. You'll see them before you send, never halfway through a transfer.</p></section>
+    <div class="card list" style="padding-block:4px">
+      <button class="list-row" data-act="go" data-screen="alerts"><span class="grow"><b>Rate alerts</b><br><span class="small muted">${L.alerts.filter(a => a.active).length} active</span></span><span class="muted">${I.chev}</span></button>
+      <button class="list-row" data-act="go" data-screen="scheduled"><span class="grow"><b>Scheduled transfers</b><br><span class="small muted">${L.scheduled.filter(s => !s.paused).length} active</span></span><span class="muted">${I.chev}</span></button>
+    </div>
+    <section class="card section"><p class="eyebrow">Preferences</p>
+      <div class="field"><label for="pref-home">Send from</label><select id="pref-home" data-change="prefHome">${SEND.map(c => `<option value="${c}" ${c === p.home ? "selected" : ""}>${CUR[c].flag} ${c}</option>`).join("")}</select></div>
+      <div class="field"><label for="pref-fav">Usually send to</label><select id="pref-fav" data-change="prefFav">${RECV.map(c => `<option value="${c}" ${c === p.fav ? "selected" : ""}>${CUR[c].flag} ${c}</option>`).join("")}</select></div>
+    </section>
+    <section class="card section"><p class="eyebrow">How Homeward works</p>
+      ${[["No hidden markup", `Every quote shows the mid-market rate, our ${pct(MARGIN)} margin and the fee.`], ["Your rate is locked", "Rates are guaranteed for 30 minutes once you reach review."], ["Name check on every new account", "We confirm who owns an account before you can send to it."], ["Automatic refunds", "Cancel free until payout. Failed transfers are refunded without a support ticket."]]
+        .map(([h, b]) => `<div><b class="small">${h}</b><div class="small muted">${b}</div></div>`).join("")}
+    </section>
+    <button class="secondary danger" data-act="askReset">Reset demo data</button>
+    <p class="tiny muted center" style="margin:0">Homeward demo. Rates are sample data and no real money moves.</p>
+  </div>`;
+}
+function alerts() {
+  return `<div class="screen">${topbar("Rate alerts", { right: `<button class="icon-btn" data-act="newAlert" aria-label="New alert">${I.plus}</button>` })}
+    ${L.alerts.length ? L.alerts.map(a => { const cur = mid(a.s, a.t), met = a.dir === "above" ? cur >= a.rate : cur <= a.rate, dist = Math.abs(cur - a.rate) / a.rate;
+      return `<div class="card section"><div class="toggle"><b class="num">1 ${a.s} ${a.dir === "above" ? "≥" : "≤"} ${fmtRate(a.rate)} ${a.t}</b><button class="switch" role="switch" aria-checked="${a.active}" aria-label="Alert on" data-act="toggleAlert" data-id="${a.id}"></button></div>
+        <div class="small ${met ? "s-green" : "muted"} num">Now ${fmtRate(cur)} · ${met ? "Target reached" : pct(dist, 1) + " to go"}</div>
+        ${a.last ? `<div class="tiny muted">Last alerted ${fmtDay(a.last)}</div>` : ""}
+        <button class="text-btn small" style="justify-self:start;color:var(--bad);padding:0" data-act="deleteAlert" data-id="${a.id}">Delete</button></div>`; }).join("")
+      : `<div class="empty">No rate alerts. Get a notification when the rate hits your target.</div>`}
+  </div>`;
+}
+function scheduled() {
+  return `<div class="screen">${topbar("Scheduled")}
+    ${L.scheduled.length ? L.scheduled.map(s => { const r = recipientById(s.recipientId), est = (() => { try { return quoteSend(s.amount, s.s, s.t); } catch (e) { return null; } })();
+      return `<div class="card section">${r ? `<div class="row">${avatar(r)}<span class="grow"><b>${esc(s.title)}</b><br><span class="small muted">${money(s.amount, s.s, true)} to ${esc(r.name)} · Monthly on day ${s.day}</span></span></div>` : `<b>${esc(s.title)}</b>`}
+        ${est ? `<div class="small muted num">≈ ${money(est.recv, s.t, true)} at today's rate</div>` : ""}
+        ${!s.paused ? `<div class="small">Next: ${nextMonthly(s.day, new Date(), 3).map(fmtDate).join(", ")}</div>` : ""}
+        <div class="toggle small"><span>Paused</span><button class="switch" role="switch" aria-checked="${s.paused}" aria-label="Paused" data-act="pause" data-id="${s.id}"></button></div>
+        <div class="row">${r ? `<button class="text-btn small" style="padding:0" data-act="startSend" data-recipient="${r.id}" data-amount="${s.amount}">Send now instead</button>` : ""}<span class="grow"></span><button class="text-btn small" style="color:var(--bad);padding:0" data-act="deleteSched" data-id="${s.id}">Delete</button></div>
+      </div>`; }).join("") : `<div class="empty">Nothing scheduled. Turn on “Repeat monthly” when you send to set one up.</div>`}
+  </div>`;
+}
+
+// ---------- Sheets & toasts ----------
+function sheetHtml() {
+  const sh = S.sheet; if (!sh) return "";
+  let body = "";
+  if (sh.type === "topup") body = `<h3>Add money</h3>
+    <div class="field"><label for="tu-cur">Currency</label><select id="tu-cur" data-sheet="cur">${SEND.map(c => `<option value="${c}" ${c === sh.cur ? "selected" : ""}>${CUR[c].flag} ${c}</option>`).join("")}</select></div>
+    <div class="field"><label for="tu-amt">Amount</label><input id="tu-amt" inputmode="decimal" value="${esc(sh.amt)}" data-sheet="amt"></div>
+    <p class="tiny muted" style="margin:0">Demo: funds arrive instantly. In production you'd get account details for an instant bank transfer, or pay by debit card.</p>
+    <button class="primary" data-act="doTopup">Add money</button><button class="secondary" data-act="closeSheet">Cancel</button>`;
+  if (sh.type === "cancel") { const t = transferById(sh.id); body = `<h3>Cancel this transfer?</h3><p class="muted" style="margin:0">${t.status === "awaiting" ? "Nothing has been charged yet." : `${money(t.quote.send, t.quote.s)} will be refunded to your ${fundingInline(t.funding)} right away.`}</p>
+    <button class="primary" style="background:var(--bad);color:#fff" data-act="doCancel" data-id="${t.id}">Cancel transfer</button><button class="secondary" data-act="closeSheet">Keep it</button>`; }
+  if (sh.type === "deleteRecipient") { const r = recipientById(sh.id); body = `<h3>Delete ${esc(r.name)}?</h3><p class="muted" style="margin:0">Past transfers stay in your history. Scheduled transfers to them will stop.</p>
+    <button class="primary" style="background:var(--bad);color:#fff" data-act="doDeleteRecipient" data-id="${r.id}">Delete</button><button class="secondary" data-act="closeSheet">Keep</button>`; }
+  if (sh.type === "reset") body = `<h3>Reset all demo data?</h3><p class="muted" style="margin:0">Your transfers, recipients and alerts go back to the sample set.</p>
+    <button class="primary" style="background:var(--bad);color:#fff" data-act="doReset">Reset</button><button class="secondary" data-act="closeSheet">Cancel</button>`;
+  if (sh.type === "upgrade") { const cur = L.profile.tier, next = TIERS[cur].next; body = `<h3>Verification</h3>
+    ${Object.keys(TIERS).map(k => `<div class="card"><div class="row"><b class="grow">${TIERS[k].title}</b>${k === cur ? '<span class="small" style="color:var(--brand);font-weight:600">Current</span>' : ""}</div><div class="small num">$${fmtNum(TIERS[k].day, 0)}/day · $${fmtNum(TIERS[k].month, 0)}/month</div><div class="tiny muted">${TIERS[k].req}</div></div>`).join("")}
+    ${next ? `<button class="primary" data-act="doUpgrade">${sh.working ? '<span class="spinner"></span>' : "Upgrade to " + TIERS[next].title}</button>` : ""}<button class="secondary" data-act="closeSheet">Close</button>`; }
+  if (sh.type === "newAlert") { const cur = mid(sh.s, sh.t); body = `<h3>New rate alert</h3>
+    <div class="row"><div class="field grow"><label for="al-s">From</label><select id="al-s" data-sheet="s">${SEND.map(c => `<option value="${c}" ${c === sh.s ? "selected" : ""}>${CUR[c].flag} ${c}</option>`).join("")}</select></div>
+    <div class="field grow"><label for="al-t">To</label><select id="al-t" data-sheet="t">${RECV.map(c => `<option value="${c}" ${c === sh.t ? "selected" : ""}>${CUR[c].flag} ${c}</option>`).join("")}</select></div></div>
+    <div class="seg"><button class="${sh.dir === "above" ? "on" : ""}" data-act="alertDir" data-d="above">At or above</button><button class="${sh.dir === "below" ? "on" : ""}" data-act="alertDir" data-d="below">At or below</button></div>
+    <div class="field"><label for="al-rate">Target rate</label><input id="al-rate" inputmode="decimal" value="${esc(sh.rate)}" data-sheet="rate"></div>
+    <div class="chips">${[0, 1, 2, 3].map(p => `<button class="chip" data-act="alertPct" data-p="${p}">${p ? "+" + p + "%" : "Today's rate"}</button>`).join("")}</div>
+    <p class="tiny muted" style="margin:0">1 ${sh.s} is ${fmtRate(cur)} ${sh.t} right now (mid-market).</p>
+    <button class="primary" data-act="saveAlert" ${parseAmt(sh.rate) > 0 ? "" : "disabled"}>Save alert</button><button class="secondary" data-act="closeSheet">Cancel</button>`; }
+  if (sh.type === "contribute") { const pot = L.pots.find(p => p.id === sh.id), you = pot.members.find(m => m.you), rate = custRate(you.cur, pot.cur), a = parseAmt(sh.amt), rest = ceil2(potRemaining(pot) / rate);
+    body = `<h3>Add my share</h3>
+    <div class="field"><label for="ct-amt">Amount (${you.cur})</label><input id="ct-amt" inputmode="decimal" value="${esc(sh.amt)}" data-sheet="amt" placeholder="0"></div>
+    <p class="small num" style="margin:0" id="ct-adds">${a > 0 ? `Adds <b>${money(floor2(a * rate), pot.cur)}</b> to the pot` : "&nbsp;"}</p>
+    <div class="chips">${[50, 100].map(v => `<button class="chip" data-act="ctAmt" data-v="${v}">${money(v, you.cur, true)}</button>`).join("")}<button class="chip on" data-act="ctAmt" data-v="${rest}">Cover the rest · ${money(rest, you.cur)}</button></div>
+    <div class="field"><label for="ct-fund">Pay with</label><select id="ct-fund" data-sheet="funding">${Object.keys(FUNDING).map(k => `<option value="${k}" ${k === sh.funding ? "selected" : ""}>${FUNDING[k]}${k === "wallet" ? " · " + money(L.wallet[you.cur] || 0, you.cur) : ""}</option>`).join("")}</select></div>
+    <p class="tiny muted" style="margin:0">Converted at 1 ${you.cur} = ${fmtRate(rate)} ${pot.cur}, our usual rate. No fee on contributions.</p>
+    ${sh.error ? `<div class="notice warn">${I.warn}<span>${esc(sh.error)}</span></div>` : ""}
+    <button class="primary" data-act="doContribute">Add to the pot</button><button class="secondary" data-act="closeSheet">Cancel</button>`; }
+  if (sh.type === "payout") { const pot = L.pots.find(p => p.id === sh.id), r = recipientById(pot.recipientId);
+    body = `<h3>Send the pot home?</h3><p class="muted" style="margin:0">${money(potRaised(pot), pot.cur)} goes to ${esc(r ? r.name : "the recipient")} in one payout, from ${pot.contributions.length} contributions across ${new Set(pot.contributions.map(c => c.cur)).size} currencies.</p>
+    <button class="primary" data-act="doPayout" data-id="${pot.id}">Send ${money(potRaised(pot), pot.cur, true)}</button><button class="secondary" data-act="closeSheet">Not yet</button>`; }
+  if (sh.type === "postcard") { const t = transferById(sh.id);
+    body = `<h3>A postcard for ${esc(t.recipient.nickname || firstName(t.recipient.name))}</h3>
+    <img class="postcard-img" src="${sh.img}" alt="Postcard: ${esc(money(t.quote.recv, t.quote.t))} for ${esc(t.recipient.name)}, with a ${TEXTILE[countryOfPayout(t.recipient.payout)]}-inspired pattern">
+    <p class="small muted center" style="margin:0">The pattern is generated just for this transfer, inspired by ${TEXTILE[countryOfPayout(t.recipient.payout)]} from ${COUNTRY[countryOfPayout(t.recipient.payout)].name}. Press and hold the card to save it, then share it on WhatsApp.</p>
+    <button class="secondary" data-act="copy" data-text="${esc(`${money(t.quote.recv, t.quote.t)} is on its way to you with love from ${L.profile.first} 💚 Ref ${t.payoutRef || t.ref}`)}">Copy a message to go with it</button>
+    <button class="secondary" data-act="closeSheet">Done</button>`; }
+  if (sh.type === "help") { const t = transferById(sh.id); body = `<h3>Help</h3>
+    <dl class="card kv small" style="margin:0"><p class="eyebrow" style="margin:0">We'll attach these details</p><div><dt>Reference</dt><dd>${t.ref}</dd></div><div><dt>Status</dt><dd>${STATUS[t.status].title}</dd></div><div><dt>Expected</dt><dd>${fmtDay(t.eta)}</dd></div></dl>
+    <div><details class="faq"><summary>It says delivered but they haven't got it</summary><p class="small muted">Bank apps can take a few minutes to show incoming money. Share the payout reference ${t.payoutRef || "(shown once delivered)"} with the recipient; their bank can trace it instantly.</p></details>
+    <details class="faq"><summary>Can I change the recipient's details?</summary><p class="small muted">${t.status === "awaiting" || t.status === "processing" ? "Cancel this transfer for free and send a new one. Any payment already made is refunded right away." : "The money is already with the payout partner. If the details were wrong it will bounce back and you'll be refunded automatically."}</p></details>
+    <details class="faq"><summary>Why is my rate different from Google?</summary><p class="small muted">Google shows the mid-market rate. We add a ${pct(MARGIN)} margin, and every quote shows it before you send.</p></details></div>
+    <p class="tiny muted" style="margin:0">Demo: live chat isn't connected in this prototype.</p><button class="secondary" data-act="closeSheet">Done</button>`; }
+  return `<div class="sheet-backdrop" data-act="backdrop"><div class="sheet" role="dialog" aria-modal="true">${body}</div></div>`;
+}
+function toastHtml() {
+  const t = S.toast; if (!t) return "";
+  return `<div class="toast" role="status">${t.icon === "bell" ? I.bell : I.check.replace('stroke="currentColor"', 'stroke="var(--good)"')}<span class="grow small"><b>${esc(t.title)}</b><br><span class="muted">${esc(t.body)}</span></span>
+    ${t.action ? `<button class="chip on" data-act="${t.action}" data-t="${t.t || ""}">${t.actionLabel}</button>` : ""}<button class="text-btn" data-act="dismissToast" aria-label="Dismiss">✕</button></div>`;
+}
+
+// ---------- Render ----------
+const app = document.getElementById("app"), overlay = document.getElementById("overlay");
+function render(scrollTop) {
+  const a = document.activeElement, focusId = a && a.id, selStart = a && a.selectionStart, selEnd = a && a.selectionEnd;
+  const v = here().screen;
+  const html = ({ pot: potScreen, home, activity, recipients, account, alerts, scheduled, "send-amount": sendAmount, "send-recipient": sendRecipient, "add-recipient": addRecipient, review, transfer: tracker, recipient: recipientDetail })[v]();
+  const inFlow = ["send-amount", "send-recipient", "review"].includes(v) || (v === "add-recipient" && S.stack.some(x => x.screen === "send-amount")) || (v === "transfer" && here().confirm);
+  const tabs = S.stack.length === 1 && !inFlow ? `<nav class="tabbar" aria-label="Main">${[["home", "Home", I.home], ["activity", "Activity", I.list], ["recipients", "Recipients", I.people], ["account", "Account", I.user]].map(([k, l, ic]) => {
+    const n = k === "activity" ? L.transfers.filter(t => inFlight(t.status)).length : 0;
+    return `<button class="${v === k ? "on" : ""}" data-act="tab" data-screen="${k}" ${v === k ? 'aria-current="page"' : ""}>${ic}${l}${n ? `<span class="count">${n}</span>` : ""}</button>`; }).join("")}</nav>` : "";
+  app.innerHTML = html + tabs;
+  const sheetKey = S.sheet ? S.sheet.type + (S.sheet.id || "") : "", toastKey = S.toast ? S.toast.title + S.toast.body : "";
+  overlay.innerHTML = sheetHtml() + toastHtml();
+  if (sheetKey && sheetKey === render.sheetKey) overlay.querySelector(".sheet")?.classList.add("still");
+  if (toastKey && toastKey === render.toastKey) overlay.querySelector(".toast")?.classList.add("still");
+  render.sheetKey = sheetKey; render.toastKey = toastKey;
+  if (scrollTop) window.scrollTo(0, 0);
+  if (focusId) { const el = document.getElementById(focusId); if (el) { el.focus({ preventScroll: true }); try { if (selStart != null) el.setSelectionRange(selStart, selEnd); } catch (e) {} } }
+}
+
+// ---------- Actions ----------
+function startSend(opts) { newDraft(opts); S.stack = [S.stack[0], { screen: "send-amount" }]; render(true); }
+function lockQuote() { recalc(); S.draft.locked = S.draft.quote; S.draft.sendError = null; }
+function showToast(t) { S.toast = t; clearTimeout(showToast.timer); showToast.timer = setTimeout(() => { S.toast = null; render(); }, 7000); }
+const ACT = {
+  back, go: el => go(el.dataset.screen), tab: el => tab(el.dataset.screen),
+  startSend: el => startSend({ recipientId: el.dataset.recipient, amount: el.dataset.amount ? +el.dataset.amount : null }),
+  topup: () => { S.sheet = { type: "topup", cur: S.homeCur || L.profile.home, amt: "100" }; render(); },
+  doTopup: () => { const a = parseAmt(S.sheet.amt); if (a > 0) { L.wallet[S.sheet.cur] = round2((L.wallet[S.sheet.cur] || 0) + a); save(); } S.sheet = null; render(); },
+  closeSheet: () => { S.sheet = null; render(); },
+  backdrop: (el, ev) => { if (ev.target === el) { S.sheet = null; render(); } },
+  dismissToast: () => { S.toast = null; render(); },
+  toastSend: el => { S.toast = null; startSend({ t: el.dataset.t }); },
+  openTransfer: el => go("transfer", { id: el.dataset.id }),
+  openRecipient: el => go("recipient", { id: el.dataset.id }),
+  clearRecipient: () => { S.draft.recipientId = null; render(); },
+  toggleCompare: () => { S.draft.showCompare = !S.draft.showCompare; render(); },
+  amountContinue: () => { if (S.draft.recipientId) { lockQuote(); go("review"); } else go("send-recipient"); },
+  pickRecipient: el => { S.draft.recipientId = el.dataset.id; lockQuote(); go("review"); },
+  addRecipient: el => { const inSend = here().screen === "send-recipient"; newForm(inSend ? countryOf(S.draft.t) : "NG", inSend); go("add-recipient"); },
+  method: el => { S.form.method = el.dataset.m; S.form.lookup = { state: "idle" }; render(); },
+  confirmMismatch: () => { S.form.confirmed = !S.form.confirmed; render(); },
+  checkName: () => {
+    const f = S.form, p = formPayout(f); f.lookup = { state: "checking" }; render();
+    setTimeout(() => { if (S.form !== f) return; const name = fakeLookup(p, f.name); f.lookup = { state: "found", name, verdict: nameVerdict(f.name, name) }; render(); }, 900);
+  },
+  saveRecipient: () => {
+    const f = S.form, p = formPayout(f);
+    if (p.ifsc) p.ifsc = p.ifsc.toUpperCase();
+    const r = { id: uid(), name: f.name.trim().replace(/\s+/g, " "), verified: f.lookup.name, nickname: f.nick.trim() || null, payout: p, createdAt: Date.now() };
+    L.recipients.unshift(r); save();
+    if (S.stack.some(x => x.screen === "send-amount")) { S.draft.recipientId = r.id; S.draft.t = recipientCur(r); S.stack.pop(); lockQuote(); go("review"); }
+    else { S.stack.pop(); render(true); }
+  },
+  funding: el => { S.draft.funding = el.dataset.k; render(); },
+  repeat: () => { S.draft.repeat = !S.draft.repeat; render(); },
+  refreshQuote: () => { lockQuote(); render(); },
+  confirmSend: () => {
+    const d = S.draft, q = d.locked, r = recipientById(d.recipientId);
+    d.sendError = null;
+    if (Date.now() >= q.expiresAt) { lockQuote(); d.sendError = "Your locked rate expired. We've fetched a fresh quote."; return render(); }
+    const v = validate(r.payout); if (v) { d.sendError = v.msg; return render(); }
+    const lm = limitCheck(toUSD(q.send, q.s)); if (lm) { d.sendError = lm; return render(); }
+    if (d.funding === "wallet" && (L.wallet[q.s] || 0) + EPS < q.send) { d.sendError = `Your balance is ${money(L.wallet[q.s] || 0, q.s)}. Top up or pay by bank transfer or card.`; return render(); }
+    d.sending = true; render();
+    setTimeout(() => {
+      const now = Date.now();
+      const t = { id: uid(), ref: makeRef(), quote: q, recipient: { ...r }, funding: d.funding, purpose: d.purpose, message: d.message.trim() || null, createdAt: now,
+        eta: now + deliveryEstimate(r.payout, d.funding).mins * 6e4, status: "awaiting", events: [{ status: "awaiting", at: now }] };
+      if (d.funding === "wallet") { L.wallet[q.s] = round2(L.wallet[q.s] - q.send); advance(t, "processing", now, "Paid from your balance"); }
+      L.transfers.unshift(t);
+      if (d.repeat) L.scheduled.push({ id: uid(), title: `${r.nickname || firstName(r.name)} monthly`, recipientId: r.id, amount: q.send, s: q.s, t: q.t, day: new Date().getDate(), paused: false });
+      save(); d.sending = false;
+      S.stack = [S.stack[0], { screen: "transfer", id: t.id, confirm: true }]; render(true);
+    }, 600);
+  },
+  doneFlow: () => { S.stack = [S.stack[0]]; S.draft = null; render(true); },
+  askCancel: el => { S.sheet = { type: "cancel", id: el.dataset.id }; render(); },
+  doCancel: el => {
+    const t = transferById(el.dataset.id), now = Date.now();
+    if (t.status === "awaiting") advance(t, "cancelled", now, "Cancelled before payment. Nothing was charged.");
+    else if (t.status === "processing") { advance(t, "refunded", now, `Cancelled. ${money(t.quote.send, t.quote.s)} refunded to your ${fundingInline(t.funding)}.`); if (t.funding === "wallet") L.wallet[t.quote.s] = round2((L.wallet[t.quote.s] || 0) + t.quote.send); }
+    save(); S.sheet = null; render();
+  },
+  sendAgain: el => { const t = transferById(el.dataset.id); const r = recipientById(t.recipient.id); startSend({ recipientId: r ? r.id : null, t: t.quote.t, amount: t.quote.send }); },
+  help: el => { S.sheet = { type: "help", id: el.dataset.id }; render(); },
+  copy: el => copyText(el.dataset.text, "Reference copied"),
+  copyReceipt: el => { const t = transferById(el.dataset.id); copyText(`Homeward transfer receipt\nReference: ${t.ref}\nSent: ${money(t.quote.send, t.quote.s)} on ${fmtDay(t.createdAt)}\nFee: ${money(t.quote.fee, t.quote.s)}\nRate: 1 ${t.quote.s} = ${fmtRate(t.quote.rate)} ${t.quote.t}\nDelivered: ${money(t.quote.recv, t.quote.t)} to ${t.recipient.name} (${payoutSummary(t.recipient.payout)})\nPayout reference: ${t.payoutRef}`, "Receipt copied"); },
+  filter: el => { S.filter = el.dataset.k; render(); },
+  askDeleteRecipient: el => { S.sheet = { type: "deleteRecipient", id: el.dataset.id }; render(); },
+  doDeleteRecipient: el => { const id = el.dataset.id; L.recipients = L.recipients.filter(r => r.id !== id); L.scheduled = L.scheduled.filter(s => s.recipientId !== id); save(); S.sheet = null; S.stack.pop(); render(true); },
+  upgrade: () => { S.sheet = { type: "upgrade" }; render(); },
+  doUpgrade: () => { S.sheet.working = true; render(); setTimeout(() => { L.profile.tier = TIERS[L.profile.tier].next; save(); S.sheet = null; showToast({ title: "Limits raised", body: `You're now ${TIERS[L.profile.tier].title}.` }); render(); }, 1200); },
+  askReset: () => { S.sheet = { type: "reset" }; render(); },
+  doReset: () => { L = demoLedger(); save(); S.sheet = null; S.stack = [{ screen: "home" }]; render(true); },
+  newAlert: el => { const s = el.dataset.s || L.profile.home, t = el.dataset.t || L.profile.fav; S.sheet = { type: "newAlert", s, t, dir: "above", rate: fmtNum(mid(s, t) * 1.01).replace(/,/g, "") }; render(); },
+  alertDir: el => { S.sheet.dir = el.dataset.d; render(); },
+  alertPct: el => { S.sheet.rate = (mid(S.sheet.s, S.sheet.t) * (1 + el.dataset.p / 100)).toFixed(2); render(); },
+  saveAlert: () => { const sh = S.sheet; L.alerts.push({ id: uid(), s: sh.s, t: sh.t, rate: parseAmt(sh.rate), dir: sh.dir, active: true, last: null }); save(); S.sheet = null; if (here().screen !== "alerts") go("alerts"); else render(); },
+  toggleAlert: el => { const a = L.alerts.find(x => x.id === el.dataset.id); a.active = !a.active; save(); render(); },
+  deleteAlert: el => { L.alerts = L.alerts.filter(x => x.id !== el.dataset.id); save(); render(); },
+  pause: el => { const s = L.scheduled.find(x => x.id === el.dataset.id); s.paused = !s.paused; save(); render(); },
+  openPot: el => go("pot", { id: el.dataset.id }),
+  contribute: el => { S.sheet = { type: "contribute", id: el.dataset.id, amt: "", funding: "wallet" }; render(); },
+  ctAmt: el => { S.sheet.amt = String(el.dataset.v); S.sheet.error = null; render(); },
+  doContribute: () => {
+    const sh = S.sheet, pot = L.pots.find(p => p.id === sh.id), you = pot.members.find(m => m.you), a = parseAmt(sh.amt);
+    try {
+      if (!(a > 0)) throw new Error("Enter an amount.");
+      if (sh.funding === "wallet" && (L.wallet[you.cur] || 0) + EPS < a) throw new Error(`Your balance is ${money(L.wallet[you.cur] || 0, you.cur)}. Pay by bank transfer or card instead.`);
+      potAdd(pot, you.id, a, Date.now());
+      if (sh.funding === "wallet") L.wallet[you.cur] = round2(L.wallet[you.cur] - a);
+      save(); S.sheet = null; render();
+      const sib = pot.members.filter(m => !m.you)[Math.floor(Math.random() * (pot.members.length - 1))];
+      setTimeout(() => { showToast({ title: `${sib.name} reacted ❤️`, body: `“Thank you! Mum is going to love this.”` }); render(); }, 2500);
+    } catch (e) { sh.error = e.message; render(); }
+  },
+  askPayout: el => { S.sheet = { type: "payout", id: el.dataset.id }; render(); },
+  doPayout: el => {
+    const pot = L.pots.find(p => p.id === el.dataset.id); pot.paidOutAt = Date.now(); pot.ref = "POT-" + makeRef().slice(3);
+    save(); S.sheet = null; render(); confetti();
+    showToast({ title: `${pot.title}: sent home`, body: `${money(potRaised(pot), pot.cur, true)} in one payout. Ref ${pot.ref}.` }); render();
+  },
+  postcard: el => { const t = transferById(el.dataset.id); S.sheet = { type: "postcard", id: t.id, img: postcardDataURL(t) }; render(); },
+  openYear: () => openStory(),
+  deleteSched: el => { L.scheduled = L.scheduled.filter(x => x.id !== el.dataset.id); save(); render(); },
+};
+function copyText(text, msg) {
+  const done = () => { showToast({ title: msg, body: text.split("\n")[0] }); render(); };
+  try { navigator.clipboard.writeText(text).then(done, () => { showToast({ title: "Couldn't copy", body: "Select the text and copy it manually." }); render(); }); } catch (e) { showToast({ title: "Couldn't copy", body: "Select the text and copy it manually." }); render(); }
+}
+document.addEventListener("click", ev => {
+  const el = ev.target.closest("[data-act]");
+  if (!el || el.disabled) return;
+  const fn = ACT[el.dataset.act]; if (fn) { ev.preventDefault(); fn(el, ev); }
+});
+document.addEventListener("input", ev => {
+  const el = ev.target;
+  if (el.dataset.input) {
+    const k = el.dataset.input;
+    if (k === "search") { S.search = el.value; return render(); }
+    if (k === "message") { S.draft.message = el.value; return; }
+    S.draft[k] = el.value; S.draft.entry = k === "sendText" ? "send" : "receive"; recalc(); render();
+  } else if (el.dataset.form) {
+    const f = S.form; f[el.dataset.form] = el.value;
+    if (el.dataset.form !== "nick") { if (el.dataset.form === "name" && f.lookup.state === "found") f.lookup.verdict = nameVerdict(f.name, f.lookup.name); else if (el.dataset.form !== "name") { f.lookup = { state: "idle" }; f.confirmed = false; } }
+    render();
+  } else if (el.dataset.sheet && S.sheet && S.sheet.type === "contribute") {
+    S.sheet[el.dataset.sheet] = el.value; S.sheet.error = null;
+    const pot = L.pots.find(p => p.id === S.sheet.id), you = pot.members.find(m => m.you), a = parseAmt(el.value), out = document.getElementById("ct-adds");
+    if (out) out.innerHTML = a > 0 ? `Adds <b>${money(floor2(a * custRate(you.cur, pot.cur)), pot.cur)}</b> to the pot` : "&nbsp;";
+  } else if (el.dataset.sheet && S.sheet) { S.sheet[el.dataset.sheet] = el.value; if (el.dataset.sheet === "rate" || el.dataset.sheet === "amt") { const btn = overlay.querySelector('[data-act="saveAlert"]'); if (btn) btn.disabled = !(parseAmt(el.value) > 0); } }
+});
+document.addEventListener("change", ev => {
+  const el = ev.target;
+  if (el.dataset.change) {
+    const k = el.dataset.change, v = el.value;
+    if (k === "homeCur") S.homeCur = v;
+    else if (k === "rateTarget") S.rateTarget = v;
+    else if (k === "draftS") { S.draft.s = v; recalc(); }
+    else if (k === "draftT") { S.draft.t = v; const r = recipientById(S.draft.recipientId); if (r && recipientCur(r) !== v) S.draft.recipientId = null; recalc(); }
+    else if (k === "purpose") S.draft.purpose = v;
+    else if (k === "prefHome") { L.profile.home = v; save(); }
+    else if (k === "prefFav") { L.profile.fav = v; save(); }
+    render();
+  } else if (el.dataset.formsel) {
+    const f = S.form; f[el.dataset.formsel] = el.value;
+    if (el.dataset.formsel === "country") f.method = COUNTRY[f.country].methods[0];
+    f.lookup = { state: "idle" }; f.confirmed = false; render();
+  } else if (el.dataset.sheet && S.sheet) { S.sheet[el.dataset.sheet] = el.value; render(); }
+});
+
+// ---------- Your year home: story ----------
+const storyEl = document.getElementById("story");
+let story = null;
+function storySlides() {
+  const y = yearInReview(); if (!y) return [];
+  const top = y.ranked[0], topName = top.r.nickname || firstName(top.r.name), fast = Math.round(y.fastest / 1000);
+  const slides = [
+    { bg: ["#0a7a5a", "#033d2e"], kick: "Your year home", big: `${L.profile.first}, you sent love home ${y.count} times.`, detail: "Here's what that looked like over the last twelve months." },
+    { bg: ["#1c2a6b", "#05081c"], kick: "In total", big: money(y.total, y.main, true), detail: "arrived as " + Object.keys(y.byTarget).sort().map(c => money(y.byTarget[c], c, true)).join(" + ") },
+    { bg: ["#d6517f", "#4a0b22"], kick: "Your number one", big: topName, detail: `${top.n} transfers · ${money(top.amt, top.cur, true)} delivered. ${y.ranked.length} people supported in all.` },
+  ];
+  if (y.saved > 0) slides.push({ bg: ["#f5a536", "#7a3d02"], kick: "Kept in the family", big: money(y.saved, y.main, true), detail: "more reached your family than if you'd used a typical bank (3.5% margin + $15 fee each time)." });
+  slides.push({ bg: ["#3489d9", "#0a1c45"], kick: "Most generous month", big: y.busyMonth, detail: `You sent ${money(y.busyAmt, y.main, true)} in ${y.busyMonth}.` });
+  slides.push({ bg: ["#7a4fd6", "#1b0b40"], kick: "Fastest delivery", big: fast < 60 ? `${fast} seconds` : `${Math.floor(fast / 60)}m ${fast % 60}s`, detail: "From your tap to their account." });
+  slides.push({ bg: ["#086b4f", "#000000"], kick: "Thank you", big: "Home is closer than it looks.", detail: "Here's to another year of looking after the people you love." });
+  return slides;
+}
+function openStory() { const slides = storySlides(); if (!slides.length) return; story = { slides, i: 0 }; drawStory(); }
+function closeStory() { clearTimeout(story && story.timer); story = null; storyEl.innerHTML = ""; }
+function drawStory() {
+  clearTimeout(story.timer);
+  const s = story.slides[story.i];
+  storyEl.innerHTML = `<div class="story" role="dialog" aria-modal="true" aria-label="Your year home" style="background:linear-gradient(150deg,${s.bg[0]},${s.bg[1]})">
+    <div class="orb"></div>
+    <div class="bars">${story.slides.map((_, k) => `<i class="${k < story.i ? "done" : k === story.i ? "now" : ""}"><b></b></i>`).join("")}</div>
+    <button class="close" data-story="close" aria-label="Close">✕</button>
+    <div class="kicker">${esc(s.kick)}</div><div class="big num">${esc(s.big)}</div><div class="detail">${esc(s.detail)}</div>
+    <div class="hint">Tap to continue · ${story.i + 1}/${story.slides.length}</div></div>`;
+  story.timer = setTimeout(() => step(1), 5000);
+}
+function step(d) { if (!story) return; const n = story.i + d; if (n >= story.slides.length) return closeStory(); story.i = Math.max(0, n); drawStory(); }
+storyEl.addEventListener("click", ev => {
+  if (!story) return;
+  if (ev.target.closest('[data-story="close"]')) return closeStory();
+  step(ev.clientX < innerWidth / 3 ? -1 : 1);
+});
+document.addEventListener("keydown", ev => { if (!story) return; if (ev.key === "Escape") closeStory(); if (ev.key === "ArrowRight") step(1); if (ev.key === "ArrowLeft") step(-1); });
+
+// ---------- Clock ----------
+let ticks = 0;
+setInterval(() => {
+  ticks++;
+  const now = Date.now(); let changed = false;
+  for (const t of L.transfers) if (inFlight(t.status) && catchUp(t, now)) {
+    changed = true;
+    if (t.status === "delivered") showToast({ title: `Delivered to ${t.recipient.name}`, body: `${money(t.quote.recv, t.quote.t)} has arrived. Ref ${t.ref}.` });
+  }
+  if (ticks % 5 === 0) {
+    driftRates();
+    for (const a of L.alerts) {
+      const r = mid(a.s, a.t), met = a.dir === "above" ? r >= a.rate : r <= a.rate;
+      if (a.active && met && (!a.last || now - a.last > 12 * 3600e3)) { a.last = now; changed = true;
+        showToast({ icon: "bell", title: "Your rate is here", body: `1 ${a.s} = ${fmtRate(r)} ${a.t}`, action: "toastSend", actionLabel: "Send", t: a.t }); }
+    }
+    // Live screens follow the rate; screens with a form being typed into keep still.
+    const v = here().screen;
+    if (v === "send-amount" && S.draft && S.draft.entry === "send") recalc();
+    if (["home", "send-amount", "alerts"].includes(v) && !S.sheet) changed = true;
+  }
+  if (changed) { save(); render(); }
+  document.querySelectorAll("[data-countdown]").forEach(el => {
+    const left = +el.dataset.countdown - Date.now();
+    if (left <= 0 && !el.classList.contains("expired")) render();
+    else if (left > 0) el.lastElementChild.textContent = "Rate locked for " + mmss(left);
+  });
+}, 1000);
+
+driftRates();
+// Catch up any transfers that progressed while the page was closed.
+L.transfers.forEach(t => inFlight(t.status) && catchUp(t, Date.now()));
+render();
+</script>
+</body></html>

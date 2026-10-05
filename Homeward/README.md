@@ -82,6 +82,11 @@ Things to try:
 - **Rate alerts**: add an "at or above" alert at today's rate. Sample rates swing about ±0.25% over a cycle of roughly
   five minutes, so the banner fires within a few minutes. Targets further out may never be reached in the demo.
 
+## Web prototype
+
+`Prototype/index.html` is a self-contained, clickable version of the app (plain HTML and JavaScript). Open it in any
+browser. It ports the core's pricing, validation, pot, weather and recap rules, and keeps demo state in the browser.
+
 ## Tests
 
 ```sh

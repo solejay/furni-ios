@@ -145,7 +145,7 @@ struct FamilyPotView: View {
                         .font(.footnote)
                     }
                     if fees > 0 {
-                        Label("Pooling avoids about $\(MoneyFormatter.string(from: fees, fractionDigits: 2)) in separate transfer fees, and \(recipient.map { $0.fullName.components(separatedBy: " ").first ?? "" } ?? "they") get one payment instead of \(pot.contributions.count).",
+                        Label("Pooling avoids about $\(MoneyFormatter.string(from: fees, fractionDigits: 2)) in separate transfer fees, and \(recipient.map { $0.fullName.components(separatedBy: " ").first ?? "" } ?? "the family") gets one payment instead of \(pot.contributions.count).",
                               systemImage: "sparkles")
                             .font(.caption)
                             .foregroundStyle(.secondary)
