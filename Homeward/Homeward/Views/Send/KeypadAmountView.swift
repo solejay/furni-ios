@@ -9,6 +9,7 @@ struct KeypadAmountView: View {
     let onContinue: () -> Void
     @State private var showingMaths = false
     @State private var shakes = 0
+    @Namespace private var entryNamespace
 
     private var entryText: String {
         (draft.entry == .send ? draft.sendText : draft.receiveText).replacingOccurrences(of: ",", with: "")
@@ -45,17 +46,18 @@ struct KeypadAmountView: View {
                     }
                     .font(.subheadline.weight(.bold))
                     .padding(.leading, 4).padding(.trailing, 12).padding(.vertical, 4)
-                    .glassSurface(cornerRadius: 99)
+                    .liquidGlass(Capsule(), interactive: true)
                 }
                 .accessibilityLabel("Sending to \(recipient.fullName). Tap to change.")
             }
 
-            HStack(spacing: 0) {
-                entryButton("You send", .send)
-                entryButton("They get", .receive)
+            // The selected side wears tinted glass that morphs across when you switch.
+            LiquidGlassGroup(spacing: 12) {
+                HStack(spacing: 4) {
+                    entryButton("You send", .send)
+                    entryButton("They get", .receive)
+                }
             }
-            .padding(3)
-            .glassSurface(cornerRadius: 99)
 
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Text(entryCurrency.symbol).font(.system(size: 34, weight: .bold, design: .rounded)).opacity(0.7)
@@ -113,19 +115,23 @@ struct KeypadAmountView: View {
 
             Spacer(minLength: 0)
 
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 6) {
+            LiquidGlassGroup(spacing: 6) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
                 ForEach(["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "⌫"], id: \.self) { key in
                     Button { press(key) } label: {
                         Group {
                             if key == "⌫" { Image(systemName: "delete.left") } else { Text(key) }
                         }
-                        .font(.system(size: 28, weight: .semibold, design: .rounded))
-                        .frame(maxWidth: .infinity, minHeight: 60)
+                        .font(.system(size: 26, weight: .medium))
+                        .foregroundStyle(.primary)
+                        .frame(maxWidth: .infinity, minHeight: 58)
                         .contentShape(Rectangle())
+                        .liquidGlass(RoundedRectangle(cornerRadius: 22, style: .continuous), interactive: true)
                     }
-                    .buttonStyle(KeyStyle())
+                    .buttonStyle(.plain)
                     .accessibilityLabel(key == "⌫" ? "Delete" : key == "." ? "Decimal point" : key)
                 }
+            }
             }
 
             Button {
@@ -134,11 +140,12 @@ struct KeypadAmountView: View {
                 Label(draft.recipient == nil ? "Choose who" : "Review", systemImage: "arrow.right")
                     .labelStyle(TrailingIconLabelStyle())
                     .font(.headline)
-                    .frame(maxWidth: .infinity, minHeight: 58)
+                    .frame(maxWidth: .infinity, minHeight: 44)
                     .foregroundStyle(Theme.ink)
-                    .background(Theme.sun, in: Capsule())
-                    .shadow(color: Theme.sun.opacity(0.3), radius: 14, y: 8)
             }
+            .liquidGlassButton(prominent: true)
+            .tint(Theme.sun)
+            .controlSize(.large)
             .opacity(draft.quote == nil || limitMessage != nil ? 0.4 : 1)
         }
         .padding(.horizontal)
@@ -172,15 +179,24 @@ struct KeypadAmountView: View {
             // Carry the worked-out amount over so switching sides doesn't lose it.
             if entry == .receive { draft.receiveText = draft.receiveText.replacingOccurrences(of: ",", with: "") }
             else { draft.sendText = draft.sendText.replacingOccurrences(of: ",", with: "") }
-            draft.entry = entry
+            withAnimation(.bouncy) { draft.entry = entry }
             draft.recalculate(with: store.engine)
         } label: {
-            Text(title)
-                .font(.footnote.weight(.bold))
-                .padding(.horizontal, 14).padding(.vertical, 6)
-                .foregroundStyle(draft.entry == entry ? Color(.systemBackground) : Color.secondary)
-                .background(draft.entry == entry ? Color.primary : Color.clear, in: Capsule())
+            if draft.entry == entry {
+                Text(title)
+                    .font(.footnote.weight(.semibold))
+                    .padding(.horizontal, 16).padding(.vertical, 8)
+                    .foregroundStyle(.primary)
+                    .liquidGlass(Capsule(), interactive: true)
+                    .liquidGlassID("entry", in: entryNamespace)
+            } else {
+                Text(title)
+                    .font(.footnote.weight(.semibold))
+                    .padding(.horizontal, 16).padding(.vertical, 8)
+                    .foregroundStyle(.secondary)
+            }
         }
+        .buttonStyle(.plain)
         .accessibilityAddTraits(draft.entry == entry ? .isSelected : [])
     }
 
@@ -194,7 +210,7 @@ struct KeypadAmountView: View {
                 .font(.system(size: 12, weight: .medium, design: .monospaced))
                 .padding(.horizontal, 12).padding(.vertical, 7)
                 .foregroundStyle(.primary)
-                .glassSurface(cornerRadius: 99)
+                .liquidGlass(Capsule(), interactive: true)
         }
     }
 
@@ -213,29 +229,6 @@ struct KeypadAmountView: View {
         }
         if draft.entry == .send { draft.sendText = value } else { draft.receiveText = value }
         draft.recalculate(with: store.engine)
-    }
-}
-
-/// Molded key: lighter top, darker bottom, a bright top edge, and an inset "pressed" state.
-private struct KeyStyle: ButtonStyle {
-    @Environment(\.colorScheme) private var scheme
-
-    func makeBody(configuration: Configuration) -> some View {
-        let dark = scheme == .dark
-        let pressed = configuration.isPressed
-        let top = dark ? Color(red: 0.11, green: 0.12, blue: 0.25) : Color(red: 0.99, green: 0.99, blue: 0.98)
-        let bottom = dark ? Color(red: 0.07, green: 0.08, blue: 0.19) : Color(red: 0.91, green: 0.89, blue: 0.85)
-        let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
-        return configuration.label
-            .foregroundStyle(.primary)
-            .background {
-                shape.fill(LinearGradient(colors: pressed ? [bottom, top] : [top, bottom], startPoint: .top, endPoint: .bottom))
-                    .overlay(shape.strokeBorder(LinearGradient(colors: [.white.opacity(dark ? (pressed ? 0.02 : 0.14) : 0.95), .black.opacity(dark ? 0.25 : 0.08)],
-                                                               startPoint: .top, endPoint: .bottom), lineWidth: 1))
-                    .shadow(color: .black.opacity(pressed ? 0 : (dark ? 0.45 : 0.12)), radius: pressed ? 0 : 8, y: pressed ? 0 : 6)
-            }
-            .offset(y: pressed ? 1 : 0)
-            .animation(.snappy(duration: 0.12), value: pressed)
     }
 }
 

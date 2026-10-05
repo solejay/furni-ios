@@ -33,7 +33,7 @@ struct CardModifier: ViewModifier {
         content
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .glassSurface(cornerRadius: 24)
+            .contentSurface(cornerRadius: 24)
     }
 }
 

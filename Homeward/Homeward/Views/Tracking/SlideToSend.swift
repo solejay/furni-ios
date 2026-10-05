@@ -16,21 +16,24 @@ struct SlideToSend: View {
         GeometryReader { geo in
             let maxOffset = max(0, geo.size.width - thumb - inset * 2)
             ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Color.primary)
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .fill(Theme.sun)
+                // Track stays plain, like the system slider; only the knob is glass (no glass on glass).
+                Capsule()
+                    .fill(Color.primary.opacity(0.08))
+                Capsule()
+                    .fill(Theme.sun.opacity(0.22))
                     .frame(width: isBusy ? geo.size.width : offset + thumb + inset * 2)
                 Text(isBusy ? "Sending…" : title)
                     .font(.headline)
-                    .foregroundStyle(Color(.systemBackground))
+                    .foregroundStyle(.primary)
                     .opacity(isBusy ? 1 : 1 - Double(offset / max(maxOffset, 1)) * 0.9)
                     .frame(maxWidth: .infinity)
                     .padding(.leading, thumb)
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(Theme.sun)
+                // Thumb: tinted, interactive glass; the one prominent element on the screen.
+                Image(systemName: "paperplane.fill")
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(Theme.ink)
                     .frame(width: thumb, height: thumb)
-                    .overlay(Image(systemName: "airplane").font(.title3.weight(.bold)).foregroundStyle(Theme.ink))
-                    .shadow(color: .black.opacity(0.2), radius: 6, y: 3)
+                    .liquidGlass(Circle(), tint: Theme.sun, interactive: true)
                     .offset(x: inset + (isBusy ? maxOffset : offset))
                     .gesture(
                         DragGesture(minimumDistance: 0)

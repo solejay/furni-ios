@@ -1,33 +1,5 @@
 import SwiftUI
 
-/// Frosted surface with a masked-looking 1px gradient edge (neutral highlight, one accent, neutral fade)
-/// and layered neutral shadows: Meng To's dark-glass recipe, adapted for both color schemes.
-struct GlassSurface: ViewModifier {
-    var cornerRadius: CGFloat = 24
-    @Environment(\.colorScheme) private var scheme
-
-    func body(content: Content) -> some View {
-        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-        let dark = scheme == .dark
-        content
-            .background {
-                shape.fill(.ultraThinMaterial)
-                    .overlay(shape.fill(LinearGradient(colors: [.white.opacity(dark ? 0.06 : 0.55), .white.opacity(dark ? 0.012 : 0.2)],
-                                                       startPoint: .top, endPoint: .bottom)))
-            }
-            .overlay {
-                shape.strokeBorder(LinearGradient(stops: [
-                    Gradient.Stop(color: .white.opacity(dark ? 0.26 : 0.95), location: 0),
-                    Gradient.Stop(color: Theme.sun.opacity(dark ? 0.24 : 0.22), location: 0.45),
-                    Gradient.Stop(color: (dark ? Color.white : Color.black).opacity(dark ? 0.04 : 0.08), location: 1),
-                ], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
-            }
-            .shadow(color: .black.opacity(dark ? 0.14 : 0.05), radius: 1, y: 1)
-            .shadow(color: .black.opacity(dark ? 0.14 : 0.05), radius: 6, y: 6)
-            .shadow(color: .black.opacity(dark ? 0.14 : 0.05), radius: 20, y: 18)
-    }
-}
-
 /// A light that travels the edge of a surface. Only for live states: a transfer on its way, sending.
 struct BeamModifier: ViewModifier {
     let active: Bool
@@ -57,7 +29,6 @@ struct BeamModifier: ViewModifier {
 }
 
 extension View {
-    func glassSurface(cornerRadius: CGFloat = 24) -> some View { modifier(GlassSurface(cornerRadius: cornerRadius)) }
     func beam(active: Bool, cornerRadius: CGFloat = 24) -> some View { modifier(BeamModifier(active: active, cornerRadius: cornerRadius)) }
 }
 

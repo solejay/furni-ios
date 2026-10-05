@@ -177,7 +177,7 @@ struct TransferReceiptView: View {
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-        .glassSurface(cornerRadius: 28)
+        .contentSurface(cornerRadius: 28)
         .beam(active: model.isLive, cornerRadius: 28)
         .accessibilityElement(children: .contain)
         .animation(.spring(duration: 0.8), value: model.progress)

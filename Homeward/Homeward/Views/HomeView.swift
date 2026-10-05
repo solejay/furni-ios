@@ -3,7 +3,7 @@ import HomewardCore
 
 struct HomeView: View {
     @Environment(AppStore.self) private var store
-    let selectTab: (RootView.Tab) -> Void
+    let selectTab: (AppTab) -> Void
     @State private var showingTopUp = false
     @State private var showingYear = false
 
@@ -93,13 +93,20 @@ private struct BalanceHero: View {
             HStack {
                 Text("Balance").font(.subheadline.weight(.medium)).foregroundStyle(.white.opacity(0.8))
                 Spacer()
-                Picker("Currency", selection: $selected) {
-                    ForEach(wallet.displayCurrencies) { currency in
-                        Text("\(currency.flag) \(currency.code)").tag(currency)
+                Menu {
+                    Picker("Currency", selection: $selected) {
+                        ForEach(wallet.displayCurrencies) { currency in
+                            Text("\(currency.flag) \(currency.code)").tag(currency)
+                        }
                     }
+                } label: {
+                    Text("\(selected.flag) \(selected.code)")
+                        .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 12).padding(.vertical, 6)
+                        .liquidGlass(Capsule(), interactive: true, clear: true)
                 }
-                .pickerStyle(.menu)
-                .tint(.white)
+                .accessibilityLabel("Balance currency, \(selected.name)")
             }
             Text(wallet.balance(selected).formatted)
                 .font(.system(size: 40, weight: .bold, design: .rounded).monospacedDigit())
@@ -108,25 +115,28 @@ private struct BalanceHero: View {
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
             Spacer(minLength: 150)
-            HStack(spacing: 12) {
-                Button {
-                    store.sendRequest = SendRequest()
-                } label: {
-                    Label("Send home", systemImage: "airplane")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, minHeight: 52)
-                        .foregroundStyle(Theme.ink)
-                        .background(Theme.sun, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            LiquidGlassGroup(spacing: 12) {
+                HStack(spacing: 12) {
+                    Button {
+                        store.sendRequest = SendRequest()
+                    } label: {
+                        Label("Send money", systemImage: "paperplane.fill")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, minHeight: 40)
+                            .foregroundStyle(Theme.ink)
+                    }
+                    .liquidGlassButton(prominent: true)
+                    .tint(Theme.sun)
+                    Button(action: showTopUp) {
+                        Label("Add", systemImage: "plus")
+                            .font(.headline)
+                            .frame(minWidth: 70, minHeight: 40)
+                            .foregroundStyle(.white)
+                    }
+                    .liquidGlassButton()
                 }
-                Button(action: showTopUp) {
-                    Label("Add", systemImage: "plus")
-                        .font(.headline)
-                        .frame(minWidth: 96, minHeight: 48)
-                        .foregroundStyle(.white)
-                        .background(.white.opacity(0.18), in: Capsule())
-                }
+                .controlSize(.large)
             }
-            .buttonStyle(.plain)
         }
         .padding(20)
         .frame(minHeight: 340, alignment: .top)

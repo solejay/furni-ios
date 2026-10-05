@@ -38,8 +38,20 @@ playbook:
   Cancelled, Refunded.
 - **One accent only**: navy glass everywhere, with marigold reserved for actions and transfers in progress. Green and
   red are semantic only.
-- **Glass done precisely**: a frosted fill, a 1px gradient edge, and layered neutral shadows (`GlassSurface`, used by
-  every `.card()`).
+- **Apple Liquid Glass, used where Apple intends it**: only on the navigation and control layer, never on content.
+  - The system `TabView` adopts Liquid Glass, minimizes on scroll (`.tabBarMinimizeBehavior(.onScrollDown)`) and
+    carries a bottom accessory, like Music's mini player. It shows the transfer that's on its way, with live
+    progress, or a quick "Send money".
+  - Controls use real glass:
+    - keypad keys: interactive glass inside a `GlassEffectContainer`
+    - the You send / They get selection: glass that morphs across with `glassEffectID`
+    - currency chips: clear glass over the map
+    - the slide-to-send knob: tinted, interactive glass
+    - `.glassProminent` for the one primary action per screen, and a glass rate-alert banner
+  - Content (balance card, receipts, the rate dial, lists) sits on solid surfaces (`contentSurface()`). There is no
+    glass on glass, and only primary actions are tinted.
+  - `LiquidGlass.swift` wraps `glassEffect`, `GlassEffectContainer`, `glassEffectID` and the glass button styles behind
+    `#available(iOS 26.0, *)`, with a material fallback for iOS 17–25.
 - **A beam for live states**: a light travels the edge of a transfer while it's on its way (`.beam(active:)`), and
   nowhere else.
 - **Rate weather** as a calibration dial: one tick per earlier day, lit when today's rate beats it (`RateDial`).
@@ -92,7 +104,8 @@ backend or another client. The SwiftUI layer only presents them.
 
 ## Running
 
-1. Open `Homeward/Homeward.xcodeproj` in Xcode 16 or later.
+1. Open `Homeward/Homeward.xcodeproj` in **Xcode 26** or later. The Liquid Glass APIs only exist in the iOS 26 SDK;
+   the deployment target stays iOS 17, and older systems get a material fallback.
 2. Choose the **Homeward** scheme and an iOS 17+ simulator, then run. On a device, choose your team under Signing.
 
 The app starts with demo data. **Account → Reset demo data** restores it.

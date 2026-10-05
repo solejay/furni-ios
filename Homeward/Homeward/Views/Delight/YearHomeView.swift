@@ -35,7 +35,7 @@ struct YearHomeView: View {
         }
         .overlay(alignment: .topTrailing) {
             Button { dismiss() } label: {
-                Image(systemName: "xmark").font(.headline).padding(10).background(.ultraThinMaterial, in: Circle())
+                Image(systemName: "xmark").font(.headline).padding(10).liquidGlass(Circle(), interactive: true)
             }
             .padding(.top, 20)
             .padding(.trailing)
