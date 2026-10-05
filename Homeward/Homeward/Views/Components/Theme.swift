@@ -1,11 +1,23 @@
 import SwiftUI
 import HomewardCore
 
+/// "Money travels home the way you do": night-sky indigo, marigold and coral.
 enum Theme {
-    static let brand = Color(red: 0.03, green: 0.42, blue: 0.31)
-    static let brandDeep = Color(red: 0.01, green: 0.24, blue: 0.18)
-    static let sun = Color(red: 0.98, green: 0.69, blue: 0.24)
-    static let hero = LinearGradient(colors: [brand, brandDeep], startPoint: .topLeading, endPoint: .bottomTrailing)
+    /// Accent for text and icons: marigold at night, a deeper amber by day so it stays readable on white.
+    static let brand = Color(UIColor { $0.userInterfaceStyle == .dark
+        ? UIColor(red: 1.00, green: 0.70, blue: 0.25, alpha: 1)
+        : UIColor(red: 0.66, green: 0.37, blue: 0.00, alpha: 1) })
+    /// Night indigo used behind the map, passes and the hero.
+    static let brandDeep = Color(red: 0.07, green: 0.06, blue: 0.20)
+    /// Marigold fill. Always pair with `ink` text.
+    static let sun = Color(red: 1.00, green: 0.70, blue: 0.25)
+    static let coral = Color(red: 1.00, green: 0.42, blue: 0.29)
+    static let mint = Color(red: 0.36, green: 0.89, blue: 0.69)
+    static let ink = Color(red: 0.10, green: 0.07, blue: 0.02)
+    static let cream = Color(red: 0.96, green: 0.94, blue: 0.89)
+    static let night = LinearGradient(colors: [Color(red: 0.17, green: 0.14, blue: 0.44), Color(red: 0.05, green: 0.04, blue: 0.12)],
+                                      startPoint: .topTrailing, endPoint: .bottomLeading)
+    static let hero = night
 
     static let avatarPalette: [Color] = [
         Color(red: 0.93, green: 0.45, blue: 0.27), Color(red: 0.20, green: 0.55, blue: 0.85),
@@ -34,8 +46,8 @@ struct PrimaryButtonStyle: ButtonStyle {
         configuration.label
             .font(.headline)
             .frame(maxWidth: .infinity, minHeight: 54)
-            .foregroundStyle(.white)
-            .background(isEnabled ? Theme.brand : Color.gray.opacity(0.45), in: Capsule())
+            .foregroundStyle(isEnabled ? Theme.ink : Color.secondary)
+            .background(isEnabled ? Theme.sun : Color.gray.opacity(0.3), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
             .animation(.snappy(duration: 0.15), value: configuration.isPressed)
     }

@@ -9,6 +9,7 @@ struct ReviewStepView: View {
     @State private var errorMessage: String?
     @State private var isSending = false
     @State private var sentCount = 0
+    @State private var takeoff: Transfer?
 
     var body: some View {
         if let quote = draft.lockedQuote, let recipient = draft.recipient {
@@ -21,21 +22,12 @@ struct ReviewStepView: View {
     private func content(quote: Quote, recipient: Recipient) -> some View {
         Form {
             Section {
-                VStack(spacing: 8) {
-                    RecipientAvatar(recipient: recipient, size: 60)
-                    Text(quote.receiveAmount.formatted)
-                        .font(.system(size: 32, weight: .bold, design: .rounded).monospacedDigit())
-                    Text("to \(recipient.fullName)").font(.headline)
-                    Text(recipient.payout.summary).font(.subheadline).foregroundStyle(.secondary)
-                    if let verified = recipient.verifiedName {
-                        Label("Account holder: \(verified)", systemImage: "checkmark.seal.fill")
-                            .font(.caption)
-                            .foregroundStyle(Theme.brand)
-                    }
-                    RateLockCountdown(quote: quote).padding(.top, 4)
+                VStack(spacing: 14) {
+                    BoardingPassView(model: PassModel(quote: quote, recipient: recipient, funding: draft.funding, purpose: draft.purpose))
+                    RateLockCountdown(quote: quote)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
             }
 
             Section("Breakdown") {
@@ -94,23 +86,28 @@ struct ReviewStepView: View {
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .bottom) {
             TimelineView(.periodic(from: .now, by: 1)) { context in
-                let expired = quote.isExpired(at: context.date)
-                Button {
-                    if expired { refresh() } else { send(quote: quote, recipient: recipient) }
-                } label: {
-                    if isSending {
-                        ProgressView().tint(.white)
+                Group {
+                    if quote.isExpired(at: context.date) {
+                        Button("Get a fresh rate") { refresh() }.buttonStyle(.primary)
                     } else {
-                        Text(expired ? "Get a new rate" : "Send \(quote.receiveAmount.formattedCompact)")
+                        SlideToSend(title: "Slide to send \(quote.receiveAmount.formattedCompact)", isBusy: isSending) {
+                            send(quote: quote, recipient: recipient)
+                        }
                     }
                 }
-                .buttonStyle(.primary)
-                .disabled(isSending)
                 .padding()
                 .background(.bar)
             }
         }
         .sensoryFeedback(.success, trigger: sentCount)
+        .fullScreenCover(item: $takeoff) { transfer in
+            TakeoffView(from: Place.origin(for: transfer.quote.source), to: Place.destination(for: transfer.recipient.country))
+                .task {
+                    try? await Task.sleep(for: .seconds(1.7))
+                    takeoff = nil
+                    onSent(transfer)
+                }
+        }
         .onAppear {
             if draft.funding == .wallet && !store.ledger.wallet.canAfford(quote.sendAmount) {
                 draft.funding = .bankTransfer
@@ -128,13 +125,13 @@ struct ReviewStepView: View {
         errorMessage = nil
         Task {
             // A short pause so the tap feels deliberate; real apps would await the API here.
-            try? await Task.sleep(for: .milliseconds(600))
+            try? await Task.sleep(for: .milliseconds(350))
             do {
                 let message = draft.message.trimmingCharacters(in: .whitespaces)
                 let transfer = try store.send(quote: quote, to: recipient, funding: draft.funding, purpose: draft.purpose,
                                               message: message.isEmpty ? nil : message, repeatMonthly: draft.repeatMonthly)
                 sentCount += 1
-                onSent(transfer)
+                takeoff = transfer
             } catch AppStore.ActionError.send(.quoteExpired) {
                 refresh()
                 errorMessage = Ledger.SendError.quoteExpired.message

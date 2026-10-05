@@ -24,7 +24,7 @@ struct TransferDetailView: View {
     private func content(_ transfer: Transfer) -> some View {
         ScrollView {
             VStack(spacing: 20) {
-                header(transfer)
+                BoardingPassView(model: PassModel(transfer: transfer))
                 TimelineView(.periodic(from: .now, by: 5)) { context in
                     if transfer.isDelayed(at: context.date) {
                         Label {
@@ -45,7 +45,7 @@ struct TransferDetailView: View {
             .animation(.snappy, value: transfer.status)
         }
         .background(Color(.systemGroupedBackground))
-        .navigationTitle(isConfirmation ? "Sent" : "Transfer")
+        .navigationTitle(isConfirmation ? "Wheels up" : "Flight \(transfer.reference)")
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog("Cancel this transfer?", isPresented: $confirmingCancel, titleVisibility: .visible) {
             Button("Cancel transfer", role: .destructive) {
@@ -60,39 +60,6 @@ struct TransferDetailView: View {
         .sheet(isPresented: $showingHelp) { HelpSheet(transfer: transfer) }
         .sheet(isPresented: $showingPostcard) { PostcardSheet(transfer: transfer) }
         .sensoryFeedback(.success, trigger: transfer.status == .delivered)
-    }
-
-    private func header(_ transfer: Transfer) -> some View {
-        VStack(spacing: 10) {
-            if isConfirmation && transfer.status != .delivered {
-                Image(systemName: "paperplane.circle.fill")
-                    .font(.system(size: 56))
-                    .foregroundStyle(Theme.brand)
-                    .symbolEffect(.bounce, value: transfer.status)
-            }
-            RecipientAvatar(recipient: transfer.recipient, size: 56)
-            Text(transfer.quote.receiveAmount.formatted)
-                .font(.system(size: 34, weight: .bold, design: .rounded).monospacedDigit())
-                .strikethrough(transfer.status == .cancelled || transfer.status == .refunded)
-            Text("to \(transfer.recipient.fullName)").font(.headline)
-            StatusBadge(status: transfer.status)
-            Group {
-                switch transfer.status {
-                case .delivered:
-                    if let date = transfer.date(of: .delivered) {
-                        Text("Arrived \(date.dayAndTime) · took \(Self.duration(date.timeIntervalSince(transfer.createdAt)))")
-                    }
-                case .awaitingFunding, .processing, .sentToPartner:
-                    Text("Expected by \(transfer.estimatedDelivery.shortTime)")
-                default:
-                    EmptyView()
-                }
-            }
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .card()
     }
 
     private func trackingTimeline(_ transfer: Transfer) -> some View {

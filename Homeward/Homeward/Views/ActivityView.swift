@@ -53,26 +53,35 @@ struct ActivityView: View {
                                            description: Text(search.isEmpty ? "Transfers you send will show up here." : "Try a name or reference."))
                         .listRowBackground(Color.clear)
                 } else {
+                    Section {
+                        HStack {
+                            FlapText(text: filter == .inProgress ? "IN FLIGHT" : filter == .delivered ? "ARRIVALS" : "DEPARTURES")
+                            Spacer()
+                        }
+                        .listRowBackground(Board.background)
+                    }
                     ForEach(grouped, id: \.month) { group in
                         Section {
                             ForEach(group.transfers) { transfer in
                                 NavigationLink {
                                     TransferDetailView(transferID: transfer.id)
                                 } label: {
-                                    TransferRow(transfer: transfer)
+                                    DepartureRow(transfer: transfer)
                                 }
+                                .listRowBackground(Board.background)
                             }
                         } header: {
                             HStack {
-                                Text(group.month)
+                                Text(group.month.uppercased())
                                 Spacer()
                                 Text(Self.total(group.transfers)).monospacedDigit()
                             }
+                            .font(.system(size: 11, weight: .medium, design: .monospaced))
                         }
                     }
                 }
             }
-            .navigationTitle("Activity")
+            .navigationTitle("Departures")
             .searchable(text: $search, prompt: "Name or reference")
         }
     }

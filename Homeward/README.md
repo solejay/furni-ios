@@ -20,6 +20,21 @@ It's designed around the things people most often complain about in remittance a
 | Watching rates manually | **Rate alerts** with a 30-day chart and "x% better than the 30-day average". |
 | Sending the same amount every month | **Recurring transfers** ("Mum's monthly allowance") that you can pause, delete or send early. |
 
+### Design: money travels home the way you do
+
+Every transfer is treated as a flight home. The concept draws on current fintech patterns (Cash App's full-bleed
+amount keypad, Revolut's tactile cards, slide-to-pay confirmation, bento layouts) and gives them a single story:
+
+- **Night-map home**: a dot-matrix map built from Natural Earth land data, with an arc from your city to everyone you
+  send to. Sparks travel each route, and money in the air leaves a comet trail.
+- **Marigold keypad**: full-bleed amount entry with its own keypad. Type either side; "Show the maths" opens the full
+  breakdown with comparison bars.
+- **Slide to send**: deliberate friction before money moves (a single action for VoiceOver), then a "Wheels up" takeoff.
+- **Boarding-pass receipts**: LON → LOS, the reference as the flight number, cargo, fare and rate, with a flight log
+  from check-in to landing.
+- **Departures board**: history as split-flap rows reading LANDED, IN FLIGHT and DELAYED.
+- **Palette**: night indigo, marigold and coral, with an adaptive amber accent that stays readable in light mode.
+
 ### Made for how families actually send
 
 - **Family Pot**: siblings in London, Houston and Toronto each chip in from their own currency toward one payout home,

@@ -107,15 +107,16 @@ private struct BalanceHero: View {
                 .contentTransition(.numericText())
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
+            Spacer(minLength: 150)
             HStack(spacing: 12) {
                 Button {
                     store.sendRequest = SendRequest()
                 } label: {
-                    Label("Send money", systemImage: "paperplane.fill")
+                    Label("Send home", systemImage: "airplane")
                         .font(.headline)
-                        .frame(maxWidth: .infinity, minHeight: 48)
-                        .foregroundStyle(Theme.brandDeep)
-                        .background(.white, in: Capsule())
+                        .frame(maxWidth: .infinity, minHeight: 52)
+                        .foregroundStyle(Theme.ink)
+                        .background(Theme.sun, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                 }
                 Button(action: showTopUp) {
                     Label("Add", systemImage: "plus")
@@ -128,7 +129,19 @@ private struct BalanceHero: View {
             .buttonStyle(.plain)
         }
         .padding(20)
-        .background(Theme.hero, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+        .frame(minHeight: 340, alignment: .top)
+        .background {
+            ZStack {
+                Theme.night
+                RouteMapView(origin: Place.origin(for: store.ledger.profile.homeCurrency),
+                             destinations: Array(Set(store.ledger.recipients.map { Place.destination(for: $0.country) })).sorted { $0.code < $1.code },
+                             inFlight: Dictionary(store.inFlightTransfers.map { (Place.destination(for: $0.recipient.country).code, $0.status.progress) },
+                                                  uniquingKeysWith: max))
+                    .padding(.top, 90)
+                    .padding(.bottom, 70)
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
         .onAppear { selected = store.ledger.profile.homeCurrency }
     }
 }
