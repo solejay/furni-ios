@@ -74,7 +74,6 @@ struct SentView: View {
     var body: some View {
         ZStack {
             Color(red: 0.02, green: 0.02, blue: 0.06).ignoresSafeArea()
-            RadialGradient(colors: [Theme.sun.opacity(0.14), .clear], center: .center, startRadius: 0, endRadius: 260).ignoresSafeArea()
             VStack(spacing: 22) {
                 ZStack {
                     Circle().stroke(Theme.sun.opacity(0.25), lineWidth: 3)

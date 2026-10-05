@@ -52,11 +52,12 @@ playbook:
     glass on glass, and only primary actions are tinted.
   - `LiquidGlass.swift` wraps `glassEffect`, `GlassEffectContainer`, `glassEffectID` and the glass button styles behind
     `#available(iOS 26.0, *)`, with a material fallback for iOS 17–25.
-- **A beam for live states**: a light travels the edge of a transfer while it's on its way (`.beam(active:)`), and
-  nowhere else.
+- **Flat colour**: solid fills only, with no gradients, glows or light effects. Dark objects (the balance card and
+  receipt heads) use one solid navy (`Theme.night`). A transfer on its way gets a plain marigold edge
+  (`.beam(active:)`).
 - **Rate weather** as a calibration dial: one tick per earlier day, lit when today's rate beats it (`RateDial`).
-- **Atmosphere**: slow vertical light folds with a marigold bloom (`AtmosphereBackground`). Mono micro-labels and
-  01/02/03 step markers on the send flow.
+- **Background**: one flat colour, deep navy at night and warm paper by day (`AtmosphereBackground`). Mono
+  micro-labels and 01/02/03 step markers on the send flow.
 - **People**: each person shows as their real photo once you add one (Photos picker on their page, or on Account for
   you), otherwise as a plain solid colour. Photos are kept as small JPEGs on the device, outside the ledger.
 - **Type**: the prototype pairs Newsreader (feeling) with Geist (numbers) and Geist Mono (labels). The app uses the

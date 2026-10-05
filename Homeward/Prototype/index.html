@@ -511,6 +511,27 @@ p { margin: 0; }
 /* The slider track stays plain; only the knob is glass. */
 .slider.glass { background: color-mix(in srgb, var(--fg) 8%, transparent); box-shadow: none; }
 .slider.glass::before { display: none; }
+
+/* ---------- Flat colour: solid fills everywhere, no gradients, glows or light beams ---------- */
+:root { --head: #14163a; }
+#atmos, .send .bloom, .story .glow, .dock::after { display: none !important; }
+.bar::before { background: var(--ink); -webkit-mask: none; mask: none; backdrop-filter: none; -webkit-backdrop-filter: none; inset: 0 -16px 0; }
+.hero.glass { background: var(--head); }
+.hero .btn-ghost, .hero .curs button:not(.on) { background: rgba(255,255,255,.1); color: #eef0f7; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.pass-head, .rc-head { background: var(--head); }
+.sent-overlay, .takeoff { background: #05060f; }
+.member { background: var(--head); transform: none; }
+.member::after { background: rgba(255,255,255,.12); animation: none; }
+.member .chip-ic { background: #d9b15c; }
+.sheet { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.switch::after { background: #fff; }
+.slider .label span { background: none; color: var(--muted); -webkit-background-clip: border-box; background-clip: border-box; animation: none; }
+.slider .fill { background: var(--accent-soft); }
+.btn-accent, .cta, .dock .fab, .slider .thumb { background: var(--accent); box-shadow: 0 6px 16px rgba(0,0,0,.18); }
+.beam::after { background: var(--accent); opacity: .55; animation: none; }
+.person .banner.has-photo::after, .textile-head.has-photo::after { display: none; }
+.key, .key:active, .key.pressed { background: var(--surface); }
+.glass { box-shadow: var(--sh-sm); }
 </style>
 <canvas id="atmos" aria-hidden="true"></canvas>
 <div class="shell">
@@ -1126,7 +1147,7 @@ function startMap() {
     ctx.fillStyle = "rgba(238,240,247,.13)";
     for (const [lon, lat] of LAND) { const [x, y] = P(lon, lat); if (x > -4 && x < W + 4 && y > -4 && y < H + 4) { ctx.beginPath(); ctx.arc(x, y, dot, 0, 6.283); ctx.fill(); } }
     routes.forEach((r, i) => {
-      const g = ctx.createLinearGradient(r.a[0], r.a[1], r.b[0], r.b[1]); g.addColorStop(0, "rgba(255,178,63,.08)"); g.addColorStop(1, "rgba(255,178,63,.75)");
+      const g = "rgba(255,178,63,.6)";
       ctx.strokeStyle = g; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(...r.a); ctx.quadraticCurveTo(...r.c, ...r.b); ctx.stroke();
       // a spark that keeps travelling each route
       if (!reduce) { const s = ((t * 0.22 + i * 0.31) % 1); const [x, y] = pt(r, s); ctx.fillStyle = `rgba(255,214,140,${0.9 * Math.sin(s * Math.PI)})`; ctx.beginPath(); ctx.arc(x, y, 1.8, 0, 6.283); ctx.fill(); }
@@ -1953,7 +1974,6 @@ function startAtmos() {
   }
   if (reduce) draw(1000); else requestAnimationFrame(draw);
 }
-startAtmos();
 S.greet = Math.floor(Math.random() * GREETINGS.length);
 driftRates();
 L.transfers.forEach(t => inFlight(t.status) && catchUp(t, Date.now()));

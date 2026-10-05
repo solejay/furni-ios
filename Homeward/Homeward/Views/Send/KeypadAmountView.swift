@@ -150,13 +150,7 @@ struct KeypadAmountView: View {
         }
         .padding(.horizontal)
         .padding(.bottom, 8)
-        .background {
-            ZStack {
-                AtmosphereBackground()
-                RadialGradient(colors: [Theme.sun.opacity(0.18), .clear], center: UnitPoint(x: 0.5, y: 0.28), startRadius: 0, endRadius: 220)
-                    .ignoresSafeArea()
-            }
-        }
+        .background(AtmosphereBackground())
         .tint(Theme.brand)
         .navigationTitle("Send home")
         .navigationBarTitleDisplayMode(.inline)

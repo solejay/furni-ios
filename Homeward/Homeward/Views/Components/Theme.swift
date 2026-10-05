@@ -17,9 +17,8 @@ enum Theme {
     static let mint = Color(red: 0.36, green: 0.89, blue: 0.69)
     static let ink = Color(red: 0.10, green: 0.07, blue: 0.02)
     static let cream = Color(red: 0.96, green: 0.94, blue: 0.89)
-    static let night = LinearGradient(colors: [Color(red: 0.07, green: 0.08, blue: 0.21), Color(red: 0.03, green: 0.03, blue: 0.09)],
-                                      startPoint: .top, endPoint: .bottom)
-    static let hero = night
+    /// Solid navy for dark objects (the balance card, receipt heads). The app uses flat colour, no gradients.
+    static let night = Color(red: 0.08, green: 0.09, blue: 0.23)
 
     /// Plain solid colours for people without a photo. Deep enough to sit quietly next to real photos.
     static let solids: [Color] = [

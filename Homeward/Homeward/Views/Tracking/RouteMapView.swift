@@ -47,7 +47,7 @@ struct RouteMapView: View {
             var arc = Path()
             arc.move(to: a)
             arc.addQuadCurve(to: b, control: control)
-            context.stroke(arc, with: .linearGradient(Gradient(colors: [Theme.sun.opacity(0.08), Theme.sun.opacity(0.75)]), startPoint: a, endPoint: b), lineWidth: 1.6)
+            context.stroke(arc, with: .color(Theme.sun.opacity(0.6)), lineWidth: 1.6)
 
             func point(_ t: Double) -> CGPoint {
                 CGPoint(x: (1 - t) * (1 - t) * a.x + 2 * (1 - t) * t * control.x + t * t * b.x,

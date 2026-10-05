@@ -25,8 +25,6 @@ struct ReceiptModel {
     let footerTitle: String?
     let footerValue: String?
     let footerNote: String?
-    /// How warm the header glows: brighter while money is moving.
-    let warmth: Double
 
     var isLive: Bool { tone == .live }
 
@@ -34,13 +32,13 @@ struct ReceiptModel {
         let delayed = t.isDelayed(at: now)
         title = "Transfer receipt"
         switch t.status {
-        case .awaitingFunding: status = delayed ? "Delayed" : "Waiting for payment"; tone = delayed ? .bad : .live; warmth = 0.22
-        case .processing: status = delayed ? "Delayed" : "Processing"; tone = delayed ? .bad : .live; warmth = 0.3
-        case .sentToPartner: status = delayed ? "Delayed" : "On its way"; tone = delayed ? .bad : .live; warmth = 0.38
-        case .delivered: status = "Delivered"; tone = .good; warmth = 0.14
-        case .cancelled: status = "Cancelled"; tone = .muted; warmth = 0.04
-        case .refunded: status = "Refunded"; tone = .muted; warmth = 0.04
-        case .failed: status = "Needs attention"; tone = .bad; warmth = 0.08
+        case .awaitingFunding: status = delayed ? "Delayed" : "Waiting for payment"; tone = delayed ? .bad : .live
+        case .processing: status = delayed ? "Delayed" : "Processing"; tone = delayed ? .bad : .live
+        case .sentToPartner: status = delayed ? "Delayed" : "On its way"; tone = delayed ? .bad : .live
+        case .delivered: status = "Delivered"; tone = .good
+        case .cancelled: status = "Cancelled"; tone = .muted
+        case .refunded: status = "Refunded"; tone = .muted
+        case .failed: status = "Needs attention"; tone = .bad
         }
         receive = t.quote.receiveAmount.formatted
         recipientName = t.recipient.fullName
@@ -69,7 +67,6 @@ struct ReceiptModel {
         title = "Review"
         status = "Ready to send"
         tone = .live
-        warmth = 0.26
         receive = quote.receiveAmount.formatted
         recipientName = recipient.fullName
         account = recipient.payout.summary
@@ -131,12 +128,7 @@ struct TransferReceiptView: View {
             }
             .padding(18)
             .foregroundStyle(Theme.cream)
-            .background {
-                ZStack {
-                    LinearGradient(colors: [Color(red: 0.09, green: 0.10, blue: 0.24), Color(red: 0.035, green: 0.04, blue: 0.11)], startPoint: .top, endPoint: .bottom)
-                    RadialGradient(colors: [Theme.sun.opacity(model.warmth), .clear], center: UnitPoint(x: 0.9, y: -0.1), startRadius: 0, endRadius: 280)
-                }
-            }
+            .background(Theme.night)
 
             Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 14) {
                 GridRow { field("You pay", model.pay); field("Fee", model.fee) }
