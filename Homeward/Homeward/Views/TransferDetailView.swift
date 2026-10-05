@@ -11,6 +11,7 @@ struct TransferDetailView: View {
     @State private var showingHelp = false
     @State private var errorMessage: String?
     @State private var copied = false
+    @State private var showingPostcard = false
 
     var body: some View {
         if let transfer = store.transfer(id: transferID) {
@@ -57,6 +58,7 @@ struct TransferDetailView: View {
                  : "\(transfer.quote.sendAmount.formatted) will be refunded to your \(transfer.fundingSource.inlineTitle) right away.")
         }
         .sheet(isPresented: $showingHelp) { HelpSheet(transfer: transfer) }
+        .sheet(isPresented: $showingPostcard) { PostcardSheet(transfer: transfer) }
         .sensoryFeedback(.success, trigger: transfer.status == .delivered)
     }
 
@@ -184,6 +186,13 @@ struct TransferDetailView: View {
                 Text(errorMessage).font(.footnote).foregroundStyle(.orange)
             }
             if transfer.status == .delivered {
+                Button {
+                    showingPostcard = true
+                } label: {
+                    Label("Send \(transfer.recipient.fullName.components(separatedBy: " ").first ?? "them") a postcard", systemImage: "envelope.open.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.primary)
                 ShareLink(item: Self.receipt(for: transfer), subject: Text("Transfer receipt \(transfer.reference)")) {
                     Label("Share receipt", systemImage: "square.and.arrow.up")
                         .frame(maxWidth: .infinity)

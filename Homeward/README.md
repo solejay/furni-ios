@@ -20,6 +20,19 @@ It's designed around the things people most often complain about in remittance a
 | Watching rates manually | **Rate alerts** with a 30-day chart and "x% better than the 30-day average". |
 | Sending the same amount every month | **Recurring transfers** ("Mum's monthly allowance") that you can pause, delete or send early. |
 
+### Made for how families actually send
+
+- **Family Pot**: siblings in London, Houston and Toronto each chip in from their own currency toward one payout home,
+  a digital *ajo* for looking after parents. A live ring shows everyone's share. Contributions are fee-free, the pot
+  shows the separate-transfer fees it avoided, and the recipient gets one payment instead of several.
+- **Rate Weather**: today's rate as weather ("☀️ Sunny day to send: today's rate beats 26 of the last 29 days"). It
+  describes the past 30 days and never pretends to forecast.
+- **Delivery postcards**: every delivered transfer can become a postcard for WhatsApp. Its pattern is generated just for
+  that transfer and inspired by the recipient's textile traditions: Yoruba *adire* indigo for Nigeria, *kente* strips
+  for Ghana, Maasai beadwork for Kenya and *bandhani* dots for India.
+- **Your Year Home**: a story-style recap of twelve months: total sent, who you supported most, how much more reached
+  your family than through a typical bank, your most generous month and your fastest delivery.
+
 Also included: a multi-currency balance with top-up, recipients with verified-name badges and delivery totals, searchable activity grouped by month, shareable receipts, local notifications, haptics, Dynamic Type-friendly layouts and VoiceOver labels.
 
 ## Project layout
@@ -41,8 +54,9 @@ Homeward/
     │   ├── Transfer.swift       Transfer state machine, tracking steps, delivery estimates
     │   ├── Alerts.swift         Rate alerts, recurring schedules, verification tiers and limits
     │   ├── Wallet.swift         Multi-currency wallet, demo transfer simulator
+    │   ├── Delight.swift        Rate Weather, Family Pots, Your Year Home
     │   └── Ledger.swift         The customer's whole state, plus send/cancel rules and demo data
-    └── Tests/HomewardCoreTests  37 unit tests
+    └── Tests/HomewardCoreTests  46 unit tests
 ```
 
 All pricing, validation and transfer rules live in `HomewardCore`, so they are unit-tested and can be shared with a
@@ -62,6 +76,9 @@ Things to try:
   `2201456784` is valid.
 - **Any account number containing `999`**: the bank lookup returns a different owner, which shows the mismatch warning.
 - **Pay from balance, then cancel** before delivery: the money goes straight back to the balance.
+- **Home → Mum's 70th birthday**: add your share to the family pot and watch the ring fill, then send it home.
+- **Open a delivered transfer → Send a postcard**: each one has its own generated pattern.
+- **Home → Your year home**: tap through the recap.
 - **Rate alerts**: add an "at or above" alert at today's rate. Sample rates swing about ±0.25% over a cycle of roughly
   five minutes, so the banner fires within a few minutes. Targets further out may never be reached in the demo.
 

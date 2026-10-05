@@ -175,6 +175,27 @@ final class AppStore {
         }
     }
 
+    func contribute(toPot id: UUID, amount: Money, funding: FundingSource) throws {
+        do {
+            try ledger.contribute(toPot: id, amount: amount, funding: funding, engine: engine, now: Date())
+        } catch let error as Ledger.SendError {
+            throw ActionError.send(error)
+        } catch let error as FamilyPot.PotError {
+            switch error {
+            case let .belowMinimum(minimum): throw ActionError.other("The smallest contribution is \(minimum.formattedCompact).")
+            case .alreadyPaidOut: throw ActionError.other("This pot has already been sent.")
+            default: throw ActionError.other("We couldn't add that contribution. Please try again.")
+            }
+        }
+    }
+
+    func payOutPot(_ id: UUID) {
+        guard let index = ledger.pots.firstIndex(where: { $0.id == id }) else { return }
+        try? ledger.pots[index].payOut(at: Date())
+        let pot = ledger.pots[index]
+        notify(title: "\(pot.title): sent", body: "\(pot.raised.formatted) is on its way in one payout.")
+    }
+
     func topUp(_ money: Money) {
         try? ledger.wallet.credit(money)
     }

@@ -5,6 +5,7 @@ struct HomeView: View {
     @Environment(AppStore.self) private var store
     let selectTab: (RootView.Tab) -> Void
     @State private var showingTopUp = false
+    @State private var showingYear = false
 
     private var profile: Ledger.Profile { store.ledger.profile }
 
@@ -31,6 +32,17 @@ struct HomeView: View {
                     }
 
                     QuickSendRow()
+
+                    ForEach(store.ledger.pots.filter { !$0.isPaidOut }) { pot in
+                        NavigationLink {
+                            FamilyPotView(potID: pot.id)
+                        } label: {
+                            PotCard(pot: pot, recipient: store.recipient(id: pot.recipientID))
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    YearHomeCard { showingYear = true }
 
                     UpcomingScheduledCard()
 
@@ -65,6 +77,7 @@ struct HomeView: View {
                 }
             }
             .sheet(isPresented: $showingTopUp) { TopUpView() }
+            .fullScreenCover(isPresented: $showingYear) { YearHomeView() }
         }
     }
 }

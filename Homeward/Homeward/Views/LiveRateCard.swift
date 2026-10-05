@@ -17,6 +17,7 @@ struct LiveRateCard: View {
         let history = RateHistory.sample(current: mid, days: 30, endingAt: store.rates.asOf,
                                          seed: Self.seed(source, currentTarget))
         let insight = RateHistory.insight(for: history)
+        let climate = RateClimate.from(history)
 
         VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .top) {
@@ -65,6 +66,18 @@ struct LiveRateCard: View {
             }
             .frame(height: 110)
             .accessibilityLabel("30-day rate chart")
+
+            if let climate {
+                HStack(spacing: 10) {
+                    Text(climate.condition.emoji).font(.title)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(climate.condition.headline).font(.subheadline.weight(.semibold))
+                        Text(climate.detail).font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityHint("Based on the past 30 days. Not a forecast.")
+            }
 
             if let insight {
                 HStack(spacing: 6) {
