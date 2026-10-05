@@ -1,3 +1,5 @@
+> **New:** [Homeward](Homeward/README.md), a SwiftUI money-transfer app with transparent pricing, name-checked recipients and live tracking, lives in [`Homeward/`](Homeward/).
+
 # Furni for iOS
 
 [Furni](http://furni.xyz) for iOS is a furniture store demo app designed by [Romain Huet](https://twitter.com/romainhuet) and written in Swift 2.
