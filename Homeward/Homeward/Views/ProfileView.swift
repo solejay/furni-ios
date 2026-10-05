@@ -3,6 +3,7 @@ import HomewardCore
 
 struct ProfileView: View {
     @Environment(AppStore.self) private var store
+    @Environment(PhotoStore.self) private var photos
     @State private var showingUpgrade = false
     @State private var confirmingReset = false
 
@@ -15,11 +16,9 @@ struct ProfileView: View {
             List {
                 Section {
                     HStack(spacing: 14) {
-                        Text(String(profile.firstName.prefix(1)) + String(profile.lastName.prefix(1)))
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(.white)
-                            .frame(width: 60, height: 60)
-                            .background(Theme.hero, in: Circle())
+                        PhotoPickerButton(key: PhotoStore.me) {
+                            ProfileAvatar(size: 64)
+                        }
                         VStack(alignment: .leading, spacing: 4) {
                             Text("\(profile.firstName) \(profile.lastName)").font(.title3.weight(.semibold))
                             Label("\(profile.tier.title) account", systemImage: "checkmark.shield.fill")
@@ -95,7 +94,7 @@ struct ProfileView: View {
             .navigationTitle("Account")
             .sheet(isPresented: $showingUpgrade) { UpgradeSheet() }
             .confirmationDialog("Reset all demo data?", isPresented: $confirmingReset, titleVisibility: .visible) {
-                Button("Reset", role: .destructive) { store.resetDemo() }
+                Button("Reset", role: .destructive) { store.resetDemo(); photos.removeAll() }
             }
         }
     }

@@ -21,11 +21,19 @@ enum Theme {
                                       startPoint: .top, endPoint: .bottom)
     static let hero = night
 
-    static let avatarPalette: [Color] = [
-        Color(red: 0.93, green: 0.45, blue: 0.27), Color(red: 0.20, green: 0.55, blue: 0.85),
-        Color(red: 0.55, green: 0.38, blue: 0.85), Color(red: 0.10, green: 0.62, blue: 0.52),
-        Color(red: 0.86, green: 0.33, blue: 0.53), Color(red: 0.80, green: 0.58, blue: 0.10),
+    /// Plain solid colours for people without a photo. Deep enough to sit quietly next to real photos.
+    static let solids: [Color] = [
+        Color(red: 0.24, green: 0.31, blue: 0.56), Color(red: 0.48, green: 0.25, blue: 0.37),
+        Color(red: 0.18, green: 0.42, blue: 0.37), Color(red: 0.54, green: 0.35, blue: 0.17),
+        Color(red: 0.36, green: 0.26, blue: 0.57), Color(red: 0.29, green: 0.35, blue: 0.42),
+        Color(red: 0.60, green: 0.29, blue: 0.24), Color(red: 0.17, green: 0.42, blue: 0.54),
     ]
+
+    /// The same colour for the same person every time (a stable hash, unlike `hashValue`).
+    static func solid(for seed: String) -> Color {
+        let hash = seed.unicodeScalars.reduce(UInt32(0)) { $0 &* 31 &+ $1.value }
+        return solids[Int(hash % UInt32(solids.count))]
+    }
 }
 
 struct CardModifier: ViewModifier {
@@ -72,27 +80,24 @@ struct FlagBadge: View {
     }
 }
 
+/// The person's real photo, or a blank solid colour until one is added.
 struct RecipientAvatar: View {
     let recipient: Recipient
     var size: CGFloat = 44
-
-    private var color: Color {
-        let seed = recipient.fullName.unicodeScalars.reduce(0) { $0 + Int($1.value) }
-        return Theme.avatarPalette[seed % Theme.avatarPalette.count]
-    }
+    @Environment(PhotoStore.self) private var photos
 
     var body: some View {
-        Text(recipient.initials)
-            .font(.system(size: size * 0.36, weight: .semibold, design: .rounded))
-            .foregroundStyle(.white)
-            .frame(width: size, height: size)
-            .background(Circle().fill(color.gradient))
-            .overlay(alignment: .bottomTrailing) {
-                Text(recipient.country.flag)
-                    .font(.system(size: size * 0.3))
-                    .offset(x: 2, y: 2)
-            }
-            .accessibilityHidden(true)
+        PhotoCircle(image: photos.image(for: recipient.id), seed: recipient.id.uuidString, size: size)
+    }
+}
+
+/// Your own photo, or a blank solid colour.
+struct ProfileAvatar: View {
+    var size: CGFloat = 44
+    @Environment(PhotoStore.self) private var photos
+
+    var body: some View {
+        PhotoCircle(image: photos.image(for: PhotoStore.me), seed: PhotoStore.me, size: size)
     }
 }
 

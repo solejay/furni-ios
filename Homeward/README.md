@@ -57,6 +57,8 @@ playbook:
 - **Rate weather** as a calibration dial: one tick per earlier day, lit when today's rate beats it (`RateDial`).
 - **Atmosphere**: slow vertical light folds with a marigold bloom (`AtmosphereBackground`). Mono micro-labels and
   01/02/03 step markers on the send flow.
+- **People**: each person shows as their real photo once you add one (Photos picker on their page, or on Account for
+  you), otherwise as a plain solid colour. Photos are kept as small JPEGs on the device, outside the ledger.
 - **Type**: the prototype pairs Newsreader (feeling) with Geist (numbers) and Geist Mono (labels). The app uses the
   system serif, sans and monospaced faces in the same roles.
 

@@ -4,11 +4,13 @@ import HomewardCore
 @main
 struct HomewardApp: App {
     @State private var store = AppStore()
+    @State private var photos = PhotoStore()
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environment(store)
+                .environment(photos)
                 .tint(Theme.brand)
                 .task { store.start() }
         }

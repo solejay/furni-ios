@@ -67,6 +67,7 @@ struct RecipientsView: View {
 
 struct RecipientDetailView: View {
     @Environment(AppStore.self) private var store
+    @Environment(PhotoStore.self) private var photos
     @Environment(\.dismiss) private var dismiss
     let recipientID: UUID
     @State private var confirmingDelete = false
@@ -77,7 +78,9 @@ struct RecipientDetailView: View {
             List {
                 Section {
                     VStack(spacing: 8) {
-                        RecipientAvatar(recipient: recipient, size: 72)
+                        PhotoPickerButton(key: recipient.id.uuidString) {
+                            RecipientAvatar(recipient: recipient, size: 88)
+                        }
                         Text(recipient.fullName).font(.title2.weight(.semibold))
                         if let nickname = recipient.nickname { Text(nickname).foregroundStyle(.secondary) }
                         if let total = store.ledger.totalDelivered(to: recipientID) {
@@ -131,6 +134,7 @@ struct RecipientDetailView: View {
             .confirmationDialog("Delete \(recipient.fullName)?", isPresented: $confirmingDelete, titleVisibility: .visible) {
                 Button("Delete", role: .destructive) {
                     store.deleteRecipient(recipientID)
+                    photos.removePhoto(for: recipientID.uuidString)
                     dismiss()
                 }
             } message: {
