@@ -51,6 +51,9 @@ public enum FundingSource: String, Codable, CaseIterable, Sendable {
         }
     }
 
+    /// For use mid-sentence: "from your bank transfer", but "from your Homeward balance".
+    public var inlineTitle: String { self == .wallet ? title : title.lowercased() }
+
     public var detail: String {
         switch self {
         case .wallet: return "Instant · no extra cost"
@@ -158,7 +161,7 @@ public struct Transfer: Codable, Hashable, Identifiable, Sendable {
         case .awaitingFunding:
             try advance(to: .cancelled, at: date, note: "Cancelled before payment. Nothing was charged.")
         case .processing:
-            try advance(to: .refunded, at: date, note: "Cancelled. \(quote.sendAmount.formatted) refunded to your \(fundingSource.title.lowercased()).")
+            try advance(to: .refunded, at: date, note: "Cancelled. \(quote.sendAmount.formatted) refunded to your \(fundingSource.inlineTitle).")
         default:
             throw TransferError.cannotCancel(status)
         }
@@ -209,7 +212,7 @@ extension Transfer {
         let recipientFirstName = recipient.fullName.split(separator: " ").first.map(String.init) ?? recipient.fullName
         let happyPath: [(TransferStatus, String, String?)] = [
             (.awaitingFunding, "Transfer created", "Rate locked at \(MoneyFormatter.rate(quote.customerRate)) \(quote.target.code)"),
-            (.processing, "Payment received", "\(quote.sendAmount.formatted) from your \(fundingSource.title.lowercased())"),
+            (.processing, "Payment received", "\(quote.sendAmount.formatted) from your \(fundingSource.inlineTitle)"),
             (.sentToPartner, "Sent to \(recipient.payout.summary)", "Converted to \(quote.receiveAmount.formatted)"),
             (.delivered, "Delivered to \(recipientFirstName)", payoutReference.map { "Payout reference \($0)" }),
         ]

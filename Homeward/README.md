@@ -58,8 +58,8 @@ The app starts with demo data. **Account → Reset demo data** restores it.
 Things to try:
 - **Send money → £200 to Nigeria**: watch the breakdown, then open the comparison card.
 - **Type the receive amount instead**: the send amount is worked out for you, cheapest first.
-- **New recipient → GTBank → `0123456786`**: the check digit is wrong, and the app says so before any lookup.
-  `0123456785` is valid.
+- **New recipient → GTBank → `2201456785`**: the check digit is wrong, and the app says so before any lookup.
+  `2201456784` is valid.
 - **Any account number containing `999`**: the bank lookup returns a different owner, which shows the mismatch warning.
 - **Pay from balance, then cancel** before delivery: the money goes straight back to the balance.
 - **Rate alerts**: add an "at or above" alert at today's rate. Sample rates swing about ±0.25% over a cycle of roughly

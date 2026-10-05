@@ -54,7 +54,7 @@ struct TransferDetailView: View {
         } message: {
             Text(transfer.status == .awaitingFunding
                  ? "Nothing has been charged yet."
-                 : "\(transfer.quote.sendAmount.formatted) will be refunded to your \(transfer.fundingSource.title.lowercased()) right away.")
+                 : "\(transfer.quote.sendAmount.formatted) will be refunded to your \(transfer.fundingSource.inlineTitle) right away.")
         }
         .sheet(isPresented: $showingHelp) { HelpSheet(transfer: transfer) }
         .sensoryFeedback(.success, trigger: transfer.status == .delivered)
