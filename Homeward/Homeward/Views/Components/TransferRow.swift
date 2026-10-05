@@ -60,9 +60,10 @@ struct InFlightCard: View {
                 }
             }
             ProgressView(value: transfer.status.progress)
-                .tint(transfer.status.color)
+                .tint(Theme.sun)
                 .animation(.easeInOut, value: transfer.status)
         }
         .card()
+        .beam(active: transfer.status.isInFlight)
     }
 }

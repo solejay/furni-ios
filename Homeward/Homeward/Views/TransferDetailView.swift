@@ -44,7 +44,7 @@ struct TransferDetailView: View {
             .padding()
             .animation(.snappy, value: transfer.status)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(AtmosphereBackground())
         .navigationTitle(isConfirmation ? "Wheels up" : "Flight \(transfer.reference)")
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog("Cancel this transfer?", isPresented: $confirmingCancel, titleVisibility: .visible) {

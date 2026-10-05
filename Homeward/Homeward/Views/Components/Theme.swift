@@ -1,7 +1,7 @@
 import SwiftUI
 import HomewardCore
 
-/// "Money travels home the way you do": night-sky indigo, marigold and coral.
+/// "Money travels home the way you do": navy glass with ONE accent, marigold. `good` and `bad` are semantic only.
 enum Theme {
     /// Accent for text and icons: marigold at night, a deeper amber by day so it stays readable on white.
     static let brand = Color(UIColor { $0.userInterfaceStyle == .dark
@@ -11,12 +11,14 @@ enum Theme {
     static let brandDeep = Color(red: 0.07, green: 0.06, blue: 0.20)
     /// Marigold fill. Always pair with `ink` text.
     static let sun = Color(red: 1.00, green: 0.70, blue: 0.25)
-    static let coral = Color(red: 1.00, green: 0.42, blue: 0.29)
+    /// Semantic only: errors and attention.
+    static let coral = Color(red: 1.00, green: 0.48, blue: 0.40)
+    /// Semantic only: delivered and verified.
     static let mint = Color(red: 0.36, green: 0.89, blue: 0.69)
     static let ink = Color(red: 0.10, green: 0.07, blue: 0.02)
     static let cream = Color(red: 0.96, green: 0.94, blue: 0.89)
-    static let night = LinearGradient(colors: [Color(red: 0.17, green: 0.14, blue: 0.44), Color(red: 0.05, green: 0.04, blue: 0.12)],
-                                      startPoint: .topTrailing, endPoint: .bottomLeading)
+    static let night = LinearGradient(colors: [Color(red: 0.07, green: 0.08, blue: 0.21), Color(red: 0.03, green: 0.03, blue: 0.09)],
+                                      startPoint: .top, endPoint: .bottom)
     static let hero = night
 
     static let avatarPalette: [Color] = [
@@ -31,7 +33,7 @@ struct CardModifier: ViewModifier {
         content
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .glassSurface(cornerRadius: 24)
     }
 }
 
@@ -101,7 +103,7 @@ extension TransferStatus {
         case .delivered: return .green
         case .cancelled: return .secondary
         case .failed: return .orange
-        case .refunded: return .purple
+        case .refunded: return .secondary
         }
     }
 

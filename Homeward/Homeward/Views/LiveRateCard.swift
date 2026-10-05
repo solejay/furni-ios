@@ -1,8 +1,7 @@
 import SwiftUI
-import Charts
 import HomewardCore
 
-/// Live rate with 30-day context, so people can tell whether today is a good day to send.
+/// Rate weather as a calibration dial: one tick per earlier day (low to high), lit when today beats it.
 struct LiveRateCard: View {
     @Environment(AppStore.self) private var store
     let source: Currency
@@ -14,103 +13,115 @@ struct LiveRateCard: View {
     var body: some View {
         let mid = store.midRate(source, currentTarget)
         let customer = (try? store.engine.customerRate(from: source, to: currentTarget).customer) ?? mid
-        let history = RateHistory.sample(current: mid, days: 30, endingAt: store.rates.asOf,
-                                         seed: Self.seed(source, currentTarget))
-        let insight = RateHistory.insight(for: history)
+        let history = RateHistory.sample(current: mid, days: 30, endingAt: store.rates.asOf, seed: Self.seed(source, currentTarget))
         let climate = RateClimate.from(history)
 
         VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("1 \(source.code) =").font(.subheadline).foregroundStyle(.secondary)
-                    Text("\(MoneyFormatter.rate(customer)) \(currentTarget.code)")
-                        .font(.title2.weight(.bold).monospacedDigit())
-                        .contentTransition(.numericText(value: customer.doubleValue))
-                        .animation(.default, value: customer)
-                    Text("Mid-market \(MoneyFormatter.rate(mid)) · our margin \(MoneyFormatter.percent(store.engine.policy.marginRate))")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+            HStack {
+                Text("02 · RATE WEATHER · \(source.code)→\(currentTarget.code)")
+                    .font(.system(size: 10.5, weight: .medium, design: .monospaced))
+                    .tracking(1.2)
+                    .foregroundStyle(.secondary)
                 Spacer()
                 Menu {
                     ForEach(Currency.receiveCurrencies) { currency in
                         Button("\(currency.flag) \(currency.name)") { target = currency }
                     }
                 } label: {
-                    HStack(spacing: 4) {
-                        FlagBadge(currency: currentTarget, size: 26)
-                        Image(systemName: "chevron.down").font(.caption2.weight(.bold))
-                    }
-                    .padding(6)
-                    .background(Color(.tertiarySystemFill), in: Capsule())
+                    Text("\(currentTarget.code) ▾")
+                        .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                        .padding(.horizontal, 10).padding(.vertical, 5)
+                        .background(.primary.opacity(0.08), in: Capsule())
                 }
                 .accessibilityLabel("Change currency, currently \(currentTarget.name)")
             }
 
-            Chart(history) { point in
-                AreaMark(x: .value("Day", point.date), y: .value("Rate", point.rate.doubleValue))
-                    .foregroundStyle(LinearGradient(colors: [Theme.brand.opacity(0.25), Theme.brand.opacity(0)],
-                                                    startPoint: .top, endPoint: .bottom))
-                    .interpolationMethod(.catmullRom)
-                LineMark(x: .value("Day", point.date), y: .value("Rate", point.rate.doubleValue))
-                    .foregroundStyle(Theme.brand)
-                    .interpolationMethod(.catmullRom)
-            }
-            .chartYScale(domain: Self.domain(history))
-            .chartXAxis(.hidden)
-            .chartYAxis {
-                AxisMarks(position: .trailing, values: .automatic(desiredCount: 3)) { _ in
-                    AxisGridLine().foregroundStyle(.quaternary)
-                    AxisValueLabel()
-                }
-            }
-            .frame(height: 110)
-            .accessibilityLabel("30-day rate chart")
-
-            if let climate {
-                HStack(spacing: 10) {
-                    Text(climate.condition.emoji).font(.title)
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(climate.condition.headline).font(.subheadline.weight(.semibold))
-                        Text(climate.detail).font(.caption).foregroundStyle(.secondary)
+            HStack(alignment: .center, spacing: 16) {
+                RateDial(points: history)
+                VStack(alignment: .leading, spacing: 6) {
+                    if let climate {
+                        HStack(spacing: 8) {
+                            Image(systemName: climate.condition.symbol).foregroundStyle(Theme.brand)
+                            Text(Self.word(climate.condition))
+                                .font(.system(size: 28, design: .serif).italic())
+                        }
                     }
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityHint("Based on the past 30 days. Not a forecast.")
-            }
-
-            if let insight {
-                HStack(spacing: 6) {
-                    let better = insight.versusAverage >= 0
-                    Image(systemName: better ? "arrow.up.right" : "arrow.down.right")
-                    Text(better
-                         ? "\(MoneyFormatter.percent(insight.versusAverage, fractionDigits: 1)) better than the 30-day average"
-                         : "\(MoneyFormatter.percent(-insight.versusAverage, fractionDigits: 1)) below the 30-day average")
-                    Spacer()
-                    NavigationLink("Set alert") {
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text(MoneyFormatter.rate(customer))
+                            .font(.system(size: 22, weight: .medium).monospacedDigit())
+                            .contentTransition(.numericText(value: customer.doubleValue))
+                            .animation(.default, value: customer)
+                        Text(currentTarget.code).font(.caption).foregroundStyle(.secondary)
+                    }
+                    Text("\(climate?.detail ?? "") Mid-market \(MoneyFormatter.rate(mid)), our margin \(MoneyFormatter.percent(store.engine.policy.marginRate)).")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    NavigationLink("Alert me at a better rate") {
                         RateAlertsView(prefillSource: source, prefillTarget: currentTarget)
                     }
                     .font(.caption.weight(.semibold))
+                    .foregroundStyle(Theme.brand)
                 }
-                .font(.caption)
-                .foregroundStyle(insight.versusAverage >= 0 ? Color.green : Color.orange)
             }
 
-            Text("Sample rates for demonstration · updated \(store.rates.asOf.shortTime)")
+            Text("Measured against the past 30 days. Not a forecast. Sample rates.")
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
         }
         .card()
     }
 
+    static func word(_ condition: RateClimate.Condition) -> String {
+        switch condition {
+        case .sunny: return "Sunny"
+        case .bright: return "Bright"
+        case .mild: return "Mild"
+        case .cloudy: return "Cloudy"
+        case .overcast: return "Overcast"
+        }
+    }
+
     static func seed(_ a: Currency, _ b: Currency) -> UInt64 {
         (a.code + b.code).unicodeScalars.reduce(UInt64(1469598103934665603)) { ($0 ^ UInt64($1.value)) &* 1099511628211 }
     }
+}
 
-    static func domain(_ points: [RateHistory.Point]) -> ClosedRange<Double> {
-        let values = points.map(\.rate.doubleValue)
-        guard let low = values.min(), let high = values.max(), high > low else { return 0...1 }
-        let pad = (high - low) * 0.15
-        return (low - pad)...(high + pad)
+struct RateDial: View {
+    let points: [RateHistory.Point]
+
+    var body: some View {
+        let today = points.last?.rate ?? 0
+        let earlier = points.dropLast().map(\.rate).sorted()
+        let beaten = earlier.filter { today > $0 }.count
+        Canvas { context, size in
+            let center = CGPoint(x: size.width / 2, y: size.height / 2)
+            let radius = min(size.width, size.height) / 2 - 12
+            let start = -225.0, sweep = 270.0
+            func point(_ degrees: Double, _ r: CGFloat) -> CGPoint {
+                let a = degrees * .pi / 180
+                return CGPoint(x: center.x + CGFloat(cos(a)) * r, y: center.y + CGFloat(sin(a)) * r)
+            }
+            context.stroke(Path(ellipseIn: CGRect(x: center.x - radius * 0.68, y: center.y - radius * 0.68, width: radius * 1.36, height: radius * 1.36)),
+                           with: .color(.secondary.opacity(0.2)), lineWidth: 1)
+            for (index, rate) in earlier.enumerated() {
+                let degrees = start + sweep * Double(index) / Double(max(earlier.count - 1, 1))
+                var tick = Path()
+                tick.move(to: point(degrees, radius - 6))
+                tick.addLine(to: point(degrees, radius + (index % 7 == 0 ? 4 : 0)))
+                context.stroke(tick, with: .color(today > rate ? Theme.sun : Color.secondary.opacity(0.35)),
+                               style: StrokeStyle(lineWidth: 2, lineCap: .round))
+            }
+            let needleDegrees = start + sweep * Double(beaten) / Double(max(earlier.count, 1))
+            var needle = Path()
+            needle.move(to: center)
+            needle.addLine(to: point(needleDegrees, radius - 16))
+            context.stroke(needle, with: .color(.primary), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+            context.fill(Path(ellipseIn: CGRect(x: center.x - 4, y: center.y - 4, width: 8, height: 8)), with: .color(Theme.sun))
+            context.draw(Text("\(beaten)/\(earlier.count) DAYS").font(.system(size: 8, weight: .medium, design: .monospaced)).foregroundColor(.secondary),
+                         at: CGPoint(x: center.x, y: center.y + 24))
+        }
+        .frame(width: 136, height: 136)
+        .accessibilityElement()
+        .accessibilityLabel("Today's rate beats \(beaten) of the last \(earlier.count) days")
     }
 }

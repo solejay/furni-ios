@@ -64,7 +64,7 @@ struct HomeView: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .background(AtmosphereBackground())
             .navigationTitle("Hi, \(profile.firstName)")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

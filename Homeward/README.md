@@ -35,6 +35,22 @@ amount keypad, Revolut's tactile cards, slide-to-pay confirmation, bento layouts
 - **Departures board**: history as split-flap rows reading LANDED, IN FLIGHT and DELAYED.
 - **Palette**: night indigo, marigold and coral, with an adaptive amber accent that stays readable in light mode.
 
+#### Refinement after Meng To's playbook
+
+The v4 pass applies the techniques Meng To documents in his public design skills:
+- **One accent only**: navy glass everywhere, with marigold reserved for actions and money in the air. Green and red are
+  semantic only (delivered, error).
+- **Glass done precisely**: a frosted fill, a 1px gradient edge (neutral highlight, one accent, neutral fade), and
+  layered neutral shadows (`GlassSurface`, used by every `.card()`).
+- **Beams for live states**: a light travels the edge of a transfer while it is in flight (`.beam(active:)`), and nowhere else.
+- **An instrument instead of a chart**: rate weather becomes a calibration dial with one tick per earlier day, lit
+  when today's rate beats it (`RateDial`).
+- **Tactile controls**: molded keypad keys with a top highlight and an inset pressed state.
+- **Craft signals**: mono micro-labels, 01/02/03 step markers on the send flow and numbered pass fields.
+- **Atmosphere**: slow vertical light folds with a marigold bloom low on the right (`AtmosphereBackground`).
+- **One type move**: the prototype pairs Newsreader (feeling) with Geist (numbers) and Geist Mono (labels). The app
+  uses the system serif, sans and monospaced faces in the same roles.
+
 ### Made for how families actually send
 
 - **Family Pot**: siblings in London, Houston and Toronto each chip in from their own currency toward one payout home,

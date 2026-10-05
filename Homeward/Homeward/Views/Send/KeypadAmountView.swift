@@ -35,6 +35,7 @@ struct KeypadAmountView: View {
 
     var body: some View {
         VStack(spacing: 12) {
+            StepsHeader(current: 1)
             if let recipient = draft.recipient {
                 Button { draft.recipient = nil } label: {
                     HStack(spacing: 8) {
@@ -44,7 +45,7 @@ struct KeypadAmountView: View {
                     }
                     .font(.subheadline.weight(.bold))
                     .padding(.leading, 4).padding(.trailing, 12).padding(.vertical, 4)
-                    .background(Theme.ink.opacity(0.1), in: Capsule())
+                    .glassSurface(cornerRadius: 99)
                 }
                 .accessibilityLabel("Sending to \(recipient.fullName). Tap to change.")
             }
@@ -54,12 +55,13 @@ struct KeypadAmountView: View {
                 entryButton("They get", .receive)
             }
             .padding(3)
-            .background(Theme.ink.opacity(0.1), in: Capsule())
+            .glassSurface(cornerRadius: 99)
 
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Text(entryCurrency.symbol).font(.system(size: 34, weight: .bold, design: .rounded)).opacity(0.7)
                 Text(displayed)
-                    .font(.system(size: displayed.count <= 4 ? 88 : displayed.count <= 7 ? 66 : 50, weight: .heavy, design: .rounded))
+                    .font(.system(size: displayed.count <= 4 ? 90 : displayed.count <= 7 ? 70 : 52, weight: .light))
+                    .tracking(-3)
                     .monospacedDigit()
                     .contentTransition(.numericText())
                     .lineLimit(1)
@@ -92,11 +94,11 @@ struct KeypadAmountView: View {
 
             if let error = draft.quoteError ?? limitMessage {
                 Text(error)
-                    .font(.footnote.weight(.bold))
+                    .font(.footnote.weight(.medium))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 12).padding(.vertical, 6)
-                    .foregroundStyle(Theme.sun)
-                    .background(Theme.ink, in: RoundedRectangle(cornerRadius: 12))
+                    .foregroundStyle(Theme.coral)
+                    .background(Theme.coral.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
             } else if let quote = draft.quote {
                 Button("1 \(quote.source.code) = \(MoneyFormatter.rate(quote.customerRate)) \(quote.target.code) · \(quote.fee.isZero ? "no fee" : "fee \(quote.fee.formatted)") · Show the maths") {
                     showingMaths = true
@@ -133,20 +135,25 @@ struct KeypadAmountView: View {
                     .labelStyle(TrailingIconLabelStyle())
                     .font(.headline)
                     .frame(maxWidth: .infinity, minHeight: 58)
-                    .foregroundStyle(Theme.sun)
-                    .background(Theme.ink, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .foregroundStyle(Theme.ink)
+                    .background(Theme.sun, in: Capsule())
+                    .shadow(color: Theme.sun.opacity(0.3), radius: 14, y: 8)
             }
             .opacity(draft.quote == nil || limitMessage != nil ? 0.4 : 1)
         }
         .padding(.horizontal)
         .padding(.bottom, 8)
-        .foregroundStyle(Theme.ink)
-        .background(Theme.sun.ignoresSafeArea())
-        .tint(Theme.ink)
+        .background {
+            ZStack {
+                AtmosphereBackground()
+                RadialGradient(colors: [Theme.sun.opacity(0.18), .clear], center: UnitPoint(x: 0.5, y: 0.28), startRadius: 0, endRadius: 220)
+                    .ignoresSafeArea()
+            }
+        }
+        .tint(Theme.brand)
         .navigationTitle("Send home")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
-        .toolbarColorScheme(.light, for: .navigationBar)
         .onChange(of: draft.source) { draft.recalculate(with: store.engine) }
         .onChange(of: draft.target) {
             if let recipient = draft.recipient, recipient.currency != draft.target { draft.recipient = nil }
@@ -171,8 +178,8 @@ struct KeypadAmountView: View {
             Text(title)
                 .font(.footnote.weight(.bold))
                 .padding(.horizontal, 14).padding(.vertical, 6)
-                .foregroundStyle(draft.entry == entry ? Theme.sun : Theme.ink.opacity(0.6))
-                .background(draft.entry == entry ? Theme.ink : Color.clear, in: Capsule())
+                .foregroundStyle(draft.entry == entry ? Color(.systemBackground) : Color.secondary)
+                .background(draft.entry == entry ? Color.primary : Color.clear, in: Capsule())
         }
         .accessibilityAddTraits(draft.entry == entry ? .isSelected : [])
     }
@@ -183,11 +190,11 @@ struct KeypadAmountView: View {
                 Button("\(option.flag) \(option.code) · \(option.name)") { selection.wrappedValue = option }
             }
         } label: {
-            Text("\(selection.wrappedValue.flag) \(selection.wrappedValue.code) ▾")
-                .font(.subheadline.weight(.heavy))
+            Text("\(selection.wrappedValue.flag) \(selection.wrappedValue.code)")
+                .font(.system(size: 12, weight: .medium, design: .monospaced))
                 .padding(.horizontal, 12).padding(.vertical, 7)
-                .foregroundStyle(Theme.sun)
-                .background(Theme.ink, in: Capsule())
+                .foregroundStyle(.primary)
+                .glassSurface(cornerRadius: 99)
         }
     }
 
@@ -209,12 +216,26 @@ struct KeypadAmountView: View {
     }
 }
 
+/// Molded key: lighter top, darker bottom, a bright top edge, and an inset "pressed" state.
 private struct KeyStyle: ButtonStyle {
+    @Environment(\.colorScheme) private var scheme
+
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .background(Theme.ink.opacity(configuration.isPressed ? 0.12 : 0), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-            .scaleEffect(configuration.isPressed ? 0.94 : 1)
-            .animation(.snappy(duration: 0.12), value: configuration.isPressed)
+        let dark = scheme == .dark
+        let pressed = configuration.isPressed
+        let top = dark ? Color(red: 0.11, green: 0.12, blue: 0.25) : Color(red: 0.99, green: 0.99, blue: 0.98)
+        let bottom = dark ? Color(red: 0.07, green: 0.08, blue: 0.19) : Color(red: 0.91, green: 0.89, blue: 0.85)
+        let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
+        return configuration.label
+            .foregroundStyle(.primary)
+            .background {
+                shape.fill(LinearGradient(colors: pressed ? [bottom, top] : [top, bottom], startPoint: .top, endPoint: .bottom))
+                    .overlay(shape.strokeBorder(LinearGradient(colors: [.white.opacity(dark ? (pressed ? 0.02 : 0.14) : 0.95), .black.opacity(dark ? 0.25 : 0.08)],
+                                                               startPoint: .top, endPoint: .bottom), lineWidth: 1))
+                    .shadow(color: .black.opacity(pressed ? 0 : (dark ? 0.45 : 0.12)), radius: pressed ? 0 : 8, y: pressed ? 0 : 6)
+            }
+            .offset(y: pressed ? 1 : 0)
+            .animation(.snappy(duration: 0.12), value: pressed)
     }
 }
 
@@ -257,7 +278,7 @@ struct MathsSheet: View {
                             }
                             GeometryReader { geo in
                                 Capsule()
-                                    .fill(row.2 ? AnyShapeStyle(LinearGradient(colors: [Theme.sun, Theme.coral], startPoint: .leading, endPoint: .trailing)) : AnyShapeStyle(Color.secondary.opacity(0.4)))
+                                    .fill(row.2 ? AnyShapeStyle(Theme.sun) : AnyShapeStyle(Color.secondary.opacity(0.4)))
                                     .frame(width: geo.size.width * row.1.amount.doubleValue / top)
                             }
                             .frame(height: 12)

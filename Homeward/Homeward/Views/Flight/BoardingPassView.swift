@@ -19,15 +19,28 @@ struct PassModel {
             }
         }
 
-        var colors: [Color] {
+        /// How warm the pass glows: brighter while money is moving.
+        var warmth: Double {
             switch self {
-            case .ready: return [Color(red: 0.17, green: 0.14, blue: 0.44), Color(red: 0.05, green: 0.04, blue: 0.16)]
-            case .boarding: return [Color(red: 0.23, green: 0.18, blue: 0.56), Color(red: 0.09, green: 0.07, blue: 0.24)]
-            case .boarded, .inFlight: return [Color(red: 1.0, green: 0.54, blue: 0.30), Color(red: 0.65, green: 0.19, blue: 0.48)]
-            case .landed: return [Color(red: 0.07, green: 0.63, blue: 0.48), Color(red: 0.04, green: 0.24, blue: 0.20)]
-            case .cancelled: return [Color(red: 0.29, green: 0.28, blue: 0.40), Color(red: 0.14, green: 0.13, blue: 0.23)]
-            case .refunded: return [Color(red: 0.48, green: 0.32, blue: 0.84), Color(red: 0.16, green: 0.09, blue: 0.40)]
-            case .attention: return [Color(red: 0.84, green: 0.27, blue: 0.18), Color(red: 0.29, green: 0.06, blue: 0.06)]
+            case .ready: return 0.26
+            case .boarding: return 0.22
+            case .boarded: return 0.34
+            case .inFlight: return 0.42
+            case .landed: return 0.16
+            case .cancelled: return 0.04
+            case .refunded: return 0.06
+            case .attention: return 0.1
+            }
+        }
+
+        var isLive: Bool { self == .boarding || self == .boarded || self == .inFlight }
+
+        var dot: Color {
+            switch self {
+            case .landed: return Theme.mint
+            case .cancelled, .refunded: return .secondary
+            case .attention: return Theme.coral
+            default: return Theme.sun
             }
         }
     }
@@ -103,20 +116,21 @@ struct BoardingPassView: View {
                 HStack {
                     Text("HOMEWARD ✦ BOARDING PASS").font(.system(size: 10, weight: .medium, design: .monospaced)).tracking(1.6)
                     Spacer()
-                    Text(model.state.label.uppercased())
-                        .font(.system(size: 10, weight: .bold, design: .monospaced)).tracking(1)
-                        .padding(.horizontal, 10).padding(.vertical, 4)
-                        .background(.white.opacity(0.16), in: Capsule())
+                    HStack(spacing: 6) {
+                        Circle().fill(model.state.dot).frame(width: 7, height: 7)
+                        Text(model.state.label.uppercased())
+                    }
+                    .font(.system(size: 10, weight: .semibold, design: .monospaced)).tracking(1)
                 }
                 .opacity(0.9)
                 HStack(alignment: .center, spacing: 10) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(model.from.code).font(.system(size: 40, weight: .heavy, design: .rounded))
+                        Text(model.from.code).font(.system(size: 40, weight: .medium)).tracking(-1.6)
                         Text(model.from.city).font(.caption).opacity(0.75)
                     }
                     FlightPath(progress: model.progress).frame(height: 44)
                     VStack(alignment: .trailing, spacing: 2) {
-                        Text(model.to.code).font(.system(size: 40, weight: .heavy, design: .rounded))
+                        Text(model.to.code).font(.system(size: 40, weight: .medium)).tracking(-1.6)
                         Text(model.to.city).font(.caption).opacity(0.75)
                     }
                 }
@@ -130,12 +144,17 @@ struct BoardingPassView: View {
             }
             .padding(18)
             .foregroundStyle(Theme.cream)
-            .background(LinearGradient(colors: model.state.colors, startPoint: .topLeading, endPoint: .bottomTrailing))
+            .background {
+                ZStack {
+                    LinearGradient(colors: [Color(red: 0.09, green: 0.10, blue: 0.24), Color(red: 0.035, green: 0.04, blue: 0.11)], startPoint: .top, endPoint: .bottom)
+                    RadialGradient(colors: [Theme.sun.opacity(model.state.warmth), .clear], center: UnitPoint(x: 0.9, y: -0.1), startRadius: 0, endRadius: 280)
+                }
+            }
 
             Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 14) {
-                GridRow { field("Passenger", model.passenger); field("Flight", model.flight) }
-                GridRow { field("Cargo", model.cargo, big: true); field("Fare", model.fare) }
-                GridRow { field("Rate", model.rate); field("Class", model.travelClass) }
+                GridRow { field("01", "Passenger", model.passenger); field("02", "Flight", model.flight) }
+                GridRow { field("03", "Cargo", model.cargo, big: true); field("04", "Fare", model.fare) }
+                GridRow { field("05", "Rate", model.rate); field("06", "Class", model.travelClass) }
             }
             .padding(18)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -151,18 +170,19 @@ struct BoardingPassView: View {
             }
             .padding(18)
         }
-        .background(Color(.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-        .shadow(color: .black.opacity(0.18), radius: 18, y: 10)
+        .glassSurface(cornerRadius: 28)
+        .beam(active: model.state.isLive, cornerRadius: 28)
         .accessibilityElement(children: .combine)
         .animation(.spring(duration: 0.8), value: model.progress)
     }
 
-    private func field(_ key: String, _ value: String, big: Bool = false) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(key.uppercased()).font(.system(size: 9.5, weight: .medium, design: .monospaced)).tracking(1.4).foregroundStyle(.secondary)
+    private func field(_ number: String, _ key: String, _ value: String, big: Bool = false) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            (Text(number + "  ").foregroundColor(.secondary) + Text(key.uppercased()).foregroundColor(Color.secondary.opacity(0.7)))
+                .font(.system(size: 9.5, weight: .medium, design: .monospaced)).tracking(1.4)
             Text(value)
-                .font(big ? .system(size: 18, weight: .bold, design: .rounded).monospacedDigit() : .subheadline.weight(.semibold))
+                .font(big ? .system(size: 19, weight: .medium).monospacedDigit() : .subheadline.weight(.medium))
                 .lineLimit(2)
                 .minimumScaleFactor(0.7)
         }
@@ -192,11 +212,12 @@ struct FlightPath: View, Animatable {
             }
             ZStack {
                 arc.stroke(.white.opacity(0.35), style: StrokeStyle(lineWidth: 1.6, dash: [3, 4]))
-                arc.trim(from: 0, to: t).stroke(.white, style: StrokeStyle(lineWidth: 2, lineCap: .round))
-                Circle().fill(.white).frame(width: 6, height: 6).position(p0)
+                arc.trim(from: 0, to: t).stroke(Theme.sun, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                Circle().fill(Theme.sun).frame(width: 6, height: 6).position(p0)
                 Circle().stroke(.white, lineWidth: 1.5).frame(width: 6, height: 6).position(p2)
                 Image(systemName: "airplane")
                     .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(Color(red: 1, green: 0.85, blue: 0.6))
                     .rotationEffect(.radians(atan2(dy, dx)))
                     .position(point)
             }

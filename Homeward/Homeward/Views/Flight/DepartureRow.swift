@@ -63,7 +63,7 @@ struct DepartureStatus: View {
         switch transfer.status {
         case .delivered: return ("LANDED", Theme.mint, Theme.mint.opacity(0.12))
         case .cancelled: return ("CANCELLED", Board.dim, Board.dim.opacity(0.12))
-        case .refunded: return ("REFUNDED", .purple, Color.purple.opacity(0.15))
+        case .refunded: return ("REFUNDED", Board.dim, Board.dim.opacity(0.12))
         case .failed: return ("ATTENTION", Theme.coral, Theme.coral.opacity(0.15))
         case .awaitingFunding, .processing, .sentToPartner:
             if transfer.isDelayed(at: date) { return ("DELAYED", Theme.coral, Theme.coral.opacity(0.15)) }

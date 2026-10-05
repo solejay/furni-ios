@@ -47,7 +47,7 @@ struct RouteMapView: View {
             var arc = Path()
             arc.move(to: a)
             arc.addQuadCurve(to: b, control: control)
-            context.stroke(arc, with: .linearGradient(Gradient(colors: [Theme.sun.opacity(0.15), Theme.coral.opacity(0.85)]), startPoint: a, endPoint: b), lineWidth: 1.6)
+            context.stroke(arc, with: .linearGradient(Gradient(colors: [Theme.sun.opacity(0.08), Theme.sun.opacity(0.75)]), startPoint: a, endPoint: b), lineWidth: 1.6)
 
             func point(_ t: Double) -> CGPoint {
                 CGPoint(x: (1 - t) * (1 - t) * a.x + 2 * (1 - t) * t * control.x + t * t * b.x,
@@ -64,14 +64,14 @@ struct RouteMapView: View {
                     let p = point(max(0, progress - Double(k) * 0.012))
                     let r = 1 + (1 - Double(k) / 14) * 2.6
                     context.fill(Path(ellipseIn: CGRect(x: p.x - r, y: p.y - r, width: r * 2, height: r * 2)),
-                                 with: .color(Theme.mint.opacity(0.08 + (1 - Double(k) / 14) * 0.7)))
+                                 with: .color(Color(red: 1, green: 0.95, blue: 0.85).opacity(0.06 + (1 - Double(k) / 14) * 0.8)))
                 }
             }
             let pulse = reduceMotion ? 0 : (time * 0.8 + Double(index) * 0.25).truncatingRemainder(dividingBy: 1)
             let ring = 3 + pulse * 12
             context.stroke(Path(ellipseIn: CGRect(x: b.x - ring, y: b.y - ring, width: ring * 2, height: ring * 2)),
-                           with: .color(Theme.coral.opacity(0.6 * (1 - pulse))), lineWidth: 1.2)
-            context.fill(Path(ellipseIn: CGRect(x: b.x - 3, y: b.y - 3, width: 6, height: 6)), with: .color(Theme.coral))
+                           with: .color(Theme.sun.opacity(0.55 * (1 - pulse))), lineWidth: 1.2)
+            context.fill(Path(ellipseIn: CGRect(x: b.x - 2.6, y: b.y - 2.6, width: 5.2, height: 5.2)), with: .color(Theme.sun))
             context.draw(Text(destination.code).font(.system(size: 9.5, weight: .semibold, design: .monospaced)).foregroundColor(Theme.cream.opacity(0.85)),
                          at: CGPoint(x: b.x + 6, y: b.y), anchor: .leading)
         }
