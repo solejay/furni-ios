@@ -9,7 +9,7 @@ struct ReviewStepView: View {
     @State private var errorMessage: String?
     @State private var isSending = false
     @State private var sentCount = 0
-    @State private var takeoff: Transfer?
+    @State private var sentTransfer: Transfer?
 
     var body: some View {
         if let quote = draft.lockedQuote, let recipient = draft.recipient {
@@ -23,7 +23,7 @@ struct ReviewStepView: View {
         Form {
             Section {
                 VStack(spacing: 14) {
-                    BoardingPassView(model: PassModel(quote: quote, recipient: recipient, funding: draft.funding, purpose: draft.purpose))
+                    TransferReceiptView(model: ReceiptModel(quote: quote, recipient: recipient, funding: draft.funding, purpose: draft.purpose))
                     RateLockCountdown(quote: quote)
                 }
                 .listRowInsets(EdgeInsets())
@@ -100,11 +100,13 @@ struct ReviewStepView: View {
             }
         }
         .sensoryFeedback(.success, trigger: sentCount)
-        .fullScreenCover(item: $takeoff) { transfer in
-            TakeoffView(from: Place.origin(for: transfer.quote.source), to: Place.destination(for: transfer.recipient.country))
+        .fullScreenCover(item: $sentTransfer) { transfer in
+            SentView(amount: transfer.quote.receiveAmount.formatted,
+                     recipientName: transfer.recipient.nickname ?? transfer.recipient.fullName.components(separatedBy: " ").first ?? "",
+                     city: Place.destination(for: transfer.recipient.country).city)
                 .task {
-                    try? await Task.sleep(for: .seconds(1.7))
-                    takeoff = nil
+                    try? await Task.sleep(for: .seconds(1.6))
+                    sentTransfer = nil
                     onSent(transfer)
                 }
         }
@@ -131,7 +133,7 @@ struct ReviewStepView: View {
                 let transfer = try store.send(quote: quote, to: recipient, funding: draft.funding, purpose: draft.purpose,
                                               message: message.isEmpty ? nil : message, repeatMonthly: draft.repeatMonthly)
                 sentCount += 1
-                takeoff = transfer
+                sentTransfer = transfer
             } catch AppStore.ActionError.send(.quoteExpired) {
                 refresh()
                 errorMessage = Ledger.SendError.quoteExpired.message

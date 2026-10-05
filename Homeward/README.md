@@ -20,36 +20,33 @@ It's designed around the things people most often complain about in remittance a
 | Watching rates manually | **Rate alerts** with a 30-day chart and "x% better than the 30-day average". |
 | Sending the same amount every month | **Recurring transfers** ("Mum's monthly allowance") that you can pause, delete or send early. |
 
-### Design: money travels home the way you do
+### Design
 
-Every transfer is treated as a flight home. The concept draws on current fintech patterns (Cash App's full-bleed
-amount keypad, Revolut's tactile cards, slide-to-pay confirmation, bento layouts) and gives them a single story:
+Plain words, premium surfaces. The interface speaks the customer's language (you pay, they receive, fee, exchange
+rate, on its way, delivered) and takes its visual polish from current fintech patterns and Meng To's public design
+playbook:
 
-- **Night-map home**: a dot-matrix map built from Natural Earth land data, with an arc from your city to everyone you
-  send to. Sparks travel each route, and money in the air leaves a comet trail.
-- **Marigold keypad**: full-bleed amount entry with its own keypad. Type either side; "Show the maths" opens the full
-  breakdown with comparison bars.
-- **Slide to send**: deliberate friction before money moves (a single action for VoiceOver), then a "Wheels up" takeoff.
-- **Boarding-pass receipts**: LON → LOS, the reference as the flight number, cargo, fare and rate, with a flight log
-  from check-in to landing.
-- **Departures board**: history as split-flap rows reading LANDED, IN FLIGHT and DELAYED.
-- **Palette**: night indigo, marigold and coral, with an adaptive amber accent that stays readable in light mode.
-
-#### Refinement after Meng To's playbook
-
-The v4 pass applies the techniques Meng To documents in his public design skills:
-- **One accent only**: navy glass everywhere, with marigold reserved for actions and money in the air. Green and red are
-  semantic only (delivered, error).
-- **Glass done precisely**: a frosted fill, a 1px gradient edge (neutral highlight, one accent, neutral fade), and
-  layered neutral shadows (`GlassSurface`, used by every `.card()`).
-- **Beams for live states**: a light travels the edge of a transfer while it is in flight (`.beam(active:)`), and nowhere else.
-- **An instrument instead of a chart**: rate weather becomes a calibration dial with one tick per earlier day, lit
-  when today's rate beats it (`RateDial`).
-- **Tactile controls**: molded keypad keys with a top highlight and an inset pressed state.
-- **Craft signals**: mono micro-labels, 01/02/03 step markers on the send flow and numbered pass fields.
-- **Atmosphere**: slow vertical light folds with a marigold bloom low on the right (`AtmosphereBackground`).
-- **One type move**: the prototype pairs Newsreader (feeling) with Geist (numbers) and Geist Mono (labels). The app
-  uses the system serif, sans and monospaced faces in the same roles.
+- **Home**: your balance over a dot-matrix map built from Natural Earth land data, with a line from your city to each
+  place you send to. A transfer that's on its way shows as a card with a progress track.
+- **Amount screen**: a large amount with its own tactile keypad (after Cash App's pattern). Type what you send or what
+  they get; "Show the maths" opens the full breakdown with comparison bars.
+- **Review**: the transfer receipt before you send it, the rate-lock countdown, and **slide to send**, which is
+  deliberate friction before money moves (a single action for VoiceOver). Then a clear "Sent" confirmation.
+- **Transfer receipt**: how much arrives, who receives it, what you paid, the fee, the rate, the reference, and the
+  bank payout reference once delivered. A progress list runs from created to delivered.
+- **Activity**: transfers grouped by month with plain status labels: Delivered, On its way, Processing, Delayed,
+  Cancelled, Refunded.
+- **One accent only**: navy glass everywhere, with marigold reserved for actions and transfers in progress. Green and
+  red are semantic only.
+- **Glass done precisely**: a frosted fill, a 1px gradient edge, and layered neutral shadows (`GlassSurface`, used by
+  every `.card()`).
+- **A beam for live states**: a light travels the edge of a transfer while it's on its way (`.beam(active:)`), and
+  nowhere else.
+- **Rate weather** as a calibration dial: one tick per earlier day, lit when today's rate beats it (`RateDial`).
+- **Atmosphere**: slow vertical light folds with a marigold bloom (`AtmosphereBackground`). Mono micro-labels and
+  01/02/03 step markers on the send flow.
+- **Type**: the prototype pairs Newsreader (feeling) with Geist (numbers) and Geist Mono (labels). The app uses the
+  system serif, sans and monospaced faces in the same roles.
 
 ### Made for how families actually send
 

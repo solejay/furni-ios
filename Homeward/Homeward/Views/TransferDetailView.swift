@@ -24,7 +24,7 @@ struct TransferDetailView: View {
     private func content(_ transfer: Transfer) -> some View {
         ScrollView {
             VStack(spacing: 20) {
-                BoardingPassView(model: PassModel(transfer: transfer))
+                TransferReceiptView(model: ReceiptModel(transfer: transfer))
                 TimelineView(.periodic(from: .now, by: 5)) { context in
                     if transfer.isDelayed(at: context.date) {
                         Label {
@@ -45,7 +45,7 @@ struct TransferDetailView: View {
             .animation(.snappy, value: transfer.status)
         }
         .background(AtmosphereBackground())
-        .navigationTitle(isConfirmation ? "Wheels up" : "Flight \(transfer.reference)")
+        .navigationTitle(isConfirmation ? "Sent" : "Transfer")
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog("Cancel this transfer?", isPresented: $confirmingCancel, titleVisibility: .visible) {
             Button("Cancel transfer", role: .destructive) {

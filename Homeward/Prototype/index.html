@@ -345,6 +345,42 @@ p { margin: 0; }
 .log-step.upcoming .t { color: var(--faint); }
 .log-step .t span:last-child { font-family: var(--mono); font-size: 11px; color: var(--faint); font-weight: 400; }
 
+/* ---------- Receipt, rows, pills, progress track ---------- */
+.receipt { padding: 0; overflow: hidden; border-radius: 28px; }
+.rc-head { padding: 20px 18px 16px; color: #eef0f7; display: grid; gap: 8px;
+  background: radial-gradient(110% 120% at 90% -10%, rgba(255,178,63,var(--warm, .2)), transparent 55%), linear-gradient(170deg, #17193d, #090a1c); }
+.rc-amount { font-size: clamp(34px, 10vw, 42px); font-weight: 500; letter-spacing: -.05em; line-height: 1.05; margin-top: 6px; }
+.rc-to { font-size: 14px; color: rgba(238,240,247,.7); } .rc-to b { color: #eef0f7; font-weight: 500; }
+.rc-route { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; font-size: 12.5px; margin-top: 8px; }
+.rc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 12px; padding: 18px; margin: 0; }
+.rc-grid dt { font-family: var(--mono); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
+.rc-grid dd { margin: 3px 0 0; font-weight: 500; font-size: 14px; overflow-wrap: anywhere; }
+.rc-foot { display: grid; gap: 3px; padding: 14px 18px 18px; }
+.rc-foot b { font-weight: 500; }
+.track { position: relative; height: 4px; border-radius: 2px; background: rgba(238,240,247,.14); }
+.glass > .track { background: var(--line-2); }
+.track i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; background: var(--accent); transition: width .6s ease; }
+.track b { position: absolute; top: 50%; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); transform: translate(-50%, -50%); box-shadow: 0 0 0 4px rgba(255,178,63,.2); transition: left .6s ease; }
+.tx-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 0; border: 0; border-top: 1px solid var(--line); background: none; text-align: left; color: var(--fg); }
+.glass > .tx-row:nth-of-type(1), .row + .tx-row, .eyebrow + .tx-row { border-top: 0; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 99px; margin-top: 3px; white-space: nowrap; }
+.pill.live { color: var(--accent-text); background: var(--accent-soft); }
+.pill.good { color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); }
+.pill.mute { color: var(--muted); background: var(--ink-3); }
+.pill.bad { color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, transparent); }
+.pill .pulse-dot { width: 6px; height: 6px; }
+.rc-head .pill.live { color: #ffc266; background: rgba(255,178,63,.14); }
+.rc-head .pill.good { color: #5be3b0; } .rc-head .pill.mute { color: #9aa0bb; background: rgba(255,255,255,.08); }
+.strike { text-decoration: line-through; opacity: .6; }
+.sent-overlay { position: fixed; inset: 0; z-index: 45; display: grid; place-items: center; align-content: center; gap: 22px; text-align: center; padding: 24px; color: #eef0f7;
+  background: radial-gradient(70% 50% at 50% 45%, rgba(255,178,63,.14), transparent 70%), #05060f; animation: fade .25s ease both; }
+.sent-overlay svg { width: 120px; height: 120px; }
+.sent-overlay .ring { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .7s .1s ease-out forwards; }
+.sent-overlay .tick { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .45s .65s ease-out forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.sent-overlay b { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 44px; display: block; }
+.sent-overlay span { color: rgba(238,240,247,.7); font-size: 15px; max-width: 30ch; display: inline-block; }
+
 /* ---------- Review ---------- */
 .locker { display: flex; align-items: center; gap: 12px; }
 .locker svg { width: 44px; height: 44px; flex: none; }
@@ -445,18 +481,18 @@ p { margin: 0; }
 <div class="shell">
   <aside class="notes" aria-label="Design notes">
     <p class="eyebrow">Homeward · prototype v4</p>
-    <h2>Money travels home <em>the way you do.</em></h2>
-    <p class="lede">A better LemFi: honest pricing, name-checked recipients and transfers you can watch land. This pass applies Meng To's playbook to the flight concept.</p>
+    <h2>Send money home, <em>nothing hidden.</em></h2>
+    <p class="lede">A better LemFi: honest pricing, name-checked recipients and transfers you can follow from payment to delivery. Visual polish follows Meng To's playbook; the words stay plain.</p>
     <ol>
-      <li><span class="n">01</span><div><b>One accent</b><span>Navy glass, with marigold reserved for actions and money in the air.</span></div></li>
+      <li><span class="n">01</span><div><b>One accent</b><span>Navy glass, with marigold reserved for actions and money on its way.</span></div></li>
       <li><span class="n">02</span><div><b>Masked 1px gradient borders</b><span>Neutral highlight, one accent, neutral fade. Felt more than seen.</span></div></li>
       <li><span class="n">03</span><div><b>Layered neutral shadows</b><span>Six-step elevation instead of one blunt drop shadow.</span></div></li>
-      <li><span class="n">04</span><div><b>Beams for live states</b><span>A traveling edge light only while a transfer is in flight.</span></div></li>
+      <li><span class="n">04</span><div><b>Beams for live states</b><span>A traveling edge light only while a transfer is on its way.</span></div></li>
       <li><span class="n">05</span><div><b>An instrument dial</b><span>Rate weather as a calibration dial: one tick per day you beat.</span></div></li>
       <li><span class="n">06</span><div><b>Tactile keypad</b><span>Molded keys with a top highlight and a pressed state.</span></div></li>
       <li><span class="n">07</span><div><b>One type move</b><span>Newsreader for feeling, Geist for numbers, Geist Mono for labels.</span></div></li>
     </ol>
-    <div class="try glass"><b>Try:</b> tap the plane, type 200, choose Mum and slide to send. Watch the beam trace the transfer. Hover the membership card under <b>You</b>.</div>
+    <div class="try glass"><b>Try:</b> tap the plane, type 200, choose Mum and slide to send. Follow it from payment to delivery. Hover the membership card under <b>You</b>.</div>
   </aside>
   <main class="app" id="app" aria-live="polite"></main>
 </div>
@@ -1040,7 +1076,7 @@ function startMap() {
       const [bx, by] = r.b, pulse = reduce ? 0 : (t * 0.8 + i * 0.25) % 1;
       ctx.strokeStyle = `rgba(255,178,63,${0.55 * (1 - pulse)})`; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(bx, by, 3 + pulse * 12, 0, 6.283); ctx.stroke();
       ctx.fillStyle = "#ffb23f"; ctx.beginPath(); ctx.arc(bx, by, 2.6, 0, 6.283); ctx.fill();
-      ctx.fillStyle = "rgba(238,240,247,.7)"; ctx.font = "500 9px 'Geist Mono', monospace"; ctx.fillText(r.code, bx + 6, by + 3);
+      ctx.fillStyle = "rgba(238,240,247,.7)"; ctx.font = "500 9px 'Geist Mono', monospace"; ctx.fillText(CITIES[r.code].city, bx + 6, by + 3);
     });
     flying.forEach(f => {
       const r = routes.find(x => x.code === f.code); if (!r) return;
@@ -1049,82 +1085,70 @@ function startMap() {
     });
     const [ox, oy] = P(o.lon, o.lat);
     ctx.fillStyle = "#ffb23f"; ctx.shadowColor = "#ffb23f"; ctx.shadowBlur = 14; ctx.beginPath(); ctx.arc(ox, oy, 4.5, 0, 6.283); ctx.fill(); ctx.shadowBlur = 0;
-    ctx.fillStyle = "#eef0f7"; ctx.font = "600 9.5px 'Geist Mono', monospace"; ctx.fillText(originCode(), ox + 8, oy - 6);
+    ctx.fillStyle = "#eef0f7"; ctx.font = "600 9.5px 'Geist Mono', monospace"; ctx.fillText(CITIES[originCode()].city, ox + 8, oy - 6);
     if (!reduce && mapState) mapState.raf = requestAnimationFrame(frame);
   }
   mapState = { raf: 0 };
   frame(performance.now());
 }
 
-// ---------- Boarding pass ----------
-const PASS_WARM = { awaiting: .22, processing: .34, sent: .42, delivered: .16, cancelled: .04, refunded: .06, failed: .1, ready: .26 };
-const PASS_LABEL = { awaiting: "Boarding", processing: "Boarded", sent: "In flight", delivered: "Landed", cancelled: "Cancelled", refunded: "Refunded", failed: "Attention", ready: "Ready to board" };
-const PASS_DOT = { awaiting: "", processing: "", sent: "", ready: "", delivered: "good", cancelled: "mute", refunded: "mute", failed: "bad" };
-function flightPath(p) {
-  const P0 = [8, 38], P1 = [100, -8], P2 = [192, 38], q = Math.max(0, Math.min(1, p));
-  const x = (1 - q) ** 2 * P0[0] + 2 * (1 - q) * q * P1[0] + q * q * P2[0], y = (1 - q) ** 2 * P0[1] + 2 * (1 - q) * q * P1[1] + q * q * P2[1];
-  const dx = 2 * (1 - q) * (P1[0] - P0[0]) + 2 * q * (P2[0] - P1[0]), dy = 2 * (1 - q) * (P1[1] - P0[1]) + 2 * q * (P2[1] - P1[1]);
-  const ang = Math.atan2(dy, dx) * 180 / Math.PI + 90;
-  return `<svg viewBox="0 0 200 44" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M8 38 Q100 -8 192 38" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.6" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/>
-    <path d="M8 38 Q100 -8 192 38" fill="none" stroke="#ffb23f" stroke-width="2" pathLength="1" stroke-dasharray="${q} 1" vector-effect="non-scaling-stroke"/>
-    <circle cx="8" cy="38" r="3" fill="#ffb23f"/><circle cx="192" cy="38" r="3" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.5"/>
-    <g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${ang.toFixed(0)}) translate(-9 -9)"><path d="M17 12v-1.5l-6-4V3a1.1 1.1 0 00-2.2 0v3.5l-6 4V12l6-1.8v3.6L7.3 15v1.1L9.9 15.4 12.5 16.1V15l-1.5-1.2v-3.6z" transform="scale(1.2)" fill="#ffd28a"/></g>
-  </svg>`;
+// ---------- Transfer status, in plain words ----------
+const STATUS_LABEL = { awaiting: "Waiting for payment", processing: "Processing", sent: "On its way", delivered: "Delivered", cancelled: "Cancelled", refunded: "Refunded", failed: "Needs attention", ready: "Ready to send" };
+const STATUS_TONE = { awaiting: "live", processing: "live", sent: "live", delivered: "good", cancelled: "mute", refunded: "mute", failed: "bad", ready: "live" };
+const statusOf = t => inFlight(t.status) && Date.now() > t.eta ? { label: "Delayed", tone: "bad" } : { label: STATUS_LABEL[t.status], tone: STATUS_TONE[t.status] };
+const statusPill = st => `<span class="pill ${st.tone}">${st.tone === "live" ? '<span class="pulse-dot"></span>' : ""}${st.label}</span>`;
+const placeLabel = (code, country) => `${CUR[COUNTRY[country] ? COUNTRY[country].cur : "GBP"].flag} ${CITIES[code].city}`;
+const homePlace = (cur = L.profile.home) => `${CUR[cur].flag} ${CITIES[originCode(cur)].city}`;
+const destPlace = r => `${CUR[recipientCur(r)].flag} ${CITIES[destCode(r)].city}`;
+
+/** Straight progress track from sender's city to recipient's city. */
+function progressLine(p) {
+  const q = Math.max(0, Math.min(1, p));
+  return `<div class="track" aria-hidden="true"><i style="width:${(q * 100).toFixed(1)}%"></i><b style="left:${(q * 100).toFixed(1)}%"></b></div>`;
 }
-function barcode(text) {
-  let x = 0, bars = "", seed = seedOf(text) * 9301;
-  for (let i = 0; i < 64 && x < 300; i++) { seed = (seed * 9301 + 49297) % 233280; const w = 1 + (seed % 4); if (i % 2 === 0) bars += `<rect x="${x}" y="0" width="${w}" height="46"/>`; x += w + 1; }
-  return `<svg viewBox="0 0 ${x} 46" preserveAspectRatio="none" fill="currentColor" aria-hidden="true">${bars}</svg>`;
-}
-function passHtml(o) {
+
+/** A plain transfer receipt: who, how much arrives, what you paid, the rate, the reference. */
+function receiptHtml(o) {
   const live = ["awaiting", "processing", "sent"].includes(o.state);
-  return `<article class="pass glass ${live ? "beam" : ""}" aria-label="Boarding pass ${esc(o.flight)}">
-    <div class="pass-head" style="--warm:${PASS_WARM[o.state]}">
-      <div class="pass-brand"><span>Homeward ✦ Boarding pass</span><span class="pass-status"><span class="pulse-dot ${PASS_DOT[o.state]}"></span>${PASS_LABEL[o.state]}</span></div>
-      <div class="route-row">
-        <div><div class="iata">${o.from}</div><div class="iata-sub">${CITIES[o.from].city}</div></div>
-        <div class="flightpath">${flightPath(o.progress)}</div>
-        <div style="text-align:right"><div class="iata">${o.to}</div><div class="iata-sub">${CITIES[o.to].city}</div></div>
-      </div>
-      <div class="row tiny" style="margin-top:14px;color:rgba(238,240,247,.6);justify-content:space-between;font-family:var(--mono);letter-spacing:.04em"><span>DEPARTS ${o.departs.toUpperCase()}</span><span>${o.landsLabel.toUpperCase()}</span></div>
+  return `<article class="receipt glass ${live ? "beam" : ""}" aria-label="Transfer receipt">
+    <div class="rc-head" style="--warm:${o.warm}">
+      <div class="row"><span class="eyebrow grow" style="color:rgba(238,240,247,.6)">${o.title}</span>${statusPill(o.status)}</div>
+      <div class="rc-amount num">${o.receive}</div>
+      <div class="rc-to">to <b>${esc(o.name)}</b> · ${esc(o.account)}</div>
+      <div class="rc-route"><span>${o.from}</span>${progressLine(o.progress)}<span>${o.to}</span></div>
+      <div class="row tiny" style="justify-content:space-between;color:rgba(238,240,247,.6)"><span>${o.leftNote}</span><span>${o.rightNote}</span></div>
     </div>
-    <div class="pass-grid">
-      <div><div class="k"><i>01</i>Passenger</div><div class="v">${esc(o.passenger)}</div></div>
-      <div><div class="k"><i>02</i>Flight</div><div class="v num">${esc(o.flight)}</div></div>
-      <div><div class="k"><i>03</i>Cargo</div><div class="v big num">${o.cargo}</div></div>
-      <div><div class="k"><i>04</i>Fare</div><div class="v num">${o.fare}</div></div>
-      <div><div class="k"><i>05</i>Rate</div><div class="v num">${o.rate}</div></div>
-      <div><div class="k"><i>06</i>Class</div><div class="v">${esc(o.cls)}</div></div>
-    </div>
-    <div class="perf"></div>
-    <div class="stub">${barcode(o.flight)}<div class="ref">${o.stubLabel}<b>${esc(o.stubValue)}</b></div></div>
+    <dl class="rc-grid">
+      <div><dt>You pay</dt><dd class="num">${o.pay}</dd></div>
+      <div><dt>Fee</dt><dd class="num">${o.fee}</dd></div>
+      <div><dt>Exchange rate</dt><dd class="num">${o.rate}</dd></div>
+      <div><dt>Purpose</dt><dd>${esc(o.purpose)}</dd></div>
+      <div><dt>Paid with</dt><dd>${esc(o.funding)}</dd></div>
+      <div><dt>Reference</dt><dd class="num">${o.ref ? `<button class="linkish" style="padding:0" data-act="copy" data-text="${o.ref}">${o.ref} ${ic("copy-bold-duotone", 14)}</button>` : "Issued when you send"}</dd></div>
+    </dl>
+    ${o.foot ? `<div class="perf"></div><div class="rc-foot">${o.foot}</div>` : ""}
   </article>`;
 }
-function transferPass(t) {
-  const state = t.status, delivered = dateOf(t, "delivered");
-  return passHtml({ state, from: originCode(t.quote.s), to: destCode(t.recipient), progress: STATUS[t.status].progress * (state === "cancelled" || state === "refunded" ? 0 : 1),
-    departs: fmtTime(t.createdAt), landsLabel: delivered ? "Landed " + fmtTime(delivered) : inFlight(state) ? "Lands ~" + fmtTime(t.eta) : "", passenger: t.recipient.name,
-    flight: t.ref, cargo: money(t.quote.recv, t.quote.t), fare: `${money(t.quote.send, t.quote.s)}${t.quote.fee ? "" : " · no fee"}`, rate: `${fmtRate(t.quote.rate)}`,
-    cls: t.purpose, stubLabel: t.payoutRef ? "Payout ref" : "Gate", stubValue: t.payoutRef || payoutSummary(t.recipient.payout) });
+function transferReceipt(t) {
+  const delivered = dateOf(t, "delivered"), dead = t.status === "cancelled" || t.status === "refunded";
+  return receiptHtml({ state: t.status, warm: { awaiting: .22, processing: .3, sent: .38, delivered: .14, failed: .08 }[t.status] ?? .04,
+    title: "Transfer receipt", status: statusOf(t), receive: money(t.quote.recv, t.quote.t), name: t.recipient.name, account: payoutSummary(t.recipient.payout),
+    from: homePlace(t.quote.s), to: destPlace(t.recipient), progress: dead ? 0 : STATUS[t.status].progress,
+    leftNote: "Sent " + fmtDay(t.createdAt), rightNote: delivered ? "Delivered " + fmtTime(delivered) : inFlight(t.status) ? "Arrives by " + fmtTime(t.eta) : STATUS_LABEL[t.status],
+    pay: money(t.quote.send, t.quote.s), fee: t.quote.fee ? money(t.quote.fee, t.quote.s) : "Free", rate: `1 ${t.quote.s} = ${fmtRate(t.quote.rate)} ${t.quote.t}`,
+    purpose: t.purpose, funding: FUNDING[t.funding], ref: t.ref,
+    foot: t.payoutRef ? `<span class="eyebrow">Bank payout reference</span><b class="num">${t.payoutRef}</b><span class="tiny muted">Their bank can trace the payment with this number.</span>` : "" });
 }
-function depStatus(t) {
-  if (t.status === "delivered") return '<span class="st landed">LANDED</span>';
-  if (t.status === "cancelled") return '<span class="st cancel">CANCELLED</span>';
-  if (t.status === "refunded") return '<span class="st refund">REFUNDED</span>';
-  if (t.status === "failed") return '<span class="st alert">ATTENTION</span>';
-  if (Date.now() > t.eta) return '<span class="st alert">DELAYED</span>';
-  return `<span class="st flying">${t.status === "awaiting" ? "BOARDING" : "IN FLIGHT"}</span>`;
+/** One transfer in a list. */
+function txRow(t) {
+  const st = statusOf(t), dead = t.status === "cancelled" || t.status === "refunded";
+  return `<button class="tx-row" data-act="openTransfer" data-id="${t.id}">
+    ${avatar(t.recipient)}
+    <span class="grow" style="min-width:0"><b class="ellipsis" style="display:block;font-weight:500">${esc(t.recipient.name)}</b>
+      <span class="tiny muted">${new Date(t.createdAt).toLocaleDateString([], { day: "numeric", month: "short" })} · ${destPlace(t.recipient)}</span></span>
+    <span style="text-align:right;flex:none"><b class="num ${dead ? "strike" : ""}" style="display:block;font-weight:500">${money(t.quote.recv, t.quote.t, true)}</b>${statusPill(st)}</span>
+  </button>`;
 }
-function depRow(t) {
-  const today = new Date(t.createdAt).toDateString() === new Date().toDateString();
-  return `<button class="dep" data-act="openTransfer" data-id="${t.id}">
-    <span class="num">${today ? fmtTime(t.createdAt) : new Date(t.createdAt).toLocaleDateString([], { day: "2-digit", month: "short" }).toUpperCase()}</span>
-    <span class="code">${destCode(t.recipient)}</span>
-    <span style="min-width:0"><span class="who ellipsis" style="display:block">${esc(t.recipient.name)}</span><span class="amt num">${money(t.quote.recv, t.quote.t, true)} · ${money(t.quote.send, t.quote.s)}</span></span>
-    ${depStatus(t)}</button>`;
-}
-const flap = text => `<span class="flap" aria-label="${esc(text)}">${[...text].map((c, i) => `<span style="animation-delay:${i * 45}ms">${c === " " ? "&nbsp;" : esc(c)}</span>`).join("")}</span>`;
 
 // ---------- Screens ----------
 function bar(title, opts = {}) {
@@ -1147,20 +1171,20 @@ function home() {
       <button class="me glass" data-act="tab" data-screen="account" aria-label="Your account">${esc(L.profile.first[0] + L.profile.last[0])}</button>
     </header>
 
-    <section class="hero glass corners" aria-label="Balance and routes home">
+    <section class="hero glass corners" aria-label="Balance and where your money goes">
       <canvas id="map" aria-hidden="true"></canvas><i class="c"></i><i class="c"></i><i class="c"></i><i class="c"></i>
       <div class="row"><span class="eyebrow grow">01 · Balance</span>
         <div class="curs">${[...new Set([L.profile.home, ...Object.keys(L.wallet).filter(k => L.wallet[k] > 0)])].map(c => `<button class="${c === cur ? "on" : ""}" data-act="homeCur" data-c="${c}">${c}</button>`).join("")}</div></div>
       <div class="balance num">${CUR[cur].sym}${whole}<span class="cents">.${cents}</span></div>
       <div class="spacer"></div>
       <div class="cta-row"><button class="btn-accent" data-act="startSend">${I.plane} Send home</button><button class="btn-ghost" data-act="topup">${I.plus} Add</button></div>
-      <div class="routes"><span><span class="pulse-dot mute"></span>${new Set(L.recipients.map(destCode)).size} routes home</span>${flying.length ? `<span><span class="pulse-dot"></span>${flying.length} in flight</span>` : ""}</div>
+      <div class="routes"><span><span class="pulse-dot mute"></span>${new Set(L.recipients.map(destCode)).size} places you send to</span>${flying.length ? `<span><span class="pulse-dot"></span>${flying.length} on the way</span>` : ""}</div>
     </section>
 
-    ${flying.map(t => `<button class="glass beam" data-act="openTransfer" data-id="${t.id}">
-        <div class="row"><span class="eyebrow grow">${PASS_LABEL[t.status]} · ${t.ref}</span><span class="tiny mono muted">${Date.now() > t.eta ? "DELAYED" : "LANDS " + fmtTime(t.eta)}</span></div>
-        <div class="row" style="gap:10px"><b style="font-size:24px;font-weight:500;letter-spacing:-.04em">${originCode(t.quote.s)}</b><div class="flightpath grow" style="height:34px">${flightPath(STATUS[t.status].progress)}</div><b style="font-size:24px;font-weight:500;letter-spacing:-.04em">${destCode(t.recipient)}</b></div>
-        <div class="small muted">${money(t.quote.recv, t.quote.t)} to ${esc(t.recipient.name)}</div></button>`).join("")}
+    ${flying.map(t => { const st = statusOf(t); return `<button class="glass beam" data-act="openTransfer" data-id="${t.id}">
+        <div class="row"><span class="eyebrow grow">${st.label} · ${t.ref}</span><span class="tiny muted">${st.label === "Delayed" ? "Running late" : "Arrives by " + fmtTime(t.eta)}</span></div>
+        <div class="row" style="gap:12px">${avatar(t.recipient)}<div class="grow"><b class="num" style="font-size:20px;font-weight:500;letter-spacing:-.03em">${money(t.quote.recv, t.quote.t)}</b><div class="tiny muted">to ${esc(t.recipient.name)} · ${destPlace(t.recipient)}</div></div></div>
+        ${progressLine(STATUS[t.status].progress)}</button>`; }).join("")}
 
     ${rateDial(L.profile.home, tgt)}
 
@@ -1173,7 +1197,7 @@ function home() {
       <button class="glass" data-act="openYear">
         <span class="eyebrow">04 · Your year home</span>
         <span class="big-num num" style="margin-top:auto">${y ? y.count : 0}</span>
-        <span class="serif" style="font-size:20px;line-height:1.05;font-style:italic">trips home this year</span>
+        <span class="serif" style="font-size:20px;line-height:1.05;font-style:italic">transfers home this year</span>
         <span class="tiny" style="color:var(--accent-text);display:inline-flex;gap:6px;align-items:center">${ic("stars-bold-duotone", 14)} Play the story</span></button>
     </div>
 
@@ -1182,9 +1206,9 @@ function home() {
         <button class="face" data-act="addRecipient" aria-label="Add someone"><span class="avatar lg add"><b>+</b></span><small>New</small></button></div>
     </section>
 
-    <section class="board glass" aria-label="Recent departures">
-      <div class="board-head">${flap("DEPARTURES")}<button class="linkish small" style="padding:0" data-act="tab" data-screen="activity">All flights</button></div>
-      ${L.transfers.slice(0, 4).map(depRow).join("")}
+    <section class="glass" aria-label="Recent activity">
+      <div class="row" style="margin-bottom:4px"><span class="eyebrow grow">06 · Recent activity</span><button class="linkish small" style="padding:0" data-act="tab" data-screen="activity">See all</button></div>
+      ${L.transfers.slice(0, 4).map(txRow).join("")}
     </section>
   </div>`;
 }
@@ -1252,7 +1276,7 @@ function pressKey(k) {
 function peopleGrid(list, act, addCountry) {
   return `<div class="people">${list.map(r => `<button class="person glass" data-act="${act}" data-id="${r.id}">
       <span class="banner" style="background-image:url(${textileURL(countryOfPayout(r.payout), r.id, 360, 150)})"></span>
-      <span class="body">${avatar(r)}<b class="ellipsis">${esc(r.nickname || r.name)}</b><span class="route">${originCode()} → ${destCode(r)}${r.verified ? " ✓" : ""}</span><span class="tiny muted ellipsis">${esc(payoutSummary(r.payout))}</span></span></button>`).join("")}
+      <span class="body">${avatar(r)}<b class="ellipsis">${esc(r.nickname || r.name)}</b><span class="route">${destPlace(r)}${r.verified ? " · ✓ verified" : ""}</span><span class="tiny muted ellipsis">${esc(payoutSummary(r.payout))}</span></span></button>`).join("")}
     <button class="person add glass" data-act="addRecipient" ${addCountry ? `data-country="${addCountry}"` : ""}><span class="avatar add"><b>+</b></span>Someone new</button></div>`;
 }
 function sendRecipient() {
@@ -1321,10 +1345,11 @@ function review() {
   const d = S.draft, q = d.locked, r = recipientById(d.recipientId);
   if (!q || !r) return `<div class="screen">${bar("Review")}<div class="empty">Nothing to review</div></div>`;
   const left = q.expiresAt - Date.now(), expired = left <= 0, frac = Math.max(0, left / LOCK_MS);
-  return `<div class="screen">${bar("Ready to board")}${stepsHtml(3)}
-    ${passHtml({ state: "ready", from: originCode(q.s), to: destCode(r), progress: 0, departs: "on your slide", landsLabel: deliveryEstimate(r.payout, d.funding).label, passenger: r.name,
-      flight: "HW-······", cargo: money(q.recv, q.t), fare: money(q.send, q.s) + (q.fee ? ` incl. ${money(q.fee, q.s)} fee` : " · no fee"), rate: fmtRate(q.rate), cls: d.purpose,
-      stubLabel: r.verified ? "Name check" : "Gate", stubValue: r.verified ? "✓ " + r.verified : payoutSummary(r.payout) })}
+  return `<div class="screen">${bar("Review transfer")}${stepsHtml(3)}
+    ${receiptHtml({ state: "ready", warm: .26, title: "Review", status: { label: "Ready to send", tone: "live" }, receive: money(q.recv, q.t), name: r.name, account: payoutSummary(r.payout),
+      from: homePlace(q.s), to: destPlace(r), progress: 0, leftNote: "Sends when you slide", rightNote: deliveryEstimate(r.payout, d.funding).label,
+      pay: money(q.send, q.s), fee: q.fee ? money(q.fee, q.s) : "Free", rate: `1 ${q.s} = ${fmtRate(q.rate)} ${q.t}`, purpose: d.purpose, funding: FUNDING[d.funding], ref: "",
+      foot: r.verified ? `<span class="eyebrow">Name check</span><b>✓ ${esc(r.verified)}</b><span class="tiny muted">The bank confirmed who owns this account.</span>` : "" })}
     <div class="glass locker" data-countdown="${q.expiresAt}">
       <svg viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="19" fill="none" stroke="var(--ink-3)" stroke-width="5"/><circle class="lock-ring" cx="23" cy="23" r="19" fill="none" stroke="${expired ? "var(--bad)" : "var(--accent)"}" stroke-width="5" stroke-linecap="round" pathLength="1" stroke-dasharray="${frac.toFixed(4)} 1" transform="rotate(-90 23 23)"/></svg>
       <div class="grow"><b class="lock-text num">${expired ? "Rate expired" : "Rate locked · " + mmss(left)}</b><div class="tiny muted">${expired ? "Get a fresh quote to continue." : `1 ${q.s} = ${fmtRate(q.rate)} ${q.t}, guaranteed until ${fmtTime(q.expiresAt)}. Total cost ${money(q.totalCost, q.s)} (${pct(q.totalCost / q.send)}).`}</div></div>
@@ -1339,7 +1364,7 @@ function review() {
     ${d.sendError ? `<div class="notice bad">${esc(d.sendError)}</div>` : ""}
     <p class="tiny faint" style="text-align:center">Cancel free until it reaches ${esc(payoutSummary(r.payout))}. If anything goes wrong, you're refunded automatically.</p>
     ${expired ? `<button class="cta" data-act="refreshQuote">Get a fresh rate</button>`
-      : `<div class="slider glass ${d.sending ? "busy beam" : ""}" id="slider"><div class="fill" style="width:${d.sending ? "100%" : "0"}"></div><div class="label"><span>${d.sending ? "Wheels up…" : `Slide to send ${money(q.recv, q.t, true)}`}</span></div>
+      : `<div class="slider glass ${d.sending ? "busy beam" : ""}" id="slider"><div class="fill" style="width:${d.sending ? "100%" : "0"}"></div><div class="label"><span>${d.sending ? "Sending…" : `Slide to send ${money(q.recv, q.t, true)}`}</span></div>
           <button class="thumb" data-act="slideKey" aria-label="Send ${money(q.recv, q.t)} to ${esc(r.name)}. Press to confirm." style="${d.sending ? "transform:translateX(var(--max))" : ""}">${I.plane}</button></div>`}
   </div>`;
 }
@@ -1347,44 +1372,41 @@ function review() {
 // ----- Tracker -----
 function tracker() {
   const t = transferById(here().id);
-  if (!t) return `<div class="screen">${bar("Flight")}<div class="empty">Transfer not found</div></div>`;
+  if (!t) return `<div class="screen">${bar("Transfer")}<div class="empty">Transfer not found</div></div>`;
   const confirm = here().confirm, steps = trackingSteps(t), canCancel = t.status === "awaiting" || t.status === "processing";
-  const STAGES = ["Check-in", "Boarded", "Departed", "Landed"];
-  return `<div class="screen">${bar(confirm ? "Wheels up" : "Flight " + t.ref, confirm ? { left: '<span class="ghost-slot"></span>', right: '<button class="linkish" data-act="doneFlow">Done</button>' } : {})}
-    ${transferPass(t)}
-    ${inFlight(t.status) && Date.now() > t.eta ? `<div class="notice warn">Running late. We're on it and will tell you the moment it lands. If it can't be delivered you're refunded automatically.</div>` : ""}
-    <section class="glass"><div class="eyebrow" style="margin-bottom:14px">Flight log</div><div class="log">${steps.map((s, i) => `
+  return `<div class="screen">${bar(confirm ? "Sent" : "Transfer", confirm ? { left: '<span class="ghost-slot"></span>', right: '<button class="linkish" data-act="doneFlow">Done</button>' } : {})}
+    ${transferReceipt(t)}
+    ${statusOf(t).label === "Delayed" ? `<div class="notice warn">This is taking longer than usual. We're on it and will tell you as soon as it's delivered. If it can't be delivered, you're refunded automatically.</div>` : ""}
+    <section class="glass"><div class="eyebrow" style="margin-bottom:14px">Progress</div><div class="log">${steps.map((s, i) => `
       <div class="log-step ${s.state}"><div class="rail"><span class="dot">${s.state === "done" ? "✓" : s.state === "problem" ? "!" : String(i + 1).padStart(2, "0")}</span>${i < steps.length - 1 ? '<span class="line"></span>' : ""}</div>
-      <div class="body"><div class="t"><span>${steps.length === 4 ? STAGES[i] + " · " : ""}${esc(s.title)}</span><span>${s.at ? fmtTime(s.at) : ""}</span></div>${s.detail && s.state !== "upcoming" ? `<div class="small muted">${esc(s.detail)}</div>` : ""}</div></div>`).join("")}</div></section>
+      <div class="body"><div class="t"><span>${esc(s.title)}</span><span>${s.at ? fmtTime(s.at) : ""}</span></div>${s.detail && s.state !== "upcoming" ? `<div class="small muted">${esc(s.detail)}</div>` : ""}</div></div>`).join("")}</div></section>
     <div class="stack">
       ${t.status === "delivered" ? `<button class="cta" data-act="postcard" data-id="${t.id}">Send ${esc(t.recipient.nickname || firstName(t.recipient.name))} a postcard</button>` : ""}
-      ${canCancel ? `<button class="cta danger" data-act="askCancel" data-id="${t.id}">Cancel this flight · free</button>` : ""}
+      ${canCancel ? `<button class="cta danger" data-act="askCancel" data-id="${t.id}">Cancel transfer · free</button>` : ""}
       <div class="row">${t.status === "delivered" ? `<button class="cta quiet grow" data-act="copyReceipt" data-id="${t.id}">Copy receipt</button>` : ""}${!confirm ? `<button class="cta quiet grow" data-act="sendAgain" data-id="${t.id}">Send again</button>` : ""}</div>
-      <button class="linkish" data-act="help" data-id="${t.id}">Get help with ${t.ref}</button>
+      <button class="linkish" data-act="help" data-id="${t.id}">Get help with this transfer</button>
     </div>
   </div>`;
 }
 
-// ----- Departures (activity) -----
+// ----- Activity -----
 function activity() {
   const f = S.filter, q = S.search.toLowerCase();
   const keep = t => (f === "all" || (f === "progress" && (inFlight(t.status) || t.status === "failed")) || (f === "delivered" && t.status === "delivered") || (f === "cancelled" && (t.status === "cancelled" || t.status === "refunded")))
-    && (!q || t.recipient.name.toLowerCase().includes(q) || t.ref.toLowerCase().includes(q) || destCode(t.recipient).toLowerCase().includes(q));
+    && (!q || t.recipient.name.toLowerCase().includes(q) || t.ref.toLowerCase().includes(q) || CITIES[destCode(t.recipient)].city.toLowerCase().includes(q));
   const list = L.transfers.filter(keep), groups = [];
-  list.forEach(t => { const k = new Date(t.createdAt).toLocaleDateString([], { month: "long", year: "numeric" }).toUpperCase(); let g = groups.find(x => x.k === k); if (!g) groups.push(g = { k, items: [] }); g.items.push(t); });
-  return `<div class="screen">${bar("Departures")}
-    <div class="field"><input id="search" placeholder="Search name, flight or city code" value="${esc(S.search)}" data-input="search" aria-label="Search transfers"></div>
-    <div class="chips">${[["all", "All flights"], ["progress", "In flight"], ["delivered", "Landed"], ["cancelled", "Cancelled"]].map(([k, l]) => `<button class="chip ${f === k ? "on" : ""}" data-act="filter" data-k="${k}">${l}</button>`).join("")}</div>
-    <section class="board glass">
-      <div class="board-head"><b>${flap(f === "progress" ? "IN FLIGHT" : f === "delivered" ? "ARRIVALS" : "DEPARTURES")}</b><span class="tiny num" style="color:#a9a3c7">${originCode()} · ${fmtTime(Date.now())}</span></div>
-      ${groups.length ? groups.map(g => `<div class="tiny" style="color:#6f6a95;letter-spacing:.12em;padding:10px 2px 4px">${g.k} · ${g.items.length} FLIGHT${g.items.length > 1 ? "S" : ""}</div>${g.items.map(depRow).join("")}`).join("")
-        : `<div class="empty" style="color:#a9a3c7">${S.search ? "No flights match that search." : "No flights here yet."}</div>`}
-    </section>
+  list.forEach(t => { const k = new Date(t.createdAt).toLocaleDateString([], { month: "long", year: "numeric" }); let g = groups.find(x => x.k === k); if (!g) groups.push(g = { k, items: [] }); g.items.push(t); });
+  return `<div class="screen">${bar("Activity")}
+    <div class="field"><input id="search" placeholder="Search name, reference or city" value="${esc(S.search)}" data-input="search" aria-label="Search transfers"></div>
+    <div class="chips">${[["all", "All"], ["progress", "In progress"], ["delivered", "Delivered"], ["cancelled", "Cancelled"]].map(([k, l]) => `<button class="chip ${f === k ? "on" : ""}" data-act="filter" data-k="${k}">${l}</button>`).join("")}</div>
+    ${groups.length ? groups.map(g => { const cnt = g.items.filter(t => t.status !== "cancelled" && t.status !== "refunded"), c = cnt[0] ? cnt[0].quote.s : null, total = c ? cnt.filter(t => t.quote.s === c).reduce((a, t) => a + t.quote.send, 0) : 0;
+      return `<section class="glass"><div class="row" style="margin-bottom:4px"><span class="eyebrow grow">${g.k}</span>${c ? `<span class="tiny muted num">${money(total, c, true)} sent</span>` : ""}</div>${g.items.map(txRow).join("")}</section>`; }).join("")
+      : `<div class="empty">${S.search ? "No transfers match that search." : "No transfers here yet."}</div>`}
   </div>`;
 }
 function recipients() {
   const list = [...L.recipients].sort((a, b) => lastPaid(b) - lastPaid(a));
-  return `<div class="screen">${bar("Your people")}${peopleGrid(list, "openRecipient")}</div>`;
+  return `<div class="screen">${bar("Recipients")}${peopleGrid(list, "openRecipient")}</div>`;
 }
 function recipientDetail() {
   const r = recipientById(here().id);
@@ -1394,11 +1416,11 @@ function recipientDetail() {
     <div class="textile-head" style="background-image:url(${textileURL(countryOfPayout(r.payout), r.id, 720, 340)})"><div style="position:absolute;top:0;left:16px;right:16px;z-index:2">${bar("", { right: `<button class="round glass" data-act="askDeleteRecipient" data-id="${r.id}" aria-label="Delete">${I.trash}</button>` })}</div></div>
     <div class="stack" style="margin-top:-46px;position:relative;z-index:3">
       ${avatar(r, "xl")}
-      <div><h2 style="font-size:28px">${esc(r.name)}</h2><div class="muted small">${esc(r.nickname ? r.nickname + " · " : "")}${CITIES[destCode(r)].city}, ${COUNTRY[countryOfPayout(r.payout)].name} · ${TEXTILE[countryOfPayout(r.payout)]} pattern</div></div>
-      <div class="row" style="gap:8px"><div class="glass grow" style="padding:12px"><div class="eyebrow">Delivered</div><b class="num" style="font-size:20px;font-weight:500;letter-spacing:-.04em">${shortMoney(total, recipientCur(r))}</b></div><div class="glass grow" style="padding:12px"><div class="eyebrow">Flights</div><b class="num" style="font-size:20px;font-weight:500;letter-spacing:-.04em">${del.length}</b></div></div>
+      <div><h2 style="font-size:28px">${esc(r.name)}</h2><div class="muted small">${esc(r.nickname ? r.nickname + " · " : "")}${CITIES[destCode(r)].city}, ${COUNTRY[countryOfPayout(r.payout)].name}</div></div>
+      <div class="row" style="gap:8px"><div class="glass grow" style="padding:12px"><div class="eyebrow">Delivered</div><b class="num" style="font-size:20px;font-weight:500;letter-spacing:-.04em">${shortMoney(total, recipientCur(r))}</b></div><div class="glass grow" style="padding:12px"><div class="eyebrow">Transfers</div><b class="num" style="font-size:20px;font-weight:500;letter-spacing:-.04em">${del.length}</b></div></div>
       <button class="cta" data-act="startSend" data-recipient="${r.id}">Send to ${esc(r.nickname || firstName(r.name))}</button>
-      <dl class="glass kv"><div><dt>Account</dt><dd>${esc(payoutSummary(r.payout))}</dd></div>${r.verified ? `<div><dt>Verified holder</dt><dd style="color:var(--good)">✓ ${esc(r.verified)}</dd></div>` : ""}<div><dt>Route</dt><dd>${originCode()} → ${destCode(r)}</dd></div></dl>
-      ${ts.length ? `<section class="board glass"><div class="board-head"><b>${flap("HISTORY")}</b></div>${ts.slice(0, 8).map(depRow).join("")}</section>` : ""}
+      <dl class="glass kv"><div><dt>Account</dt><dd>${esc(payoutSummary(r.payout))}</dd></div>${r.verified ? `<div><dt>Verified holder</dt><dd style="color:var(--good)">✓ ${esc(r.verified)}</dd></div>` : ""}<div><dt>Receives in</dt><dd>${destPlace(r)}</dd></div></dl>
+      ${ts.length ? `<section class="glass"><div class="eyebrow" style="margin-bottom:4px">History</div>${ts.slice(0, 8).map(txRow).join("")}</section>` : ""}
     </div></div>`;
 }
 function gauge(label, used, lim) {
@@ -1408,19 +1430,19 @@ function gauge(label, used, lim) {
 }
 function account() {
   const u = limitUsage(), p = L.profile, next = TIERS[p.tier].next;
-  return `<div class="screen">${bar("You")}
+  return `<div class="screen">${bar("Account")}
     <div class="member" id="member"><div class="brand"><span>Homeward</span><span class="chip-ic"></span></div>
-      <div class="stack" style="gap:4px"><div class="tier">${TIERS[p.tier].title.toUpperCase()} · MEMBER</div><div class="name">${esc(p.first + " " + p.last)}</div><div class="tiny mono" style="color:rgba(238,240,247,.55);letter-spacing:.08em">${originCode()} · SINCE 2025 · ${L.transfers.length} FLIGHTS</div></div></div>
+      <div class="stack" style="gap:4px"><div class="tier">${TIERS[p.tier].title.toUpperCase()} · MEMBER</div><div class="name">${esc(p.first + " " + p.last)}</div><div class="tiny mono" style="color:rgba(238,240,247,.55);letter-spacing:.08em">SINCE 2025 · ${L.transfers.length} TRANSFERS</div></div></div>
     <section class="glass stack"><div class="row"><span class="eyebrow grow">Sending limits</span>${next ? `<button class="linkish small" data-act="upgrade">Raise to $${fmtNum(TIERS[next].month, 0)}/mo</button>` : ""}</div>
       <div class="gauges">${gauge("today", u.today, u.tier.day)}${gauge("this month", u.month, u.tier.month)}</div>
       <p class="tiny faint">Shown before you send, never halfway through a transfer.</p></section>
     <section class="glass">
-      ${[["alerts", "bell-bold-duotone", "Rate alerts", `${L.alerts.filter(a => a.active).length} watching`], ["scheduled", "calendar-bold-duotone", "Scheduled flights", `${L.scheduled.filter(s => !s.paused).length} repeating`]].map(([s, icon, t, d], i) => `<button class="list-row" data-act="go" data-screen="${s}"><span class="n">0${i + 1}</span><span style="color:var(--accent-text)">${ic(icon, 22)}</span><span class="grow"><b style="font-weight:500">${t}</b><br><span class="small muted">${d}</span></span><span class="chev">${ic("alt-arrow-right-linear", 16)}</span></button>`).join("")}
+      ${[["alerts", "bell-bold-duotone", "Rate alerts", `${L.alerts.filter(a => a.active).length} watching`], ["scheduled", "calendar-bold-duotone", "Scheduled transfers", `${L.scheduled.filter(s => !s.paused).length} repeating`]].map(([s, icon, t, d], i) => `<button class="list-row" data-act="go" data-screen="${s}"><span class="n">0${i + 1}</span><span style="color:var(--accent-text)">${ic(icon, 22)}</span><span class="grow"><b style="font-weight:500">${t}</b><br><span class="small muted">${d}</span></span><span class="chev">${ic("alt-arrow-right-linear", 16)}</span></button>`).join("")}
       ${L.pots.map(pt => `<button class="list-row" data-act="openPot" data-id="${pt.id}"><span class="n">03</span><span style="color:var(--accent-text)">${ic("hand-money-bold-duotone", 22)}</span><span class="grow"><b style="font-weight:500">${esc(pt.title)}</b><br><span class="small muted">${pt.paidOutAt ? "Sent home" : Math.round(potProgress(pt) * 100) + "% raised"}</span></span><span class="chev">${ic("alt-arrow-right-linear", 16)}</span></button>`).join("")}
       <button class="list-row" data-act="openYear"><span class="n">04</span><span style="color:var(--accent-text)">${ic("stars-bold-duotone", 22)}</span><span class="grow"><b style="font-weight:500">Your year home</b><br><span class="small muted">The story of your last 12 months</span></span><span class="chev">${ic("alt-arrow-right-linear", 16)}</span></button>
     </section>
     <section class="glass stack"><span class="eyebrow">Preferences</span>
-      <div class="field"><label for="pref-home">Send from</label><select id="pref-home" data-change="prefHome">${SEND.map(c => `<option value="${c}" ${c === p.home ? "selected" : ""}>${CUR[c].flag} ${c} · ${CITIES[HOME_CODE[c]].city}</option>`).join("")}</select></div>
+      <div class="field"><label for="pref-home">Send from</label><select id="pref-home" data-change="prefHome">${SEND.map(c => `<option value="${c}" ${c === p.home ? "selected" : ""}>${CUR[c].flag} ${c} · ${CUR[c].name}</option>`).join("")}</select></div>
       <div class="field"><label for="pref-fav">Usually send to</label><select id="pref-fav" data-change="prefFav">${RECV.map(c => `<option value="${c}" ${c === p.fav ? "selected" : ""}>${CUR[c].flag} ${c}</option>`).join("")}</select></div></section>
     <section class="glass stack"><span class="eyebrow">Our promises</span>
       ${[["No hidden markup", `Mid-market rate, our ${pct(MARGIN)} margin and the fee on every quote.`], ["Rates locked for 30 minutes", "The countdown is on the review screen."], ["Name check on every new account", "We confirm who owns it before you can send."], ["Automatic refunds", "Cancel free until payout. No support ticket needed."]].map(([h, b]) => `<div><b class="small">${h}</b><div class="small muted">${b}</div></div>`).join("")}</section>
@@ -1437,7 +1459,7 @@ function alerts() {
       : `<div class="empty">No alerts yet. We'll ping you when the rate hits your number.</div>`}</div>`;
 }
 function scheduled() {
-  return `<div class="screen">${bar("Scheduled flights")}
+  return `<div class="screen">${bar("Scheduled transfers")}
     ${L.scheduled.length ? L.scheduled.map(s => { const r = recipientById(s.recipientId); let est = null; try { est = quoteSend(s.amount, s.s, s.t); } catch (e) {}
       return `<div class="glass stack">${r ? `<div class="row">${avatar(r)}<div class="grow"><b>${esc(s.title)}</b><div class="small muted">${money(s.amount, s.s, true)} → ${esc(r.name)} · monthly on day ${s.day}</div></div></div>` : `<b>${esc(s.title)}</b>`}
         ${est ? `<div class="small muted num">≈ ${money(est.recv, s.t, true)} at today's rate</div>` : ""}
@@ -1494,9 +1516,9 @@ function sheetHtml() {
     <div class="field"><label for="tu-amt">Amount</label><input id="tu-amt" inputmode="decimal" value="${esc(sh.amt)}" data-sheet="amt"></div>
     <p class="tiny faint">Demo: money arrives instantly. In production you'd get account details for an instant bank transfer, or pay by debit card.</p>
     <button class="cta" data-act="doTopup">Add ${CUR[sh.cur].sym}${esc(sh.amt || "0")}</button>`;
-  if (sh.type === "cancel") { const t = transferById(sh.id); body = `<h3>Cancel ${t.ref}?</h3><p class="muted">${t.status === "awaiting" ? "Nothing has been charged yet." : `${money(t.quote.send, t.quote.s)} goes straight back to your ${fundingInline(t.funding)}.`}</p>
-    <button class="cta danger" data-act="doCancel" data-id="${t.id}">Cancel this flight</button><button class="cta quiet" data-act="closeSheet">Keep it</button>`; }
-  if (sh.type === "deleteRecipient") { const r = recipientById(sh.id); body = `<h3>Remove ${esc(r.name)}?</h3><p class="muted">Past flights stay in your history. Scheduled transfers to them stop.</p>
+  if (sh.type === "cancel") { const t = transferById(sh.id); body = `<h3>Cancel this transfer?</h3><p class="muted">${t.status === "awaiting" ? "Nothing has been charged yet." : `${money(t.quote.send, t.quote.s)} goes straight back to your ${fundingInline(t.funding)}.`}</p>
+    <button class="cta danger" data-act="doCancel" data-id="${t.id}">Cancel transfer</button><button class="cta quiet" data-act="closeSheet">Keep it</button>`; }
+  if (sh.type === "deleteRecipient") { const r = recipientById(sh.id); body = `<h3>Remove ${esc(r.name)}?</h3><p class="muted">Past transfers stay in your history. Scheduled transfers to them stop.</p>
     <button class="cta danger" data-act="doDeleteRecipient" data-id="${r.id}">Remove</button><button class="cta quiet" data-act="closeSheet">Keep</button>`; }
   if (sh.type === "reset") body = `<h3>Reset the demo?</h3><p class="muted">Transfers, people and alerts go back to the sample set.</p><button class="cta danger" data-act="doReset">Reset</button><button class="cta quiet" data-act="closeSheet">Cancel</button>`;
   if (sh.type === "upgrade") { const cur = L.profile.tier, next = TIERS[cur].next; body = `<h3>Membership</h3>
@@ -1510,9 +1532,9 @@ function sheetHtml() {
     <div class="chips">${[0, 1, 2, 3].map(p => `<button class="chip" data-act="alertPct" data-p="${p}">${p ? "+" + p + "%" : "Today"}</button>`).join("")}</div>
     <p class="tiny faint">Now ${fmtRate(cur)} ${sh.t} (mid-market).</p>
     <button class="cta" data-act="saveAlert" ${parseAmt(sh.rate) > 0 ? "" : "disabled"}>Save alert</button>`; }
-  if (sh.type === "help") { const t = transferById(sh.id); body = `<h3>Help with ${t.ref}</h3>
-    <dl class="glass kv"><div><dt>Status</dt><dd>${PASS_LABEL[t.status]}</dd></div><div><dt>Expected</dt><dd>${fmtDay(t.eta)}</dd></div><div><dt>Route</dt><dd>${originCode(t.quote.s)} → ${destCode(t.recipient)}</dd></div></dl>
-    <details class="glass"><summary><b>It landed but they can't see it</b></summary><p class="small muted" style="margin-top:8px">Bank apps can take a few minutes. Share payout reference ${t.payoutRef || "(shown once landed)"}; their bank can trace it instantly.</p></details>
+  if (sh.type === "help") { const t = transferById(sh.id); body = `<h3>Help with this transfer</h3>
+    <dl class="glass kv"><div><dt>Reference</dt><dd>${t.ref}</dd></div><div><dt>Status</dt><dd>${statusOf(t).label}</dd></div><div><dt>Expected</dt><dd>${fmtDay(t.eta)}</dd></div><div><dt>To</dt><dd>${destPlace(t.recipient)}</dd></div></dl>
+    <details class="glass"><summary><b>It says delivered but they can't see it</b></summary><p class="small muted" style="margin-top:8px">Bank apps can take a few minutes. Share payout reference ${t.payoutRef || "(shown once delivered)"}; their bank can trace it instantly.</p></details>
     <details class="glass"><summary><b>Can I change their details?</b></summary><p class="small muted" style="margin-top:8px">${t.status === "awaiting" || t.status === "processing" ? "Cancel this one free and send again. Any payment is refunded right away." : "It's already with the payout partner. If details were wrong it bounces back and you're refunded automatically."}</p></details>
     <details class="glass"><summary><b>Why is my rate different from Google?</b></summary><p class="small muted" style="margin-top:8px">Google shows the mid-market rate. We add a ${pct(MARGIN)} margin, shown on every quote.</p></details>
     <p class="tiny faint">Demo: live chat isn't connected in this prototype.</p><button class="cta quiet" data-act="closeSheet">Done</button>`; }
@@ -1550,9 +1572,9 @@ function render(scrollTop) {
   const v = here().screen;
   const html = ({ pot: potScreen, home, activity, recipients, account, alerts, scheduled, "send-amount": sendAmount, "send-recipient": sendRecipient, "add-recipient": addRecipient, review, transfer: tracker, recipient: recipientDetail })[v]();
   const dock = S.stack.length === 1 && TABS.includes(v) ? `<nav class="dock glass" aria-label="Main">
-    ${[["home", "Home", I.home], ["activity", "Flights", I.board]].map(([k, l, ic]) => { const n = k === "activity" ? L.transfers.filter(t => inFlight(t.status)).length : 0; return `<button class="${v === k ? "on" : ""}" data-act="tab" data-screen="${k}" ${v === k ? 'aria-current="page"' : ""}>${ic}${l}${n ? `<span class="count">${n}</span>` : ""}</button>`; }).join("")}
+    ${[["home", "Home", I.home], ["activity", "Activity", I.board]].map(([k, l, ic]) => { const n = k === "activity" ? L.transfers.filter(t => inFlight(t.status)).length : 0; return `<button class="${v === k ? "on" : ""}" data-act="tab" data-screen="${k}" ${v === k ? 'aria-current="page"' : ""}>${ic}${l}${n ? `<span class="count">${n}</span>` : ""}</button>`; }).join("")}
     <button class="fab" data-act="startSend" aria-label="Send money home">${I.plane}</button>
-    ${[["recipients", "People", I.people], ["account", "You", I.user]].map(([k, l, ic]) => `<button class="${v === k ? "on" : ""}" data-act="tab" data-screen="${k}" ${v === k ? 'aria-current="page"' : ""}>${ic}${l}</button>`).join("")}</nav>` : "";
+    ${[["recipients", "Recipients", I.people], ["account", "Account", I.user]].map(([k, l, ic]) => `<button class="${v === k ? "on" : ""}" data-act="tab" data-screen="${k}" ${v === k ? 'aria-current="page"' : ""}>${ic}${l}</button>`).join("")}</nav>` : "";
   app.innerHTML = html + dock;
   const sheetKey = S.sheet ? S.sheet.type + (S.sheet.id || "") : "", toastKey = S.toast ? S.toast.title + S.toast.body : "";
   overlay.innerHTML = sheetHtml() + islandHtml();
@@ -1589,18 +1611,15 @@ function bindMember() {
 }
 
 // ---------- Takeoff ----------
-function takeoff(from, to, done) {
+function showSent(title, line, done) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return done();
-  const el = document.createElement("div"); el.className = "takeoff";
-  el.innerHTML = `<svg viewBox="0 0 360 220" aria-hidden="true">
-      <path id="tk-path" d="M30 180 Q180 -10 330 180" fill="none" stroke="rgba(238,240,247,.25)" stroke-width="1.5" stroke-dasharray="3 6"/>
-      <circle cx="30" cy="180" r="4" fill="#ffb23f"/><circle cx="330" cy="180" r="4" fill="none" stroke="#ffb23f" stroke-width="1.5"/>
-      <text x="30" y="208" fill="#eef0f7" font-family="Geist, sans-serif" font-size="16" font-weight="500" text-anchor="middle">${from}</text>
-      <text x="330" y="208" fill="#eef0f7" font-family="Geist, sans-serif" font-size="16" font-weight="500" text-anchor="middle">${to}</text>
-      <g><path d="M12 0 L-8 -7 L-4 0 L-8 7 Z" fill="#ffb23f"/><animateMotion dur="1.5s" fill="freeze" rotate="auto" keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines=".5 0 .3 1"><mpath href="#tk-path"/></animateMotion></g>
-    </svg><div class="words"><b>Wheels up</b><span>${from} → ${to} · ${CITIES[to].city.toUpperCase()}</span></div>`;
+  const el = document.createElement("div"); el.className = "sent-overlay"; el.setAttribute("role", "status");
+  el.innerHTML = `<svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,178,63,.25)" stroke-width="3"/>
+      <circle class="ring" cx="60" cy="60" r="52" fill="none" stroke="#ffb23f" stroke-width="3" stroke-linecap="round" pathLength="1" transform="rotate(-90 60 60)"/>
+      <path class="tick" d="M38 62 L54 77 L84 45" fill="none" stroke="#ffb23f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" pathLength="1"/></svg>
+    <div class="words"><b>${esc(title)}</b><span>${esc(line)}</span></div>`;
   document.body.appendChild(el);
-  setTimeout(() => { el.remove(); done(); }, 1750);
+  setTimeout(() => { el.remove(); done(); }, 1600);
 }
 
 // ---------- Actions ----------
@@ -1668,7 +1687,7 @@ const ACT = {
       L.transfers.unshift(t);
       if (d.repeat) L.scheduled.push({ id: uid(), title: `${r.nickname || firstName(r.name)} monthly`, recipientId: r.id, amount: q.send, s: q.s, t: q.t, day: new Date().getDate(), paused: false });
       save();
-      takeoff(originCode(q.s), destCode(r), () => { d.sending = false; S.stack = [S.stack[0], { screen: "transfer", id: t.id, confirm: true }]; render(true); });
+      showSent("Sent", `${money(q.recv, q.t)} is on its way to ${r.nickname || firstName(r.name)} in ${CITIES[destCode(r)].city}`, () => { d.sending = false; S.stack = [S.stack[0], { screen: "transfer", id: t.id, confirm: true }]; render(true); });
     }, 350);
   },
   doneFlow: () => { S.stack = [S.stack[0]]; S.draft = null; render(true); },
@@ -1682,7 +1701,7 @@ const ACT = {
   sendAgain: el => { const t = transferById(el.dataset.id), r = recipientById(t.recipient.id); startSend({ recipientId: r ? r.id : null, t: t.quote.t, amount: t.quote.send }); },
   help: el => { S.sheet = { type: "help", id: el.dataset.id }; render(); },
   copy: el => copyText(el.dataset.text, "Copied"),
-  copyReceipt: el => { const t = transferById(el.dataset.id); copyText(`Homeward receipt ${t.ref}\n${originCode(t.quote.s)} → ${destCode(t.recipient)}\nSent ${money(t.quote.send, t.quote.s)} on ${fmtDay(t.createdAt)} (fee ${money(t.quote.fee, t.quote.s)})\nRate 1 ${t.quote.s} = ${fmtRate(t.quote.rate)} ${t.quote.t}\nDelivered ${money(t.quote.recv, t.quote.t)} to ${t.recipient.name} (${payoutSummary(t.recipient.payout)})\nPayout ref ${t.payoutRef}`, "Receipt copied"); },
+  copyReceipt: el => { const t = transferById(el.dataset.id); copyText(`Homeward receipt ${t.ref}\nTo ${t.recipient.name}, ${CITIES[destCode(t.recipient)].city}\nSent ${money(t.quote.send, t.quote.s)} on ${fmtDay(t.createdAt)} (fee ${money(t.quote.fee, t.quote.s)})\nRate 1 ${t.quote.s} = ${fmtRate(t.quote.rate)} ${t.quote.t}\nDelivered ${money(t.quote.recv, t.quote.t)} to ${t.recipient.name} (${payoutSummary(t.recipient.payout)})\nPayout ref ${t.payoutRef}`, "Receipt copied"); },
   filter: el => { S.filter = el.dataset.k; render(); },
   askDeleteRecipient: el => { S.sheet = { type: "deleteRecipient", id: el.dataset.id }; render(); },
   doDeleteRecipient: el => { const id = el.dataset.id; L.recipients = L.recipients.filter(r => r.id !== id); L.scheduled = L.scheduled.filter(s => s.recipientId !== id); save(); S.sheet = null; S.stack.pop(); render(true); },
@@ -1720,7 +1739,7 @@ const ACT = {
   doPayout: el => {
     const pot = L.pots.find(p => p.id === el.dataset.id), r = recipientById(pot.recipientId);
     pot.paidOutAt = Date.now(); pot.ref = "POT-" + makeRef().slice(3); save(); S.sheet = null; render();
-    takeoff(originCode(), r ? destCode(r) : "LOS", () => { render(); confetti(); showToast({ icon: "🎉", title: `${pot.title}: sent home`, body: `${shortMoney(potRaised(pot), pot.cur)} in one payout · ${pot.ref}` }); render(); });
+    showSent("Sent home", `${shortMoney(potRaised(pot), pot.cur)} in one payment to ${r ? firstName(r.name) : "your family"}`, () => { render(); confetti(); showToast({ icon: "🎉", title: `${pot.title}: sent home`, body: `${shortMoney(potRaised(pot), pot.cur)} in one payout · ${pot.ref}` }); render(); });
   },
   postcard: el => { const t = transferById(el.dataset.id); S.sheet = { type: "postcard", id: t.id, img: postcardDataURL(t) }; render(); },
   openYear: () => openStory(),
@@ -1778,14 +1797,14 @@ function storySlides() {
   const top = y.ranked[0], topName = top.r.nickname || firstName(top.r.name), fast = Math.round(y.fastest / 1000);
   const routes = new Set(L.transfers.filter(t => t.status === "delivered").map(t => destCode(t.recipient)));
   const slides = [
-    { kick: "Your year home", big: `${y.count} trips home.`, detail: `${L.profile.first}, this is what twelve months of looking after people looks like.` },
-    { kick: "Air miles", big: `${originCode()} → ${[...routes].join(" · ")}`, detail: `${routes.size} routes, from ${CITIES[originCode()].city} to ${[...routes].map(c => CITIES[c].city).join(", ")}.` },
-    { kick: "In total", big: money(y.total, y.main, true), detail: "landed as " + Object.keys(y.byTarget).sort().map(c => money(y.byTarget[c], c, true)).join(" + ") },
-    { kick: "Your number one", big: topName, detail: `${top.n} flights, ${money(top.amt, top.cur, true)} delivered. ${y.ranked.length} people supported in all.` },
+    { kick: "Your year home", big: `${y.count} transfers home.`, detail: `${L.profile.first}, this is what twelve months of looking after people looks like.` },
+    { kick: "Where it went", big: [...routes].map(c => CITIES[c].city).join(", "), detail: `${routes.size} cities, from ${CITIES[originCode()].city}.` },
+    { kick: "In total", big: money(y.total, y.main, true), detail: "arrived as " + Object.keys(y.byTarget).sort().map(c => money(y.byTarget[c], c, true)).join(" + ") },
+    { kick: "Your number one", big: topName, detail: `${top.n} transfers, ${money(top.amt, top.cur, true)} delivered. ${y.ranked.length} people supported in all.` },
   ];
   if (y.saved > 0) slides.push({ kick: "Kept in the family", big: money(y.saved, y.main, true), detail: "more reached home than through a typical bank (3.5% margin + $15 fee a time)." });
   slides.push({ kick: "Most generous month", big: y.busyMonth, detail: `You sent ${money(y.busyAmt, y.main, true)}.` });
-  slides.push({ kick: "Fastest landing", big: fast < 60 ? `${fast} seconds` : `${Math.floor(fast / 60)}m ${fast % 60}s`, detail: "From your slide to their account." });
+  slides.push({ kick: "Fastest delivery", big: fast < 60 ? `${fast} seconds` : `${Math.floor(fast / 60)}m ${fast % 60}s`, detail: "From the moment you sent it to money in their account." });
   slides.push({ kick: "See you next year", big: "Home is closer than it looks.", detail: "Here's to another year of looking after the people you love." });
   return slides;
 }
@@ -1813,7 +1832,7 @@ setInterval(() => {
   const now = Date.now(); let changed = false;
   for (const t of L.transfers) if (inFlight(t.status) && catchUp(t, now)) {
     changed = true;
-    if (t.status === "delivered") showToast({ icon: "🛬", title: `Landed in ${CITIES[destCode(t.recipient)].city}`, body: `${money(t.quote.recv, t.quote.t)} reached ${t.recipient.name}` });
+    if (t.status === "delivered") showToast({ icon: "✓", title: `Delivered to ${firstName(t.recipient.name)}`, body: `${money(t.quote.recv, t.quote.t)} arrived in ${CITIES[destCode(t.recipient)].city}` });
   }
   if (ticks % 5 === 0) {
     driftRates();

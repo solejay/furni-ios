@@ -2,7 +2,7 @@ import SwiftUI
 import HomewardCore
 
 /// Night-sky dot map with an arc from your city to everyone you send to. Sparks travel each route,
-/// and transfers in flight leave a mint comet trail.
+/// and a transfer on its way leaves a warm trail.
 struct RouteMapView: View {
     let origin: Place
     let destinations: [Place]
@@ -72,14 +72,14 @@ struct RouteMapView: View {
             context.stroke(Path(ellipseIn: CGRect(x: b.x - ring, y: b.y - ring, width: ring * 2, height: ring * 2)),
                            with: .color(Theme.sun.opacity(0.55 * (1 - pulse))), lineWidth: 1.2)
             context.fill(Path(ellipseIn: CGRect(x: b.x - 2.6, y: b.y - 2.6, width: 5.2, height: 5.2)), with: .color(Theme.sun))
-            context.draw(Text(destination.code).font(.system(size: 9.5, weight: .semibold, design: .monospaced)).foregroundColor(Theme.cream.opacity(0.85)),
+            context.draw(Text(destination.city).font(.system(size: 9.5, weight: .semibold, design: .monospaced)).foregroundColor(Theme.cream.opacity(0.85)),
                          at: CGPoint(x: b.x + 6, y: b.y), anchor: .leading)
         }
 
         var glow = context
         glow.addFilter(.shadow(color: Theme.sun, radius: 7))
         glow.fill(Path(ellipseIn: CGRect(x: a.x - 4.5, y: a.y - 4.5, width: 9, height: 9)), with: .color(Theme.sun))
-        context.draw(Text(origin.code).font(.system(size: 10, weight: .bold, design: .monospaced)).foregroundColor(Theme.cream),
+        context.draw(Text(origin.city).font(.system(size: 10, weight: .bold, design: .monospaced)).foregroundColor(Theme.cream),
                      at: CGPoint(x: a.x + 8, y: a.y - 8), anchor: .leading)
     }
 }

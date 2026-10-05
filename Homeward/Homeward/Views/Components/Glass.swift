@@ -28,7 +28,7 @@ struct GlassSurface: ViewModifier {
     }
 }
 
-/// A light that travels the edge of a surface. Only for live states: money in flight, sending.
+/// A light that travels the edge of a surface. Only for live states: a transfer on its way, sending.
 struct BeamModifier: ViewModifier {
     let active: Bool
     var cornerRadius: CGFloat = 24

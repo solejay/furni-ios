@@ -60,37 +60,49 @@ struct SlideToSend: View {
     }
 }
 
-/// Full-screen "wheels up" moment after sending.
-struct TakeoffView: View {
-    let from: Place
-    let to: Place
-    @State private var progress: Double = 0
+/// Full-screen confirmation after sending: a ring draws, then a checkmark.
+struct SentView: View {
+    let amount: String
+    let recipientName: String
+    let city: String
+    @State private var ring: CGFloat = 0
+    @State private var tick: CGFloat = 0
 
     var body: some View {
         ZStack {
-            Theme.night.ignoresSafeArea()
-            VStack(spacing: 28) {
-                Spacer()
+            Color(red: 0.02, green: 0.02, blue: 0.06).ignoresSafeArea()
+            RadialGradient(colors: [Theme.sun.opacity(0.14), .clear], center: .center, startRadius: 0, endRadius: 260).ignoresSafeArea()
+            VStack(spacing: 22) {
                 ZStack {
-                    FlightPath(progress: progress).frame(height: 160).foregroundStyle(Theme.sun)
+                    Circle().stroke(Theme.sun.opacity(0.25), lineWidth: 3)
+                    Circle().trim(from: 0, to: ring).stroke(Theme.sun, style: StrokeStyle(lineWidth: 3, lineCap: .round)).rotationEffect(.degrees(-90))
+                    Checkmark().trim(from: 0, to: tick).stroke(Theme.sun, style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
+                        .padding(30)
                 }
-                .padding(.horizontal, 30)
-                HStack {
-                    Text(from.code)
-                    Spacer()
-                    Text(to.code)
-                }
-                .font(.system(size: 20, weight: .heavy, design: .rounded))
-                .padding(.horizontal, 30)
-                Spacer()
-                VStack(spacing: 6) {
-                    Text("Wheels up").font(.system(size: 30, weight: .heavy, design: .rounded))
-                    Text("to \(to.city)").font(.system(.title2, design: .serif).italic()).foregroundStyle(Theme.sun)
-                }
-                .padding(.bottom, 80)
+                .frame(width: 120, height: 120)
+                Text("Sent").font(.system(size: 44, design: .serif).italic())
+                Text("\(amount) is on its way to \(recipientName) in \(city).")
+                    .font(.body)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Theme.cream.opacity(0.7))
+                    .padding(.horizontal, 40)
             }
             .foregroundStyle(Theme.cream)
         }
-        .onAppear { withAnimation(.easeInOut(duration: 1.5)) { progress = 1 } }
+        .accessibilityElement(children: .combine)
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.7)) { ring = 1 }
+            withAnimation(.easeOut(duration: 0.45).delay(0.6)) { tick = 1 }
+        }
+    }
+
+    private struct Checkmark: Shape {
+        func path(in rect: CGRect) -> Path {
+            Path { path in
+                path.move(to: CGPoint(x: rect.minX, y: rect.midY + rect.height * 0.05))
+                path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.35, y: rect.maxY - rect.height * 0.15))
+                path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY + rect.height * 0.15))
+            }
+        }
     }
 }
